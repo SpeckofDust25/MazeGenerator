@@ -22,6 +22,7 @@ public partial class MazeInterface : Panel
 	{
 		SetupNodes();
 		SetupConnections();
+		n_maze_image.PivotOffset = n_maze_image.Size / 2;
 
 		panning_vec = new Vector2();
 		FocusMode = FocusModeEnum.All;
@@ -113,13 +114,14 @@ public partial class MazeInterface : Panel
 
 	public void _center_pressed()
 	{
-		Vector2 center = GetGlobalRect().GetCenter() - n_maze_image.GetRect().Size / 2;
+		Vector2 center = GetGlobalRect().GetCenter() - n_maze_image.Size / 2;
 		n_maze_image.GlobalPosition = center;
 	}
 
 	public void _magnify_slider_changed(float value)
 	{
-		n_maze_image.Scale = new Vector2(value, value) * 0.01f;
+        //n_maze_image.PivotOffset = n_maze_image.GetRect().GetCenter();
+        n_maze_image.Scale = new Vector2(value, value) * 0.01f;
 		UpdateMagnifyIndicators(false);
 	}
 

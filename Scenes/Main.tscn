@@ -1,0 +1,24 @@
+[gd_scene load_steps=2 format=3 uid="uid://cafws0hxf502i"]
+
+[ext_resource type="Script" path="res://Scripts/Main.cs" id="1_0tamq"]
+
+[node name="Main" type="CanvasLayer"]
+script = ExtResource("1_0tamq")
+
+[node name="Interface" type="HBoxContainer" parent="."]
+clip_contents = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Controls" type="Panel" parent="Interface"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MazePanel" type="Panel" parent="Interface"]
+layout_mode = 2
+size_flags_horizontal = 3

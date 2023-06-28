@@ -3,12 +3,12 @@ using System;
 public struct Cell {
 
 	//Grid Open Directions
-	bool right, left, up, down;
+	public bool north, south, east, west;
 
 	public Cell() {
-		right = false;
-		left = false;
-		up = false;
-		down = false;
+		north = false;
+		south = false;
+		east = false;
+		west = false;
 	}
  }

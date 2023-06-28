@@ -31,7 +31,8 @@ public partial class MazeInterface : Panel
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		HandleInput();
+        n_maze_image.PivotOffset = n_maze_image.Size / 2;
+        HandleInput();
 	}
 
 	public override void _GuiInput(InputEvent inputEvent)
@@ -120,7 +121,6 @@ public partial class MazeInterface : Panel
 
 	public void _magnify_slider_changed(float value)
 	{
-        //n_maze_image.PivotOffset = n_maze_image.GetRect().GetCenter();
         n_maze_image.Scale = new Vector2(value, value) * 0.01f;
 		UpdateMagnifyIndicators(false);
 	}

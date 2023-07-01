@@ -1,5 +1,9 @@
 ﻿using Godot;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 public static class MazeGenerator {
@@ -33,7 +37,6 @@ public static class MazeGenerator {
                     }
                 }
 
-
                 CarvePath(ref _grid, x, y, dir);
             }
         }
@@ -41,8 +44,59 @@ public static class MazeGenerator {
         return _grid;
     }
 
-    public static Grid SidewinderAlgorithm(ref Grid _grid)
-    {
+
+
+    //Step 1: Top Bias
+    //Step 2: Top Right Corner
+    //Step 3: Right Side Only North depending on Count
+    //Step 4: Top Side Only goes East
+    public static Grid SidewinderAlgorithm(ref Grid _grid) {
+        GD.Randomize();
+
+        //Create Maze
+        for (int y = 0; y < _grid.GetHeight(); ++y) {
+            int east_count = 0;
+
+            for (int x = 0; x < _grid.GetWidth(); ++x) {
+            
+                uint num = GD.Randi() % 2;
+                Direction dir = Direction.east;
+
+                if (y == 0) {   //Top Bias
+                    if (x == _grid.GetWidth() - 1) {
+                        dir = Direction.none;
+                    } else {
+                        dir = Direction.east;
+                    }
+
+                } else if (x == _grid.GetWidth() - 1) { //Right Side
+                    dir = Direction.north;
+
+                } else {  //Random Choice
+
+                    if (num == 1) { //East
+                        east_count += 1;
+
+                    } else {    //North
+                        dir = Direction.north;
+                    }
+                }
+
+                //Carve Path
+                if (dir == Direction.north) {
+                    uint temp_num = 0;
+                    if (east_count != 0) { 
+                        temp_num = (uint)(GD.Randi() % east_count);
+                        east_count = 0;
+                    }
+                    CarvePath(ref _grid, x - (int)temp_num, y, Direction.north);
+
+                } else {
+                    CarvePath(ref _grid, x, y, dir);
+                }
+            }
+        }
+
         return _grid;
     }
 

@@ -15,5 +15,4 @@ public partial class MazeImage : TextureRect
 	{
 
 	}
-
 }

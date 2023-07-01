@@ -16,16 +16,15 @@ public partial class Main : CanvasLayer
 	{
         texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
       
-		grid = new Grid(50, 50);
+		grid = new Grid(40, 40);
 		vec = new Vector2(0, 2);
 
-		MazeGenerator.BinaryTreeAlgorithm(ref grid);
+		MazeGenerator.SidewinderAlgorithm(ref grid);
 		GenerateMazeImage();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
+	public override void _Process(double delta) {
 		
 	}
 

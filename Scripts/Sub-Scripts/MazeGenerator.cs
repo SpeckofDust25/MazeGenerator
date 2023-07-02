@@ -1,9 +1,9 @@
 ﻿using Godot;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.InteropServices;
 
 public static class MazeGenerator {
@@ -102,6 +102,87 @@ public static class MazeGenerator {
 
     public static Grid AldousBroderAlgorithm(ref Grid _grid)
     {
+        GD.Randomize();
+        bool all_visited = false;
+        int visited_count = 1; 
+        Vector2I cell_index = new Vector2I((int)(GD.Randi() % (uint)(_grid.GetWidth())), (int)(GD.Randi() % (uint)(_grid.GetHeight())));
+
+        //Already Visited cells will not be modified
+        while (!all_visited) {
+            uint num = GD.Randi() % 4;
+            Cell cell = _grid.cells[cell_index.X, cell_index.Y];
+            Cell next_cell;
+
+            // All Visited
+            if (visited_count >= (_grid.GetWidth() * _grid.GetHeight())) { 
+                all_visited = true;
+                break;
+            }
+
+            //Carve a Path, Update cell, Update Visited Count
+            switch(num) {
+                case 0: //North
+                    if (cell_index.Y != 0)
+                    {
+                        next_cell = _grid.cells[cell_index.X, cell_index.Y - 1];
+
+                        if (!next_cell.north && !next_cell.south && !next_cell.east && !next_cell.west)
+                        {
+                            CarvePath(ref _grid, cell_index.X, cell_index.Y, Direction.north);
+                            visited_count += 1;
+                        }
+
+                        cell_index = new Vector2I(cell_index.X, cell_index.Y - 1);
+                    }
+                    break;
+
+                case 1: //South
+                    if (cell_index.Y != _grid.GetHeight() - 1)
+                    {
+                        next_cell = _grid.cells[cell_index.X, cell_index.Y + 1];
+
+                        if (!next_cell.north && !next_cell.south && !next_cell.east && !next_cell.west)
+                        {
+                            CarvePath(ref _grid, cell_index.X, cell_index.Y, Direction.south);
+                            visited_count += 1;
+                        }
+
+                        cell_index = new Vector2I(cell_index.X, cell_index.Y + 1);
+                    }
+                    break;
+
+                case 2: //East
+                    if (cell_index.X != _grid.GetWidth() - 1)
+                    {
+                        next_cell = _grid.cells[cell_index.X + 1, cell_index.Y];
+
+                        if (!next_cell.north && !next_cell.south && !next_cell.east && !next_cell.west)
+                        {
+                            CarvePath(ref _grid, cell_index.X, cell_index.Y, Direction.east);
+                            visited_count += 1;
+                        }
+
+                        cell_index = new Vector2I(cell_index.X + 1, cell_index.Y);
+                    }
+                    break;
+
+                case 3: //West
+                    if (cell_index.X != 0)
+                    {
+                        next_cell = _grid.cells[cell_index.X - 1, cell_index.Y];
+
+                        if (!next_cell.north && !next_cell.south && !next_cell.east && !next_cell.west)
+                        {
+                            CarvePath(ref _grid, cell_index.X, cell_index.Y, Direction.west);
+                            visited_count += 1;
+                        }
+
+                        cell_index = new Vector2I(cell_index.X - 1, cell_index.Y);
+                    }
+                    break;
+            }
+        }
+
         return _grid;
     }
 

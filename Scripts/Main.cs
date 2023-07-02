@@ -19,7 +19,7 @@ public partial class Main : CanvasLayer
 		grid = new Grid(40, 40);
 		vec = new Vector2(0, 2);
 
-		MazeGenerator.SidewinderAlgorithm(ref grid);
+		MazeGenerator.AldousBroderAlgorithm(ref grid);
 		GenerateMazeImage();
 	}
 

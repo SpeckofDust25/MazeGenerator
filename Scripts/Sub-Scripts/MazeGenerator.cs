@@ -10,6 +10,7 @@ public static class MazeGenerator {
 
     enum Direction { none, north, south, east, west }
 
+    //Move North or East on each cell
     public static Grid BinaryTreeAlgorithm(ref Grid _grid)
     {
         GD.Randomize();
@@ -44,12 +45,7 @@ public static class MazeGenerator {
         return _grid;
     }
 
-
-
-    //Step 1: Top Bias
-    //Step 2: Top Right Corner
-    //Step 3: Right Side Only North depending on Count
-    //Step 4: Top Side Only goes East
+    //East-North: Count Previous East Moves, When North Pick Randomly
     public static Grid SidewinderAlgorithm(ref Grid _grid) {
         GD.Randomize();
 
@@ -100,6 +96,7 @@ public static class MazeGenerator {
         return _grid;
     }
 
+    //Pick a Random point and go in any random direction till all are visited
     public static Grid AldousBroderAlgorithm(ref Grid _grid)
     {
         GD.Randomize();
@@ -186,6 +183,7 @@ public static class MazeGenerator {
         return _grid;
     }
 
+    //Pick a Random point and go in any random direction till all are visited reset when a loop occurs
     public static Grid WilsonsAlgorithm(ref Grid _grid)
     {
         return _grid;

@@ -3,7 +3,7 @@ using System;
 public class Grid {
 
 	private int cell_size = 5;
-	private int thickness = 1;
+	private int wall_size = 1;
 	private int width = 0;
 	private int height = 0;
 
@@ -13,18 +13,19 @@ public class Grid {
 		width = _width;
 		height = _height;
 		cells = new Cell[width, height];
-		thickness = _thickness;
+		wall_size = _thickness;
 		cell_size = _cell_size;
 	}
 
 	//Setters
-	public void SetThickness(int _thickness) {
-		if (_thickness > cell_size)
+	public void SetWallSize(int _wall_size) {
+		if (_wall_size > cell_size)
 		{
-			thickness = cell_size - 1;
+			wall_size = cell_size - 1;
 		} else {
-			thickness = _thickness;
-		}
+			wall_size = _wall_size;
+            ;
+        }
 	}
 
 	//Getters
@@ -47,8 +48,8 @@ public class Grid {
 		return cell_size;
 	}
 
-	public int GetThickness() {
-		return thickness;
+	public int GetWallSize() {
+		return wall_size;
 	}
 
 }

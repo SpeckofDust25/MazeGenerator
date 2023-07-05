@@ -20,7 +20,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="MazeProperties" type="Panel" parent="Interface"]
-custom_minimum_size = Vector2(200, 0)
+clip_contents = true
+custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 script = ExtResource("2_k5hc1")
 
@@ -37,6 +38,75 @@ layout_mode = 2
 size_flags_horizontal = 0
 text = "Maze Properties"
 vertical_alignment = 1
+
+[node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+
+[node name="TypeLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/TypeHBoxContainer"]
+layout_mode = 2
+text = "Type"
+
+[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/TypeHBoxContainer"]
+layout_mode = 2
+item_count = 3
+selected = 0
+popup/item_0/text = "Binary Tree"
+popup/item_0/id = 0
+popup/item_1/text = "Sidewinder"
+popup/item_1/id = 1
+popup/item_2/text = "Aldous-Broder"
+popup/item_2/id = 2
+
+[node name="CellsHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+
+[node name="CellsLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+layout_mode = 2
+text = "Cells:"
+
+[node name="CellsXSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 2.0
+max_value = 2000.0
+value = 2.0
+
+[node name="ByLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "by"
+horizontal_alignment = 1
+
+[node name="CellsYSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 2.0
+max_value = 2000.0
+value = 2.0
+
+[node name="CellSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+
+[node name="CellSizeLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/CellSizeHBoxContainer"]
+layout_mode = 2
+text = "Cell Size"
+
+[node name="CellSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellSizeHBoxContainer"]
+layout_mode = 2
+min_value = 2.0
+value = 2.0
+
+[node name="WallSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+
+[node name="WallSizeLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/WallSizeHBoxContainer"]
+layout_mode = 2
+text = "Wall Size"
+
+[node name="WallSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/WallSizeHBoxContainer"]
+layout_mode = 2
+min_value = 1.0
+value = 1.0
 
 [node name="GenerateMazeButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
 layout_mode = 2
@@ -67,6 +137,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_xuhur")
+stretch_mode = 4
 script = ExtResource("3_2squ8")
 
 [node name="MazeImageInterface" type="HBoxContainer" parent="Interface/MazePanel"]

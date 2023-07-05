@@ -4,25 +4,29 @@ using System.ComponentModel.Design;
 
 public partial class Main : CanvasLayer
 {
-	private Vector2 vec;
 	private Grid grid;
 
-	//Image Properties
-	private Image image;
-	private TextureRect texture_rect;
+    //Nodes
+    private TextureRect texture_rect;
+	private Panel maze_properties;
+
+	//Image
+    private Image image;
 
 	public override void _Ready()
 	{
-        texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
+		SetupNodes();
+		SetupConnections();
       
 		grid = new Grid(20, 20, 1, 5);
-		vec = new Vector2(0, 2);
 
 		MazeGenerator.AldousBroderAlgorithm(ref grid);
 		GenerateMazeImage();
 	}
 
 	private void GenerateMazeImage() {
+
+		if (image != null) { image.Dispose(); }
 
 		//Setup Variables
 		image = Image.Create((grid.GetWidth() * grid.GetCellSize()) + grid.GetThickness(), (grid.GetHeight() * grid.GetCellSize()) + grid.GetThickness(), false, Image.Format.Rgb8);
@@ -38,7 +42,6 @@ public partial class Main : CanvasLayer
 
 		texture_rect.Texture = ImageTexture.CreateFromImage(image);
 	}
-
 
 	private void SetMazeColors(ref Image _image, int _x, int _y) {
 		Cell cell = grid.cells[_x, _y];
@@ -64,4 +67,55 @@ public partial class Main : CanvasLayer
             image.FillRect(new Rect2I((int)cell_position.X, (int)cell_position.Y, thickness, grid.GetCellSize()), wall_color);
         }
 	}
+
+
+	//Setup Methods
+	private void SetupNodes() {
+        texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
+		maze_properties = GetNode<MazeProperties>("Interface/MazeProperties");
+    }
+
+	private void SetupConnections()
+	{
+		if (!maze_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!");  }
+		if (!maze_properties.HasSignal("GenerateMaze")) { GD.PrintErr("Can't Find GenerateMaze Signal!"); }
+
+        Callable c_save_image = new Callable(this, "SaveImage");
+        maze_properties.Connect("SaveImage", c_save_image);
+
+		Callable c_generate_maze = new Callable(this, "GenerateMaze");
+		maze_properties.Connect("GenerateMaze", c_generate_maze);
+	}
+
+	//Connections
+	private void SaveImage() {
+		string save_path;
+
+		if (OS.HasFeature("editor"))
+		{
+			save_path = "res://Images/" + Time.GetDatetimeStringFromSystem(false, false).Replace(":", "_") + ".png";
+
+			if (!DirAccess.DirExistsAbsolute("res://Images")) {
+				DirAccess.MakeDirAbsolute("res://Images");
+			}
+
+		} else {
+            save_path = OS.GetExecutablePath().GetBaseDir() + "/Images/" + Time.GetDatetimeStringFromSystem(false, false).Replace(":", "_") + ".png";
+
+			if (!DirAccess.DirExistsAbsolute(OS.GetExecutablePath().GetBaseDir() + "/Images")) {
+				DirAccess.MakeDirAbsolute(OS.GetExecutablePath().GetBaseDir() + "/Images");
+			}
+        }
+
+		image.SavePng(save_path);
+	}
+
+	private void GenerateMaze() {
+
+		//Create New Grid
+        grid = new Grid(20, 20, 1, 5);
+
+        MazeGenerator.AldousBroderAlgorithm(ref grid);
+        GenerateMazeImage();
+    }
 }

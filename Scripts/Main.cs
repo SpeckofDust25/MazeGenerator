@@ -4,7 +4,7 @@ using System.ComponentModel.Design;
 
 public partial class Main : CanvasLayer
 {
-	enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder }
+	enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons }
 
     //Grid Properties
     private Grid grid;
@@ -147,6 +147,10 @@ public partial class Main : CanvasLayer
 			case EMazeType.Aldous_Broder:
 				MazeGenerator.AldousBroderAlgorithm(ref grid);
 				break;
+
+			case EMazeType.Wilsons:
+				MazeGenerator.WilsonsAlgorithm(ref grid);
+				break;
 		}
 
         GenerateMazeImage();
@@ -166,6 +170,10 @@ public partial class Main : CanvasLayer
 			case ((long)EMazeType.Aldous_Broder):
                 maze_type = EMazeType.Aldous_Broder;
                 break;
+
+			case ((long)EMazeType.Wilsons):
+				maze_type = EMazeType.Wilsons;
+				break;
         }
 	}
 

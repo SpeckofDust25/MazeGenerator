@@ -1,7 +1,11 @@
 ﻿using Godot;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 public static class MazeGenerator
 {
@@ -132,22 +136,17 @@ public static class MazeGenerator
         while (!(visited_count >= (_grid.GetWidth() * _grid.GetHeight())))
         {
             uint num = GD.Randi() % 4;
-            Cell next_cell;
+            Cell next_cell = cell;
+            Direction dir = Direction.none;
 
+            //Get Direction and Next Cell
             switch (num)
             {
                 case 0: //North
                     if (cell.index.Y != 0)
                     {
                         next_cell = _grid.cells[cell.index.X, cell.index.Y - 1];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            CarvePathManual(ref _grid, cell, Direction.north);
-                            visited_count += 1;
-                        }
-
-                        cell = _grid.cells[cell.index.X, cell.index.Y - 1];
+                        dir = Direction.north;
                     }
                     break;
 
@@ -155,14 +154,7 @@ public static class MazeGenerator
                     if (cell.index.Y != _grid.GetHeight() - 1)
                     {
                         next_cell = _grid.cells[cell.index.X, cell.index.Y + 1];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            CarvePathManual(ref _grid, cell, Direction.south);
-                            visited_count += 1;
-                        }
-
-                        cell = _grid.cells[cell.index.X, cell.index.Y + 1];
+                        dir = Direction.south;
                     }
                     break;
 
@@ -170,14 +162,7 @@ public static class MazeGenerator
                     if (cell.index.X != _grid.GetWidth() - 1)
                     {
                         next_cell = _grid.cells[cell.index.X + 1, cell.index.Y];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            CarvePathManual(ref _grid, cell, Direction.east);
-                            visited_count += 1;
-                        }
-
-                        cell = _grid.cells[cell.index.X + 1, cell.index.Y];
+                        dir = Direction.east;
                     }
                     break;
 
@@ -185,16 +170,19 @@ public static class MazeGenerator
                     if (cell.index.X != 0)
                     {
                         next_cell = _grid.cells[cell.index.X - 1, cell.index.Y];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            CarvePathManual(ref _grid, cell, Direction.west);
-                            visited_count += 1;
-                        }
-
-                        cell = _grid.cells[cell.index.X - 1, cell.index.Y];
+                        dir = Direction.west;
                     }
                     break;
+            }
+
+            //Carve path
+            if (dir != Direction.none) {
+                if (!next_cell.IsVisited()) {
+                    CarvePathManual(ref _grid, cell, dir);
+                    visited_count += 1;
+                }
+
+                cell = next_cell;
             }
         }
 
@@ -214,54 +202,36 @@ public static class MazeGenerator
         List<Cell> l_cell_index = new List<Cell>(); //Loop List
         Vector2I v_end_cell = new Vector2I((int)(GD.Randi() % _grid.GetWidth()), (int)(GD.Randi() % _grid.GetHeight()));
 
-        bool has_cells = false;
+        bool has_new_path = false;
 
         //Already Visited cells will not be modified
         while (!(visited_count >= (_grid.GetWidth() * _grid.GetHeight())))
         {
+            //Get Random Unvisited cell
+            if (!has_new_path) {
 
-            //Get Start cell
-            if (!has_cells)
-            {
-                l_cell_index.Clear();
-
-                //Make sure cell is unvisited
-                while (!_grid.cells[cell.index.X, cell.index.Y].IsVisited())
+                while (cell.IsVisited() || (cell.index.X == v_end_cell.X && cell.index.Y == v_end_cell.Y))
                 {
                     cell = _grid.cells[(int)(GD.Randi() % _grid.GetWidth()), (int)(GD.Randi() % _grid.GetHeight())];
                 }
 
-                has_cells = true;
+                l_cell_index.Clear();
+                l_cell_index.Add(cell);
+                has_new_path = true;
             }
 
             //Starting Values: Get Direction
             uint num = GD.Randi() % 4;
+            Cell next_cell = cell;
+            Direction dir = Direction.none;
 
-            //Checks For a Loop and Resets it
-            CheckForLoop(ref l_cell_index, cell, ref _grid);
-
-            l_cell_index.Append(cell);    //Add Cell Index
-
-            Cell next_cell;
-
-            //Next Cell Direction: Update the Next Cell and see if it's Visited if it is then Carve a path
-            switch (num)
-            {
+            //Get Direction
+            switch (num) {
                 case 0: //North
                     if (cell.index.Y != 0)
                     {
                         next_cell = _grid.cells[cell.index.X, cell.index.Y - 1];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            cell = _grid.cells[cell.index.X, cell.index.Y - 1];
-                        }
-                        else
-                        {
-                            CarvePathLoop(ref _grid, ref l_cell_index);
-                            visited_count += l_cell_index.Count;
-                            has_cells = false;
-                        }
+                        dir = Direction.north;
                     }
                     break;
 
@@ -269,17 +239,7 @@ public static class MazeGenerator
                     if (cell.index.Y != _grid.GetHeight() - 1)
                     {
                         next_cell = _grid.cells[cell.index.X, cell.index.Y + 1];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            cell = _grid.cells[cell.index.X, cell.index.Y + 1];
-                        }
-                        else
-                        {
-                            CarvePathLoop(ref _grid, ref l_cell_index);
-                            visited_count += l_cell_index.Count;
-                            has_cells = false;
-                        }
+                        dir = Direction.south;
                     }
                     break;
 
@@ -287,17 +247,7 @@ public static class MazeGenerator
                     if (cell.index.X != _grid.GetWidth() - 1)
                     {
                         next_cell = _grid.cells[cell.index.X + 1, cell.index.Y];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            cell = _grid.cells[cell.index.X + 1, cell.index.Y];
-                        }
-                        else
-                        {
-                            CarvePathLoop(ref _grid, ref l_cell_index);
-                            visited_count += l_cell_index.Count;
-                            has_cells = false;
-                        }
+                        dir = Direction.east;
                     }
                     break;
 
@@ -305,19 +255,28 @@ public static class MazeGenerator
                     if (cell.index.X != 0)
                     {
                         next_cell = _grid.cells[cell.index.X - 1, cell.index.Y];
-
-                        if (!next_cell.IsVisited())
-                        {
-                            cell = _grid.cells[cell.index.X - 1, cell.index.Y];
-                        }
-                        else
-                        {
-                            CarvePathLoop(ref _grid, ref l_cell_index);
-                            visited_count += l_cell_index.Count;
-                            has_cells = false;
-                        }
+                        dir = Direction.west;
                     }
                     break;
+            }
+
+            //Carve Path
+            if (dir != Direction.none)
+            {
+                if (next_cell.IsVisited() || (v_end_cell.X == next_cell.index.X && v_end_cell.Y == next_cell.index.Y))
+                {
+                    
+                    l_cell_index.Add(next_cell);
+                    CarvePathLoop(ref _grid, ref l_cell_index);
+                    visited_count += l_cell_index.Count() - 1;
+                    has_new_path = false;
+
+                } else {    //Check For Loop
+                    CheckForLoop(ref l_cell_index, next_cell);
+                    l_cell_index.Add(next_cell);
+                }
+
+                cell = next_cell;
             }
         }
 
@@ -325,22 +284,25 @@ public static class MazeGenerator
     }
 
     //Used for the Wilson's Algorithm: Checks For a Loop 
-    private static void CheckForLoop(ref List<Cell> cells, Cell current_cell, ref Grid _grid)
+    private static void CheckForLoop(ref List<Cell> cells, Cell current_cell)
     {
         bool is_loop = false;
         int index = 0;
 
         for (int i = 0; i < cells.Count; i++)
         {
-
-            if (is_loop) { index = i; }
-
             //Identify Loop
-            if (cells[i].index.X == current_cell.index.X && cells[i].index.Y == current_cell.index.Y)
-            {
+            if (cells[i].index.X == current_cell.index.X && cells[i].index.Y == current_cell.index.Y) {
                 is_loop = true;
+                index = i;
+                break;
             }
         }
+
+        if (is_loop) {
+            cells.RemoveRange(index , cells.Count - index); //Get rid of Loop
+        }
+
     }
 
     private static void CarvePathManual(ref Grid _grid, Cell cell, Direction direction)
@@ -419,21 +381,30 @@ public static class MazeGenerator
         }
     }
 
-    //TODO: Finish
-    private static Grid CarvePathLoop(ref Grid _grid, ref List<Cell> cells)
+    private static void CarvePathLoop(ref Grid _grid, ref List<Cell> cells)
     {
-        for (int i = 0; i < cells.Count; i++)
-        {
-            _grid.cells[cells[i].index.X, cells[i].index.Y] = cells[i];
-        }
+        for (int i = 0; i < cells.Count - 1; i++) {
+            Vector2I direction = new Vector2I(cells[i + 1].index.X - cells[i].index.X, cells[i + 1].index.Y - cells[i].index.Y);
 
-        return _grid;
+            if (direction.X != 0) {
+                if (direction.X > 0) {  //East
+                    _grid.cells[cells[i].index.X, cells[i].index.Y].east = true;
+                    _grid.cells[cells[i].index.X + 1, cells[i].index.Y].west = true;
+                } else {    //West
+                    _grid.cells[cells[i].index.X, cells[i].index.Y].west = true;
+                    _grid.cells[cells[i].index.X - 1, cells[i].index.Y].east = true;
+                }
+            } 
+
+            if (direction.Y != 0) {
+                if (direction.Y > 0) {  //South
+                    _grid.cells[cells[i].index.X, cells[i].index.Y].south = true;
+                    _grid.cells[cells[i].index.X, cells[i].index.Y + 1].north = true;
+                } else {    //North
+                    _grid.cells[cells[i].index.X, cells[i].index.Y].north = true;
+                    _grid.cells[cells[i].index.X, cells[i].index.Y - 1].south = true;
+                }
+            }
+        }
     }
 }
-
-
-
-/*
-
-
-*/

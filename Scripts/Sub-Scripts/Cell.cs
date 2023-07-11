@@ -2,7 +2,7 @@ using Godot;
 using System;
 
 
-public struct Cell {
+public class Cell {
 
 	//Grid Open Directions
 	public bool north, south, east, west;

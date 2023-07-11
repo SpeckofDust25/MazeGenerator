@@ -16,8 +16,10 @@ public class Grid {
 		height = _height;
 		cells = new Cell[width, height];
 
+		//Populate Grid
 		for (int x = 0; x < cells.GetLength(0); x++) {
 			for (int y = 0; y < cells.GetLength(1); y++) {
+				cells[x, y] = new Cell();
 				cells[x, y].index = new Vector2I(x, y);
 			}
 		}
@@ -33,7 +35,6 @@ public class Grid {
 			wall_size = cell_size - 1;
 		} else {
 			wall_size = _wall_size;
-            ;
         }
 	}
 

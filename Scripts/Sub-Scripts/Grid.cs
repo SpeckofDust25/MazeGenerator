@@ -38,7 +38,10 @@ public class Grid {
         }
 	}
 
+
 	//Getters
+
+	//Grid Data: Width, Height Getters in Grid Units
 	public int GetTotalCells() {
 		return width * height;
 	}
@@ -58,4 +61,74 @@ public class Grid {
 	public int GetWallSize() {
 		return wall_size;
 	}
+
+	//Image Data: Width, Height Getters in Pixels
+	public int GetTotalWidthWallsPx()
+	{
+		return (GetWidth() * wall_size) + wall_size;
+	}
+
+	public int GetTotalHeightWallsPx()
+	{
+        return (GetHeight() * wall_size) + wall_size;
+	}
+
+	public int GetTotalWidthCellsPx()
+	{
+		return GetWidth() * GetCellSize();
+	}
+
+	public int GetTotalHeightCellsPx()
+	{
+		return GetHeight() * GetCellSize();
+	}
+
+	public int GetTotalWidthPx()
+	{
+		return GetTotalWidthWallsPx() + GetTotalWidthCellsPx();
+	}
+
+	public int GetTotalHeightPx()
+	{
+        return GetTotalHeightWallsPx() + GetTotalHeightCellsPx();
+    }
+
+	public Vector2I GetCellSizePx()
+	{
+        return new Vector2I(GetCellSize() + (GetWallSize() * 2), GetCellSize() + (GetWallSize() * 2));
+    }
+
+	public Rect2I GetNorthWall(int x, int y)	
+	{
+		Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), GetWallSize());
+		Rect2I north_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+		return north_wall;
+	}
+
+    public Rect2I GetSouthWall(int x, int y)
+    {
+		y += 1;
+        Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), GetWallSize());
+        Rect2I south_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return south_wall;
+    }
+
+	public Rect2I GetEastWall(int x, int y) 
+    {
+		x += 1;
+        Vector2I size = new Vector2I(GetWallSize(), GetWallSize() + GetCellSize() + GetWallSize());
+        Rect2I east_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return east_wall;
+    }
+
+    public Rect2I GetWestWall(int x, int y)
+    {
+        Vector2I size = new Vector2I(GetWallSize(), GetWallSize() + GetCellSize() + GetWallSize());
+        Rect2I west_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return west_wall;
+    } 
 }

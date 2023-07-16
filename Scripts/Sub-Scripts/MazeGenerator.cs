@@ -283,28 +283,8 @@ public static class MazeGenerator
         return _grid;
     }
 
-    //Used for the Wilson's Algorithm: Checks For a Loop 
-    private static void CheckForLoop(ref List<Cell> cells, Cell current_cell)
-    {
-        bool is_loop = false;
-        int index = 0;
 
-        for (int i = 0; i < cells.Count; i++)
-        {
-            //Identify Loop
-            if (cells[i].index.X == current_cell.index.X && cells[i].index.Y == current_cell.index.Y) {
-                is_loop = true;
-                index = i;
-                break;
-            }
-        }
-
-        if (is_loop) {
-            cells.RemoveRange(index , cells.Count - index); //Get rid of Loop
-        }
-
-    }
-
+    //Carve Path Methods
     private static void CarvePathManual(ref Grid _grid, Cell cell, Direction direction)
     {
         switch (direction)
@@ -330,7 +310,6 @@ public static class MazeGenerator
                 break;
         }
     }
-
 
     private static void CarveFullPath(ref Grid _grid)
     {
@@ -405,6 +384,32 @@ public static class MazeGenerator
                     _grid.cells[cells[i].index.X, cells[i].index.Y - 1].south = true;
                 }
             }
+        }
+    }
+
+
+    //Helper Methods
+
+    //Used for the Wilson's Algorithm: Checks For a Loop 
+    private static void CheckForLoop(ref List<Cell> cells, Cell current_cell)
+    {
+        bool is_loop = false;
+        int index = 0;
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            //Identify Loop
+            if (cells[i].index.X == current_cell.index.X && cells[i].index.Y == current_cell.index.Y)
+            {
+                is_loop = true;
+                index = i;
+                break;
+            }
+        }
+
+        if (is_loop)
+        {
+            cells.RemoveRange(index, cells.Count - index); //Get rid of Loop
         }
     }
 }

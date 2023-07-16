@@ -1,195 +1,335 @@
 using Godot;
-using System;
-using System.ComponentModel.Design;
 
 public partial class Main : CanvasLayer
 {
-	enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons }
+    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons }
+    enum EPointType { None = 0, Random, Furthest, Custom };
 
     //Grid Properties
     private Grid grid;
     private EMazeType maze_type;
-	private int x_cells, y_cells;
-	private int wall_size, cell_size;
+    private int x_cells, y_cells;
+    private int wall_size, cell_size;
 
     //Nodes
     private TextureRect texture_rect;
-	private Panel maze_properties;
+    private Panel maze_properties;
 
-	//Image
+    //Image
     private Image image;
 
-	public override void _Ready() {
-		x_cells = 2;
-		y_cells = 2;
-		wall_size = 1;
-		cell_size = 2;
-		maze_type = EMazeType.BinaryTree;
-		SetupNodes();
-		SetupConnections();
-		GenerateMaze();
-	}
+    //Points
+    private EPointType first_point_type = EPointType.None, second_point_type = EPointType.None;
+    private Vector2I start_point, end_point;
+    private Color start_point_color, end_point_color;
 
-	private void GenerateMazeImage() {
 
-		//Setup Variables
-		image = Image.Create((grid.GetWidth() * grid.GetCellSize()) + grid.GetWallSize(), (grid.GetHeight() * grid.GetCellSize()) + grid.GetWallSize(), false, Image.Format.Rgb8);
-		image.Fill(Colors.White);   //Fill Image
+    public override void _Ready()
+    {
+        x_cells = 2;
+        y_cells = 2;
+        wall_size = 1;
+        cell_size = 1;
+        maze_type = EMazeType.BinaryTree;
 
-		for (int x = 0; x < grid.GetWidth(); x++)
-		{
-			for (int y = 0; y < grid.GetHeight(); y++)
-			{
-				SetMazeColors(ref image, x, y);
-			}
-		}
+        start_point = new Vector2I(-1, -1);
+        end_point = new Vector2I(-1, -1);
 
-		texture_rect.Texture = ImageTexture.CreateFromImage(image);
-	}
+        start_point_color = Colors.Green;
+        end_point_color = Colors.Red;
 
-	private void SetMazeColors(ref Image _image, int _x, int _y) {
-		Cell cell = grid.cells[_x, _y];
-        Color background_color = Colors.White;
-        Color wall_color = Colors.Black;
-        int thickness = grid.GetWallSize();
+        SetupNodes();
+        SetupConnections();
+        GenerateMaze();
+    }
 
-		Vector2 cell_position = new Vector2(_x * grid.GetCellSize(), _y * grid.GetCellSize());
-		
-		if (!cell.north) { // North
-			image.FillRect(new Rect2I((int)cell_position.X, (int)cell_position.Y, grid.GetCellSize(), thickness), wall_color);
-		} 
+    private void GenerateMazeImage()
+    {
+        image = Image.Create(grid.GetTotalWidthPx(), grid.GetTotalHeightPx(), false, Image.Format.Rgb8);
+        image.Fill(Colors.White);   //Fill Image
 
-		if (!cell.south) {  //South
-            image.FillRect(new Rect2I((int)cell_position.X, grid.GetCellSize() + (int)cell_position.Y, grid.GetCellSize() + thickness, thickness), wall_color);
+        //Draw Points
+        DrawStartEndPoints();
+
+        //Draw Maze
+        for (int x = 0; x < grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
+                SetMazeColors(Colors.Black, ref image, x, y);
+            }
         }
 
+        texture_rect.Texture = ImageTexture.CreateFromImage(image);
+    }
+
+    private void DrawStartEndPoints()
+    {
+        Rect2I start_rect = new Rect2I(start_point.X * (grid.GetCellSize() + grid.GetWallSize()), start_point.Y * (grid.GetCellSize() + grid.GetWallSize()), grid.GetCellSizePx());
+        image.FillRect(start_rect, start_point_color);
+
+        Rect2I end_rect = new Rect2I(end_point.X * (grid.GetCellSize() + grid.GetWallSize()), end_point.Y * (grid.GetCellSize() + grid.GetWallSize()), grid.GetCellSizePx());
+        image.FillRect(end_rect, end_point_color);
+    }
+
+    private void SetMazeColors(Color wall_color, ref Image _image, int _x, int _y)
+    {
+        Cell cell = grid.cells[_x, _y];
+
+        //Wall Drawing
+        if (!cell.north) { // North
+            image.FillRect(grid.GetNorthWall(_x, _y), wall_color);
+        }
+
+        if (!cell.south) {  //South
+            image.FillRect(grid.GetSouthWall(_x, _y), wall_color);
+        }
+        
 		if (!cell.east) {   //East
-            image.FillRect(new Rect2I(grid.GetCellSize() + (int)cell_position.X, (int)cell_position.Y, thickness, grid.GetCellSize() + thickness), wall_color);
+            image.FillRect(grid.GetEastWall(_x, _y), wall_color);
         }
 
 		if (!cell.west) { //West
-            image.FillRect(new Rect2I((int)cell_position.X, (int)cell_position.Y, thickness, grid.GetCellSize()), wall_color);
+            image.FillRect(grid.GetWestWall(_x, _y), wall_color);
         }
-	}
-
-
-	//Setup Methods
-	private void SetupNodes() {
-        texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
-		maze_properties = GetNode<MazeProperties>("Interface/MazeProperties");
     }
 
-	private void SetupConnections()
-	{
-		if (!maze_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!");  }
-		if (!maze_properties.HasSignal("GenerateMaze")) { GD.PrintErr("Can't Find GenerateMaze Signal!"); }
-		if (!maze_properties.HasSignal("MazeType")) { GD.PrintErr("Can't Find MazeType Signal!"); }
-		if (!maze_properties.HasSignal("CellsX")) { GD.PrintErr("Can't Find CellsX Signal!"); }
-		if (!maze_properties.HasSignal("CellsY")) { GD.PrintErr("Can't Find CellsY Signal!"); }
-		if (!maze_properties.HasSignal("CellSize")) { GD.PrintErr("Can't Find CellSize Signal!"); }
-		if (!maze_properties.HasSignal("WallSize")) { GD.PrintErr("Can't Find WallSize Signal! "); }
+
+    //Setup Methods
+    private void SetupNodes()
+    {
+        texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
+        maze_properties = GetNode<MazeProperties>("Interface/MazeProperties");
+    }
+
+    private void SetupConnections()
+    {
+        //Maze Properties
+        if (!maze_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!"); }
+        if (!maze_properties.HasSignal("GenerateMaze")) { GD.PrintErr("Can't Find GenerateMaze Signal!"); }
+        if (!maze_properties.HasSignal("MazeType")) { GD.PrintErr("Can't Find MazeType Signal!"); }
+        if (!maze_properties.HasSignal("CellsX")) { GD.PrintErr("Can't Find CellsX Signal!"); }
+        if (!maze_properties.HasSignal("CellsY")) { GD.PrintErr("Can't Find CellsY Signal!"); }
+        if (!maze_properties.HasSignal("CellSize")) { GD.PrintErr("Can't Find CellSize Signal!"); }
+        if (!maze_properties.HasSignal("WallSize")) { GD.PrintErr("Can't Find WallSize Signal! "); }
 
         Callable c_save_image = new Callable(this, "SaveImage");
         Callable c_generate_maze = new Callable(this, "GenerateMaze");
         Callable c_maze_type = new Callable(this, "MazeType");
         Callable c_cells_x = new Callable(this, "CellsXChanged");
         Callable c_cells_y = new Callable(this, "CellsYChanged");
-		Callable c_cell_size = new Callable(this, "CellSizeChanged");
-		Callable c_wall_size = new Callable(this, "WallSizeChanged");
+        Callable c_cell_size = new Callable(this, "CellSizeChanged");
+        Callable c_wall_size = new Callable(this, "WallSizeChanged");
 
         maze_properties.Connect("SaveImage", c_save_image);
-		maze_properties.Connect("GenerateMaze", c_generate_maze);
-		maze_properties.Connect("MazeType", c_maze_type);
-		maze_properties.Connect("CellsX", c_cells_x);
-		maze_properties.Connect("CellsY", c_cells_y);
-		maze_properties.Connect("CellSize", c_cell_size);
-		maze_properties.Connect("WallSize", c_wall_size);
-	}
+        maze_properties.Connect("GenerateMaze", c_generate_maze);
+        maze_properties.Connect("MazeType", c_maze_type);
+        maze_properties.Connect("CellsX", c_cells_x);
+        maze_properties.Connect("CellsY", c_cells_y);
+        maze_properties.Connect("CellSize", c_cell_size);
+        maze_properties.Connect("WallSize", c_wall_size);
 
-	//Connections
-	private void SaveImage() {
-		string save_path;
+        //Point Properties
+        if (!maze_properties.HasSignal("StartPointType")) { GD.PrintErr("Can't Find StartPointType"); }
+        if (!maze_properties.HasSignal("EndPointType")) { GD.PrintErr("Can't Find EndPointType"); }
 
-		if (OS.HasFeature("editor"))
-		{
-			save_path = "res://Images/" + Time.GetDatetimeStringFromSystem(false, false).Replace(":", "_") + ".png";
+        Callable c_start_point_type = new Callable(this, "StartPointType");
+        Callable c_end_point_type = new Callable(this, "EndPointType");
 
-			if (!DirAccess.DirExistsAbsolute("res://Images")) {
-				DirAccess.MakeDirAbsolute("res://Images");
-			}
+        maze_properties.Connect("StartPointType", c_start_point_type);
+        maze_properties.Connect("EndPointType", c_end_point_type);
+    }
 
-		} else {
+    //Connections
+
+    //Maze Properties
+    private void SaveImage()
+    {
+        string save_path;
+
+        if (OS.HasFeature("editor"))
+        {
+            save_path = "res://Images/" + Time.GetDatetimeStringFromSystem(false, false).Replace(":", "_") + ".png";
+
+            if (!DirAccess.DirExistsAbsolute("res://Images"))
+            {
+                DirAccess.MakeDirAbsolute("res://Images");
+            }
+
+        }
+        else
+        {
             save_path = OS.GetExecutablePath().GetBaseDir() + "/Images/" + Time.GetDatetimeStringFromSystem(false, false).Replace(":", "_") + ".png";
 
-			if (!DirAccess.DirExistsAbsolute(OS.GetExecutablePath().GetBaseDir() + "/Images")) {
-				DirAccess.MakeDirAbsolute(OS.GetExecutablePath().GetBaseDir() + "/Images");
-			}
+            if (!DirAccess.DirExistsAbsolute(OS.GetExecutablePath().GetBaseDir() + "/Images"))
+            {
+                DirAccess.MakeDirAbsolute(OS.GetExecutablePath().GetBaseDir() + "/Images");
+            }
         }
 
-		image.SavePng(save_path);
-	}
+        image.SavePng(save_path);
+    }
 
-	private void GenerateMaze() {
-
-		//Create New Grid
+    private void GenerateMaze()
+    {
+        //Create New Grid
         grid = new Grid(x_cells, y_cells, wall_size, cell_size);
 
-		switch(maze_type)
-		{
-			case EMazeType.BinaryTree:
-				MazeGenerator.BinaryTreeAlgorithm(ref grid);
-				break;
+        switch (maze_type)
+        {
+            case EMazeType.BinaryTree:
+                MazeGenerator.BinaryTreeAlgorithm(ref grid);
+                break;
 
-			case EMazeType.Sidewinder:
-				MazeGenerator.SidewinderAlgorithm(ref grid);
-				break;
+            case EMazeType.Sidewinder:
+                MazeGenerator.SidewinderAlgorithm(ref grid);
+                break;
 
-			case EMazeType.Aldous_Broder:
-				MazeGenerator.AldousBroderAlgorithm(ref grid);
-				break;
+            case EMazeType.Aldous_Broder:
+                MazeGenerator.AldousBroderAlgorithm(ref grid);
+                break;
 
-			case EMazeType.Wilsons:
-				MazeGenerator.WilsonsAlgorithm(ref grid);
-				break;
-		}
+            case EMazeType.Wilsons:
+                MazeGenerator.WilsonsAlgorithm(ref grid);
+                break;
+        }
+
+        //Set Points
+        StartPointType((long)first_point_type);
+        EndPointType((long)second_point_type);
 
         GenerateMazeImage();
     }
 
-	private void MazeType(long index)
-	{ 
-		switch(index) {
-			case ((long)EMazeType.BinaryTree):
-				maze_type = EMazeType.BinaryTree;
-				break;
+    private void MazeType(long index)
+    {
+        switch (index)
+        {
+            case ((long)EMazeType.BinaryTree):
+                maze_type = EMazeType.BinaryTree;
+                break;
 
             case ((long)EMazeType.Sidewinder):
                 maze_type = EMazeType.Sidewinder;
                 break;
-			
-			case ((long)EMazeType.Aldous_Broder):
+
+            case ((long)EMazeType.Aldous_Broder):
                 maze_type = EMazeType.Aldous_Broder;
                 break;
 
-			case ((long)EMazeType.Wilsons):
-				maze_type = EMazeType.Wilsons;
-				break;
+            case ((long)EMazeType.Wilsons):
+                maze_type = EMazeType.Wilsons;
+                break;
         }
-	}
+    }
 
-	private void CellsXChanged(double value) {
-		x_cells = (int)value;
-	}
+    private void CellsXChanged(double value)
+    {
+        x_cells = (int)value;
+    }
 
-	private void CellsYChanged(double value) {
-		y_cells = (int)value;
-	}
-	
-	private void CellSizeChanged(double value) {
-		cell_size = (int)value;
-	}
+    private void CellsYChanged(double value)
+    {
+        y_cells = (int)value;
+    }
 
-	private void WallSizeChanged(double value) {
-		wall_size = (int)value;
-	}
+    private void CellSizeChanged(double value)
+    {
+        cell_size = (int)value;
+    }
+
+    private void WallSizeChanged(double value)
+    {
+        wall_size = (int)value;
+    }
+
+    //Point Properties
+    private void StartPointType(long index)
+    {
+        GD.Randomize();
+
+        switch (index)
+        {
+            case 1: //Random
+                SetRandomPoint(true);
+                first_point_type = EPointType.Random;
+                break;
+            case 2: //Furthest
+                first_point_type = EPointType.Furthest;
+                break;
+            case 3: //Custom
+                first_point_type = EPointType.Custom;
+                break;
+            default: //Break
+                start_point = new Vector2I(-1, -1);
+                first_point_type = EPointType.None;
+                break;
+        }
+
+        GenerateMazeImage();
+    }
+
+    private void EndPointType(long index)
+    {
+        GD.Randomize();
+
+        switch (index)
+        {
+            case 1: //Random
+                SetRandomPoint(false);
+                second_point_type = EPointType.Random;
+                break;
+            case 2: //Furthest
+                second_point_type = EPointType.Furthest;
+                break;
+            case 3: //Custom
+                second_point_type = EPointType.Custom;
+                break;
+            default: //Break
+                end_point = new Vector2I(-1, -1);
+                second_point_type = EPointType.None;
+                break;
+        }
+
+        GenerateMazeImage();
+    }
+
+    //Helper Methods
+    private void SetRandomPoint(bool isStart)
+    {
+        GD.Randomize();
+
+        if (grid.GetWidth() >= 2 || grid.GetHeight() >= 2) {
+            bool again = true;
+
+            do {
+                again = true;
+                int walls = 0;
+                Vector2I point = new Vector2I((int)(GD.Randi() % grid.GetWidth()), (int)(GD.Randi() % grid.GetHeight()));
+                Cell cell = grid.cells[point.X, point.Y];
+
+                //Count walls
+                if (!cell.north) { walls += 1; }
+                if (!cell.south) { walls += 1; }
+                if (!cell.east) { walls += 1; }
+                if (!cell.west) { walls += 1; }
+
+                if (walls == 3) {
+                    again = false;
+                }
+
+                //Which Point
+                if (isStart)
+                {
+                    start_point = point;
+                }
+                else
+                {
+                    end_point = point;
+                }
+
+            } while (start_point == end_point || again);
+        }
+    }
+
 }

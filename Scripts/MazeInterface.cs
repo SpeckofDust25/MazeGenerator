@@ -17,7 +17,6 @@ public partial class MazeInterface : Panel
 	private bool is_focused;
 	private float magnify_increment = 0.10f;
 
-	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		SetupNodes();
@@ -28,7 +27,6 @@ public partial class MazeInterface : Panel
 		FocusMode = FocusModeEnum.All;
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
         n_maze_image.PivotOffset = n_maze_image.Size / 2;

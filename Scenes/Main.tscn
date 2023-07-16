@@ -21,7 +21,7 @@ size_flags_vertical = 3
 
 [node name="MazeProperties" type="Panel" parent="Interface"]
 clip_contents = true
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
 script = ExtResource("2_k5hc1")
 
@@ -48,7 +48,7 @@ text = "Type"
 
 [node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/TypeHBoxContainer"]
 layout_mode = 2
-item_count = 4
+item_count = 12
 selected = 0
 popup/item_0/text = "Binary Tree"
 popup/item_0/id = 0
@@ -58,6 +58,22 @@ popup/item_2/text = "Aldous-Broder"
 popup/item_2/id = 2
 popup/item_3/text = "Wilsons"
 popup/item_3/id = 3
+popup/item_4/text = "Hunt-and-Kill"
+popup/item_4/id = 4
+popup/item_5/text = "Recursive Backtracker"
+popup/item_5/id = 5
+popup/item_6/text = "Eller's"
+popup/item_6/id = 6
+popup/item_7/text = "Growing Tree"
+popup/item_7/id = 7
+popup/item_8/text = "Kruskal's (Randomized)"
+popup/item_8/id = 8
+popup/item_9/text = "Prim's (Simplified)"
+popup/item_9/id = 9
+popup/item_10/text = "Prim's (True)"
+popup/item_10/id = 10
+popup/item_11/text = "Recursive Division"
+popup/item_11/id = 11
 
 [node name="CellsHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
 layout_mode = 2
@@ -69,7 +85,7 @@ text = "Cells:"
 [node name="CellsXSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-min_value = 2.0
+min_value = 1.0
 max_value = 2000.0
 value = 2.0
 
@@ -82,7 +98,7 @@ horizontal_alignment = 1
 [node name="CellsYSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-min_value = 2.0
+min_value = 1.0
 max_value = 2000.0
 value = 2.0
 
@@ -95,8 +111,8 @@ text = "Cell Size"
 
 [node name="CellSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellSizeHBoxContainer"]
 layout_mode = 2
-min_value = 2.0
-value = 2.0
+min_value = 1.0
+value = 1.0
 
 [node name="WallSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
 layout_mode = 2
@@ -112,7 +128,55 @@ value = 1.0
 
 [node name="GenerateMazeButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
 layout_mode = 2
-text = "Generate"
+text = "Generate Maze"
+
+[node name="Point" type="Label" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+text = "Points"
+
+[node name="StartPointHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+
+[node name="StartPointLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/StartPointHBoxContainer"]
+layout_mode = 2
+text = "Start"
+
+[node name="OptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/StartPointHBoxContainer"]
+layout_mode = 2
+item_count = 4
+selected = 0
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "Random"
+popup/item_1/id = 1
+popup/item_2/text = "Furthest"
+popup/item_2/id = 2
+popup/item_3/text = "Custom"
+popup/item_3/id = 3
+
+[node name="EndPointHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+
+[node name="EndPointLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/EndPointHBoxContainer"]
+layout_mode = 2
+text = "End"
+
+[node name="OptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/EndPointHBoxContainer"]
+layout_mode = 2
+item_count = 4
+selected = 0
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "Random"
+popup/item_1/id = 1
+popup/item_2/text = "Furthest"
+popup/item_2/id = 2
+popup/item_3/text = "Custom"
+popup/item_3/id = 3
+
+[node name="GeneratePointsButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
+layout_mode = 2
+text = "Generate Points"
 
 [node name="SaveImageButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
 layout_mode = 2

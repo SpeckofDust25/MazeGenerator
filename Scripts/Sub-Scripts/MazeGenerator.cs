@@ -1,15 +1,10 @@
 ﻿using Godot;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 public static class MazeGenerator
 {
-
     enum Direction { none, north, south, east, west }
 
     //Move North or East on each cell
@@ -176,8 +171,10 @@ public static class MazeGenerator
             }
 
             //Carve path
-            if (dir != Direction.none) {
-                if (!next_cell.IsVisited()) {
+            if (dir != Direction.none)
+            {
+                if (!next_cell.IsVisited())
+                {
                     CarvePathManual(ref _grid, cell, dir);
                     visited_count += 1;
                 }
@@ -189,8 +186,6 @@ public static class MazeGenerator
         return _grid;
     }
 
-
-    //TODO: Start and End Cells can't be the same at the beginning stage
     //Pick a Random point and go in any random direction till all are visited reset when a loop occurs
     public static Grid WilsonsAlgorithm(ref Grid _grid)
     {
@@ -208,7 +203,8 @@ public static class MazeGenerator
         while (!(visited_count >= (_grid.GetWidth() * _grid.GetHeight())))
         {
             //Get Random Unvisited cell
-            if (!has_new_path) {
+            if (!has_new_path)
+            {
 
                 while (cell.IsVisited() || (cell.index.X == v_end_cell.X && cell.index.Y == v_end_cell.Y))
                 {
@@ -226,7 +222,8 @@ public static class MazeGenerator
             Direction dir = Direction.none;
 
             //Get Direction
-            switch (num) {
+            switch (num)
+            {
                 case 0: //North
                     if (cell.index.Y != 0)
                     {
@@ -265,13 +262,15 @@ public static class MazeGenerator
             {
                 if (next_cell.IsVisited() || (v_end_cell.X == next_cell.index.X && v_end_cell.Y == next_cell.index.Y))
                 {
-                    
+
                     l_cell_index.Add(next_cell);
                     CarvePathLoop(ref _grid, ref l_cell_index);
                     visited_count += l_cell_index.Count() - 1;
                     has_new_path = false;
 
-                } else {    //Check For Loop
+                }
+                else
+                {    //Check For Loop
                     CheckForLoop(ref l_cell_index, next_cell);
                     l_cell_index.Add(next_cell);
                 }
@@ -283,6 +282,54 @@ public static class MazeGenerator
         return _grid;
     }
 
+    public static Grid HuntandKill(ref Grid _grid)
+    {
+        GD.Randomize();
+        int visited_count = 1;
+        Cell cell = _grid.cells[(int)(GD.Randi() % (uint)(_grid.GetWidth())), (int)(GD.Randi() % (uint)(_grid.GetHeight()))];
+
+        int count = 0;
+
+        while (!(visited_count >= (_grid.GetWidth() * _grid.GetHeight())))
+        {
+
+            if (count >= 500)
+            {
+                break;
+            }
+
+            count += 1;
+
+            uint num = GD.Randi() % 4;
+            Cell next_cell = cell;
+            Direction dir = Direction.none;
+
+            //Boxed In: Check for Adjacent cells
+            if (dir == Direction.none) { 
+                dir = GetAdjacentUnvisited(ref _grid, cell);
+                next_cell = GetCellInDirection(ref _grid, cell, dir);
+            }
+
+            //Carve path
+            if (dir != Direction.none)
+            {
+                if (!next_cell.IsVisited())
+                {   //Not Visited
+                    CarvePathManual(ref _grid, cell, dir);
+                    visited_count += 1;
+                    cell = next_cell;
+                }
+                
+            } else {
+                cell = Hunt(ref _grid, cell);
+                visited_count += 1;
+            }
+        }
+
+        return _grid;
+    }
+
+    public static Grid RecursiveBacktracker(ref Grid _grid) { return _grid; }
 
     //Carve Path Methods
     private static void CarvePathManual(ref Grid _grid, Cell cell, Direction direction)
@@ -362,24 +409,33 @@ public static class MazeGenerator
 
     private static void CarvePathLoop(ref Grid _grid, ref List<Cell> cells)
     {
-        for (int i = 0; i < cells.Count - 1; i++) {
+        for (int i = 0; i < cells.Count - 1; i++)
+        {
             Vector2I direction = new Vector2I(cells[i + 1].index.X - cells[i].index.X, cells[i + 1].index.Y - cells[i].index.Y);
 
-            if (direction.X != 0) {
-                if (direction.X > 0) {  //East
+            if (direction.X != 0)
+            {
+                if (direction.X > 0)
+                {  //East
                     _grid.cells[cells[i].index.X, cells[i].index.Y].east = true;
                     _grid.cells[cells[i].index.X + 1, cells[i].index.Y].west = true;
-                } else {    //West
+                }
+                else
+                {    //West
                     _grid.cells[cells[i].index.X, cells[i].index.Y].west = true;
                     _grid.cells[cells[i].index.X - 1, cells[i].index.Y].east = true;
                 }
-            } 
+            }
 
-            if (direction.Y != 0) {
-                if (direction.Y > 0) {  //South
+            if (direction.Y != 0)
+            {
+                if (direction.Y > 0)
+                {  //South
                     _grid.cells[cells[i].index.X, cells[i].index.Y].south = true;
                     _grid.cells[cells[i].index.X, cells[i].index.Y + 1].north = true;
-                } else {    //North
+                }
+                else
+                {    //North
                     _grid.cells[cells[i].index.X, cells[i].index.Y].north = true;
                     _grid.cells[cells[i].index.X, cells[i].index.Y - 1].south = true;
                 }
@@ -389,6 +445,126 @@ public static class MazeGenerator
 
 
     //Helper Methods
+    private static Direction GetAdjacentUnvisited(ref Grid _grid, Cell cell)
+    {
+        Direction dir = Direction.none;
+        List<Direction> neighbors = new List<Direction>();
+
+        if (cell.index.Y > 0)
+        {
+            if (!_grid.cells[cell.index.X, cell.index.Y - 1].IsVisited())
+            {  //North
+                neighbors.Add(Direction.north);
+            }
+        }
+
+        if (cell.index.X > 0)
+        {
+            if (!_grid.cells[cell.index.X - 1, cell.index.Y].IsVisited())
+            {  //West
+                neighbors.Add(Direction.west);
+            }
+        }
+
+        if (cell.index.Y < _grid.GetHeight() - 1)
+        {
+            if (!_grid.cells[cell.index.X, cell.index.Y + 1].IsVisited())
+            {  //South
+                neighbors.Add(Direction.south);
+            }
+        }
+
+        if (cell.index.X < _grid.GetWidth() - 1)
+        {
+            if (!_grid.cells[cell.index.X + 1, cell.index.Y].IsVisited())
+            {  //East
+                neighbors.Add(Direction.east);
+            }
+        }
+
+        //Get Random Direction
+        if (neighbors.Count > 0)
+        {
+            int new_dir = (int)(GD.Randi() % (uint)neighbors.Count);
+            dir = neighbors[new_dir];
+        }
+
+        return dir;
+    }
+
+    private static Cell GetCellInDirection(ref Grid _grid, Cell cell, Direction dir)
+    {
+        Cell next_cell = null;
+
+        if (dir == Direction.north) { next_cell = _grid.cells[cell.index.X, cell.index.Y - 1]; }
+        if (dir == Direction.south) { next_cell = _grid.cells[cell.index.X, cell.index.Y + 1]; }
+        if (dir == Direction.east) { next_cell = _grid.cells[cell.index.X + 1, cell.index.Y]; }
+        if (dir == Direction.west) { next_cell = _grid.cells[cell.index.X - 1, cell.index.Y]; }
+
+        return next_cell;
+    }
+
+    private static Cell Hunt(ref Grid _grid, Cell new_cell)
+    {
+        List<Direction> neighbors = new List<Direction>();
+
+        //Find a Cell with at least 1 adjacent visited cell
+        for (int y = 0; y < _grid.GetHeight(); y++)
+        {
+            for (int x = 0; x < _grid.GetWidth(); x++)
+            {
+                new_cell = _grid.cells[x, y];
+
+                if (!new_cell.IsVisited())
+                {
+                    if (new_cell.index.Y > 0)
+                    {
+                        if (_grid.cells[new_cell.index.X, new_cell.index.Y - 1].IsVisited())
+                        {  //North
+                            neighbors.Add(Direction.north);
+                        }
+                    }
+
+                    if (new_cell.index.X > 0)
+                    {
+                        if (_grid.cells[new_cell.index.X - 1, new_cell.index.Y].IsVisited())
+                        {  //West
+                            neighbors.Add(Direction.west);
+                        }
+                    }
+
+                    if (new_cell.index.Y < _grid.GetHeight() - 1)
+                    {
+                        if (_grid.cells[new_cell.index.X, new_cell.index.Y + 1].IsVisited())
+                        {  //South
+                            neighbors.Add(Direction.south);
+                        }
+                    }
+
+                    if (new_cell.index.X < _grid.GetWidth() - 1)
+                    {
+                        if (_grid.cells[new_cell.index.X + 1, new_cell.index.Y].IsVisited())
+                        {  //East
+                            neighbors.Add(Direction.east);
+                        }
+                    }
+                }
+
+                if (neighbors.Count > 0) { break; }
+            }
+
+            if (neighbors.Count > 0) { break; }
+        }
+
+        //Pick Random Cell
+        if (neighbors.Count > 0)
+        {
+            int new_dir = (int)(GD.Randi() % (uint)neighbors.Count);
+            CarvePathManual(ref _grid, new_cell, neighbors[new_dir]);
+        }
+
+        return new_cell;
+    }
 
     //Used for the Wilson's Algorithm: Checks For a Loop 
     private static void CheckForLoop(ref List<Cell> cells, Cell current_cell)
@@ -411,5 +587,30 @@ public static class MazeGenerator
         {
             cells.RemoveRange(index, cells.Count - index); //Get rid of Loop
         }
+    }
+
+    private static uint GetDeadends(Grid _grid)
+    {
+        uint deadends = 0;
+        for (int x = 0; x < _grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < _grid.GetHeight(); y++)
+            {
+                uint count = 0;
+                Cell cell = _grid.cells[x, y];
+                if (cell.north) { count += 1; }
+                if (cell.south) { count += 1; }
+                if (cell.east) { count += 1; }
+                if (cell.west) { count += 1; }
+
+
+                if (count == 3)
+                {
+                    deadends += 1;
+                }
+            }
+        }
+
+        return deadends;
     }
 }

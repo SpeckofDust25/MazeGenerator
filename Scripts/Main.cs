@@ -2,7 +2,7 @@ using Godot;
 
 public partial class Main : CanvasLayer
 {
-    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons }
+    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker }
     enum EPointType { None = 0, Random, Furthest, Custom };
 
     //Grid Properties
@@ -192,6 +192,10 @@ public partial class Main : CanvasLayer
             case EMazeType.Wilsons:
                 MazeGenerator.WilsonsAlgorithm(ref grid);
                 break;
+
+            case EMazeType.HuntandKill:
+                MazeGenerator.HuntandKill(ref grid);
+                break;
         }
 
         //Set Points
@@ -219,6 +223,10 @@ public partial class Main : CanvasLayer
 
             case ((long)EMazeType.Wilsons):
                 maze_type = EMazeType.Wilsons;
+                break;
+
+            case ((long)EMazeType.HuntandKill):
+                maze_type = EMazeType.HuntandKill;
                 break;
         }
     }

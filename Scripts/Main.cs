@@ -13,7 +13,11 @@ public partial class Main : CanvasLayer
 
     //Nodes
     private TextureRect texture_rect;
-    private Panel maze_properties;
+    private TabBar maze_properties;
+    private TabBar points_properties;
+    private TabBar pathfinding_properties;
+    private TabBar animation_properties;
+    private TabBar export_properties;
 
     //Image
     private Image image;
@@ -26,10 +30,10 @@ public partial class Main : CanvasLayer
 
     public override void _Ready()
     {
-        x_cells = 2;
-        y_cells = 2;
-        wall_size = 1;
-        cell_size = 1;
+        x_cells = 10;
+        y_cells = 10;
+        wall_size = 10;
+        cell_size = 10;
         maze_type = EMazeType.BinaryTree;
 
         start_point = new Vector2I(-1, -1);
@@ -99,13 +103,16 @@ public partial class Main : CanvasLayer
     private void SetupNodes()
     {
         texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
-        maze_properties = GetNode<MazeProperties>("Interface/MazeProperties");
+        maze_properties = GetNode<MazeProperties>("Interface/TabContainer/Maze");
+        points_properties = GetNode<PointProperties>("Interface/TabContainer/Points");
+        //pathfinding_properties = GetNode<PathFindingProperties>();
+        //animation_properties = GetNode<AnimationProperties>();
+        export_properties = GetNode<ExportProperties>("Interface/TabContainer/Export");
     }
 
     private void SetupConnections()
     {
         //Maze Properties
-        if (!maze_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!"); }
         if (!maze_properties.HasSignal("GenerateMaze")) { GD.PrintErr("Can't Find GenerateMaze Signal!"); }
         if (!maze_properties.HasSignal("MazeType")) { GD.PrintErr("Can't Find MazeType Signal!"); }
         if (!maze_properties.HasSignal("CellsX")) { GD.PrintErr("Can't Find CellsX Signal!"); }
@@ -113,15 +120,13 @@ public partial class Main : CanvasLayer
         if (!maze_properties.HasSignal("CellSize")) { GD.PrintErr("Can't Find CellSize Signal!"); }
         if (!maze_properties.HasSignal("WallSize")) { GD.PrintErr("Can't Find WallSize Signal! "); }
 
-        Callable c_save_image = new Callable(this, "SaveImage");
         Callable c_generate_maze = new Callable(this, "GenerateMaze");
         Callable c_maze_type = new Callable(this, "MazeType");
         Callable c_cells_x = new Callable(this, "CellsXChanged");
         Callable c_cells_y = new Callable(this, "CellsYChanged");
         Callable c_cell_size = new Callable(this, "CellSizeChanged");
         Callable c_wall_size = new Callable(this, "WallSizeChanged");
-
-        maze_properties.Connect("SaveImage", c_save_image);
+        
         maze_properties.Connect("GenerateMaze", c_generate_maze);
         maze_properties.Connect("MazeType", c_maze_type);
         maze_properties.Connect("CellsX", c_cells_x);
@@ -130,14 +135,21 @@ public partial class Main : CanvasLayer
         maze_properties.Connect("WallSize", c_wall_size);
 
         //Point Properties
-        if (!maze_properties.HasSignal("StartPointType")) { GD.PrintErr("Can't Find StartPointType"); }
-        if (!maze_properties.HasSignal("EndPointType")) { GD.PrintErr("Can't Find EndPointType"); }
+        if (!points_properties.HasSignal("StartPointType")) { GD.PrintErr("Can't Find StartPointType"); }
+        if (!points_properties.HasSignal("EndPointType")) { GD.PrintErr("Can't Find EndPointType"); }
 
         Callable c_start_point_type = new Callable(this, "StartPointType");
         Callable c_end_point_type = new Callable(this, "EndPointType");
 
-        maze_properties.Connect("StartPointType", c_start_point_type);
-        maze_properties.Connect("EndPointType", c_end_point_type);
+        points_properties.Connect("StartPointType", c_start_point_type);
+        points_properties.Connect("EndPointType", c_end_point_type);
+
+        //Export Properties
+        if (!export_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!"); }
+
+        Callable c_save_image = new Callable(this, "SaveImage");
+
+        export_properties.Connect("SaveImage", c_save_image);
     }
 
     //Connections

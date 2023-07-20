@@ -4,14 +4,14 @@ using Godot;
 
 public class Grid {
 
-	private int cell_size = 5;
-	private int wall_size = 1;
-	private int width = 0;
-	private int height = 0;
+	private int cell_size = 10;
+	private int wall_size = 10;
+	private int width = 10;
+	private int height = 10;
 
 	public Cell[,] cells;
 
-	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 2) {
+	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1) {
 		width = _width;
 		height = _height;
 		cells = new Cell[width, height];

@@ -1,10 +1,12 @@
-[gd_scene load_steps=6 format=3 uid="uid://cafws0hxf502i"]
+[gd_scene load_steps=8 format=3 uid="uid://cafws0hxf502i"]
 
 [ext_resource type="Script" path="res://Scripts/Main.cs" id="1_0tamq"]
 [ext_resource type="Script" path="res://Scripts/MazeInterface.cs" id="2_8kysj"]
 [ext_resource type="Script" path="res://Scripts/MazeProperties.cs" id="2_k5hc1"]
 [ext_resource type="Texture2D" uid="uid://kh2banqi5b60" path="res://icon.svg" id="2_xuhur"]
 [ext_resource type="Script" path="res://Scripts/MazeImage.cs" id="3_2squ8"]
+[ext_resource type="Script" path="res://Scripts/PointProperties.cs" id="3_54sqj"]
+[ext_resource type="Script" path="res://Scripts/ExportProperties.cs" id="4_gbcqm"]
 
 [node name="Main" type="CanvasLayer"]
 script = ExtResource("1_0tamq")
@@ -19,13 +21,18 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MazeProperties" type="Panel" parent="Interface"]
+[node name="TabContainer" type="TabContainer" parent="Interface"]
 clip_contents = true
-custom_minimum_size = Vector2(270, 0)
 layout_mode = 2
+clip_tabs = false
+drag_to_rearrange_enabled = true
+
+[node name="Maze" type="TabBar" parent="Interface/TabContainer"]
+layout_mode = 2
+tabs_rearrange_group = 0
 script = ExtResource("2_k5hc1")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Interface/MazeProperties"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Interface/TabContainer/Maze"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -33,20 +40,18 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Title" type="Label" parent="Interface/MazeProperties/VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-text = "Maze Properties"
-vertical_alignment = 1
-
-[node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="Control" type="Control" parent="Interface/TabContainer/Maze/VBoxContainer"]
+custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="TypeLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/TypeHBoxContainer"]
+[node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
-text = "Type"
 
-[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/TypeHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/TypeHBoxContainer"]
+layout_mode = 2
+text = "Algorithm"
+
+[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/VBoxContainer/TypeHBoxContainer"]
 layout_mode = 2
 item_count = 12
 selected = 0
@@ -75,73 +80,126 @@ popup/item_10/id = 10
 popup/item_11/text = "Recursive Division"
 popup/item_11/id = 11
 
-[node name="CellsHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="ShapeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
 
-[node name="CellsLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/ShapeHBoxContainer"]
 layout_mode = 2
-text = "Cells:"
+text = "Shape"
 
-[node name="CellsXSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/VBoxContainer/ShapeHBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-min_value = 1.0
-max_value = 2000.0
-value = 2.0
+item_count = 9
+selected = 0
+popup/item_0/text = "Rectangle"
+popup/item_0/id = 0
+popup/item_1/text = "Triangle"
+popup/item_1/id = 1
+popup/item_2/text = "Hexagonal"
+popup/item_2/id = 2
+popup/item_3/text = "Circular"
+popup/item_3/id = 3
+popup/item_4/text = "Upsilon"
+popup/item_4/id = 4
+popup/item_5/text = "Zeta"
+popup/item_5/id = 5
+popup/item_6/text = "Omega"
+popup/item_6/id = 6
+popup/item_7/text = "Crack"
+popup/item_7/id = 7
+popup/item_8/text = "Fractal"
+popup/item_8/id = 8
 
-[node name="ByLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+[node name="WidthHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "by"
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/WidthHBoxContainer"]
+layout_mode = 2
+text = "Width"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="CellsYSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellsHBoxContainer"]
+[node name="CellsXSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/WidthHBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 min_value = 1.0
 max_value = 2000.0
-value = 2.0
+value = 10.0
+alignment = 1
 
-[node name="CellSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="HeightHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
 
-[node name="CellSizeLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/CellSizeHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/HeightHBoxContainer"]
+layout_mode = 2
+text = "Height"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CellsYSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/HeightHBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+min_value = 1.0
+max_value = 2000.0
+value = 10.0
+alignment = 1
+
+[node name="CellSizeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
+layout_mode = 2
+
+[node name="CellSizeLabel" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/CellSizeHBoxContainer"]
 layout_mode = 2
 text = "Cell Size"
+vertical_alignment = 1
 
-[node name="CellSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/CellSizeHBoxContainer"]
+[node name="CellSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/CellSizeHBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 min_value = 1.0
-value = 1.0
+value = 10.0
+alignment = 1
 
-[node name="WallSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="WallSizeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
 
-[node name="WallSizeLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/WallSizeHBoxContainer"]
+[node name="WallSizeLabel" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/WallSizeHBoxContainer"]
 layout_mode = 2
 text = "Wall Size"
+vertical_alignment = 1
 
-[node name="WallSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/VBoxContainer/WallSizeHBoxContainer"]
+[node name="WallSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/WallSizeHBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 min_value = 1.0
-value = 1.0
+value = 10.0
+alignment = 1
 
-[node name="GenerateMazeButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="GenerateMazeButton" type="Button" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
 text = "Generate Maze"
 
-[node name="Point" type="Label" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="Points" type="TabBar" parent="Interface/TabContainer"]
+visible = false
 layout_mode = 2
-text = "Points"
+tabs_rearrange_group = 1
+script = ExtResource("3_54sqj")
 
-[node name="StartPointHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Interface/TabContainer/Points"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StartPointHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Points/VBoxContainer"]
 layout_mode = 2
 
-[node name="StartPointLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/StartPointHBoxContainer"]
+[node name="StartPointLabel" type="Label" parent="Interface/TabContainer/Points/VBoxContainer/StartPointHBoxContainer"]
 layout_mode = 2
 text = "Start"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/StartPointHBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Points/VBoxContainer/StartPointHBoxContainer"]
 layout_mode = 2
 item_count = 4
 selected = 0
@@ -154,14 +212,14 @@ popup/item_2/id = 2
 popup/item_3/text = "Custom"
 popup/item_3/id = 3
 
-[node name="EndPointHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="EndPointHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Points/VBoxContainer"]
 layout_mode = 2
 
-[node name="EndPointLabel" type="Label" parent="Interface/MazeProperties/VBoxContainer/EndPointHBoxContainer"]
+[node name="EndPointLabel" type="Label" parent="Interface/TabContainer/Points/VBoxContainer/EndPointHBoxContainer"]
 layout_mode = 2
 text = "End"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/MazeProperties/VBoxContainer/EndPointHBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Points/VBoxContainer/EndPointHBoxContainer"]
 layout_mode = 2
 item_count = 4
 selected = 0
@@ -174,11 +232,34 @@ popup/item_2/id = 2
 popup/item_3/text = "Custom"
 popup/item_3/id = 3
 
-[node name="GeneratePointsButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="GeneratePointsButton" type="Button" parent="Interface/TabContainer/Points/VBoxContainer"]
 layout_mode = 2
 text = "Generate Points"
 
-[node name="SaveImageButton" type="Button" parent="Interface/MazeProperties/VBoxContainer"]
+[node name="Pathfinding" type="TabBar" parent="Interface/TabContainer"]
+visible = false
+layout_mode = 2
+tabs_rearrange_group = 2
+
+[node name="Animations" type="TabBar" parent="Interface/TabContainer"]
+visible = false
+layout_mode = 2
+tabs_rearrange_group = 3
+
+[node name="Export" type="TabBar" parent="Interface/TabContainer"]
+visible = false
+layout_mode = 2
+script = ExtResource("4_gbcqm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Interface/TabContainer/Export"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SaveImageButton" type="Button" parent="Interface/TabContainer/Export/VBoxContainer"]
 layout_mode = 2
 text = "Save Image (png)"
 

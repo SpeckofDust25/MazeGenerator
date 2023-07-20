@@ -288,18 +288,8 @@ public static class MazeGenerator
         int visited_count = 1;
         Cell cell = _grid.cells[(int)(GD.Randi() % (uint)(_grid.GetWidth())), (int)(GD.Randi() % (uint)(_grid.GetHeight()))];
 
-        int count = 0;
-
         while (!(visited_count >= (_grid.GetWidth() * _grid.GetHeight())))
         {
-
-            if (count >= 500)
-            {
-                break;
-            }
-
-            count += 1;
-
             uint num = GD.Randi() % 4;
             Cell next_cell = cell;
             Direction dir = Direction.none;
@@ -329,7 +319,45 @@ public static class MazeGenerator
         return _grid;
     }
 
-    public static Grid RecursiveBacktracker(ref Grid _grid) { return _grid; }
+    public static Grid RecursiveBacktracker(ref Grid _grid) {
+        GD.Randomize();
+        int visited_count = 1;
+        Cell cell = _grid.cells[(int)(GD.Randi() % (uint)(_grid.GetWidth())), (int)(GD.Randi() % (uint)(_grid.GetHeight()))];
+        Stack<Cell> s_cells = new Stack<Cell>();
+
+        while (!(visited_count >= (_grid.GetWidth() * _grid.GetHeight())))
+        {
+            uint num = GD.Randi() % 4;
+            Cell next_cell = cell;
+            Direction dir = Direction.none;
+            s_cells.Push(cell);
+
+            //Boxed In: Check for Adjacent cells
+            if (dir == Direction.none)
+            {
+                dir = GetAdjacentUnvisited(ref _grid, cell);
+                next_cell = GetCellInDirection(ref _grid, cell, dir);
+            }
+
+            //Carve path
+            if (dir != Direction.none)
+            {
+                if (!next_cell.IsVisited())
+                {   //Not Visited
+                    CarvePathManual(ref _grid, cell, dir);
+                    visited_count += 1;
+                    cell = next_cell;
+                }
+            }
+            else
+            {
+                cell = Backtrack(ref _grid, s_cells);
+                //visited_count += 1;
+            }
+        }
+
+        return _grid;
+    }
 
     //Carve Path Methods
     private static void CarvePathManual(ref Grid _grid, Cell cell, Direction direction)
@@ -566,6 +594,29 @@ public static class MazeGenerator
         return new_cell;
     }
 
+    private static Cell Backtrack(ref Grid _grid, Stack<Cell> cells)
+    {
+        Cell target = null;
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            if (cells.TryPop(out target)) {
+
+                Direction dir = GetAdjacentUnvisited(ref _grid, target);
+
+                if (dir != Direction.none)
+                {
+                    break;
+                }
+
+            } else {
+                break;
+            }
+        }
+
+        return target;
+    }
+    
     //Used for the Wilson's Algorithm: Checks For a Loop 
     private static void CheckForLoop(ref List<Cell> cells, Cell current_cell)
     {

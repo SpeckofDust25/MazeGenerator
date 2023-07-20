@@ -196,6 +196,10 @@ public partial class Main : CanvasLayer
             case EMazeType.HuntandKill:
                 MazeGenerator.HuntandKill(ref grid);
                 break;
+
+            case EMazeType.Recursive_Backtracker:
+                MazeGenerator.RecursiveBacktracker(ref grid);
+                break;
         }
 
         //Set Points
@@ -227,6 +231,10 @@ public partial class Main : CanvasLayer
 
             case ((long)EMazeType.HuntandKill):
                 maze_type = EMazeType.HuntandKill;
+                break;
+
+            case ((long)EMazeType.Recursive_Backtracker):
+                maze_type = EMazeType.Recursive_Backtracker;
                 break;
         }
     }

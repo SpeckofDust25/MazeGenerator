@@ -29,13 +29,13 @@ public class Grid {
 	}
 
 	//Setters
+	public void SetCellSize(int _cell_size)
+	{
+		cell_size = _cell_size;
+	}
+
 	public void SetWallSize(int _wall_size) {
-		if (_wall_size > cell_size)
-		{
-			wall_size = cell_size - 1;
-		} else {
-			wall_size = _wall_size;
-        }
+		wall_size = _wall_size;
 	}
 
 

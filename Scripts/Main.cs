@@ -2,7 +2,7 @@ using Godot;
 
 public partial class Main : CanvasLayer
 {
-    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker }
+    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker, Ellers, Ellers_Loop }
     enum EPointType { None = 0, Random, Furthest, Custom };
 
     //Grid Properties
@@ -212,6 +212,14 @@ public partial class Main : CanvasLayer
             case EMazeType.Recursive_Backtracker:
                 MazeGenerator.RecursiveBacktracker(ref grid);
                 break;
+
+            case EMazeType.Ellers:
+                MazeGenerator.Ellers(ref grid, false);
+                break;
+
+            case EMazeType.Ellers_Loop:
+                MazeGenerator.Ellers(ref grid, true);
+                break;
         }
 
         //Set Points
@@ -248,6 +256,14 @@ public partial class Main : CanvasLayer
             case ((long)EMazeType.Recursive_Backtracker):
                 maze_type = EMazeType.Recursive_Backtracker;
                 break;
+
+            case ((long)EMazeType.Ellers):
+                maze_type = EMazeType.Ellers;
+                break;
+
+            case ((long)EMazeType.Ellers_Loop):
+                maze_type = EMazeType.Ellers_Loop;
+                break;
         }
     }
 
@@ -264,11 +280,15 @@ public partial class Main : CanvasLayer
     private void CellSizeChanged(double value)
     {
         cell_size = (int)value;
+        grid.SetCellSize(cell_size);
+        GenerateMazeImage();
     }
 
     private void WallSizeChanged(double value)
     {
         wall_size = (int)value;
+        grid.SetWallSize(wall_size);
+        GenerateMazeImage();
     }
 
     //Point Properties

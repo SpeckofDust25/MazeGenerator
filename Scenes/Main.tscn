@@ -23,8 +23,8 @@ size_flags_vertical = 3
 
 [node name="TabContainer" type="TabContainer" parent="Interface"]
 clip_contents = true
+custom_minimum_size = Vector2(350, 0)
 layout_mode = 2
-clip_tabs = false
 drag_to_rearrange_enabled = true
 
 [node name="Maze" type="TabBar" parent="Interface/TabContainer"]
@@ -49,11 +49,14 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/TypeHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Algorithm"
 
 [node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/VBoxContainer/TypeHBoxContainer"]
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
-item_count = 12
+size_flags_horizontal = 10
+item_count = 14
 selected = 0
 popup/item_0/text = "Binary Tree"
 popup/item_0/id = 0
@@ -69,7 +72,7 @@ popup/item_5/text = "Recursive Backtracker"
 popup/item_5/id = 5
 popup/item_6/text = "Eller's"
 popup/item_6/id = 6
-popup/item_7/text = "Growing Tree"
+popup/item_7/text = "Ellers(Loop)"
 popup/item_7/id = 7
 popup/item_8/text = "Kruskal's (Randomized)"
 popup/item_8/id = 8
@@ -79,16 +82,23 @@ popup/item_10/text = "Prim's (True)"
 popup/item_10/id = 10
 popup/item_11/text = "Recursive Division"
 popup/item_11/id = 11
+popup/item_12/text = "Growing Forest"
+popup/item_12/id = 12
+popup/item_13/text = "Growing Tree"
+popup/item_13/id = 13
 
 [node name="ShapeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/ShapeHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Shape"
 
 [node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/VBoxContainer/ShapeHBoxContainer"]
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 item_count = 9
 selected = 0
 popup/item_0/text = "Rectangle"
@@ -115,13 +125,15 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/WidthHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Width"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CellsXSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/WidthHBoxContainer"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 min_value = 1.0
 max_value = 2000.0
 value = 10.0
@@ -132,13 +144,15 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/HeightHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Height"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="CellsYSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/HeightHBoxContainer"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 min_value = 1.0
 max_value = 2000.0
 value = 10.0
@@ -149,12 +163,14 @@ layout_mode = 2
 
 [node name="CellSizeLabel" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/CellSizeHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Cell Size"
 vertical_alignment = 1
 
 [node name="CellSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/CellSizeHBoxContainer"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 min_value = 1.0
 value = 10.0
 alignment = 1
@@ -164,12 +180,14 @@ layout_mode = 2
 
 [node name="WallSizeLabel" type="Label" parent="Interface/TabContainer/Maze/VBoxContainer/WallSizeHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Wall Size"
 vertical_alignment = 1
 
 [node name="WallSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/VBoxContainer/WallSizeHBoxContainer"]
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 min_value = 1.0
 value = 10.0
 alignment = 1
@@ -192,15 +210,44 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Control" type="Control" parent="Interface/TabContainer/Points/VBoxContainer"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Points/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Points/VBoxContainer/TypeHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Type"
+horizontal_alignment = 1
+
+[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Points/VBoxContainer/TypeHBoxContainer"]
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+item_count = 3
+selected = 0
+popup/item_0/text = "Open"
+popup/item_0/id = 0
+popup/item_1/text = "Color"
+popup/item_1/id = 1
+popup/item_2/text = "Arrow"
+popup/item_2/id = 2
+
 [node name="StartPointHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Points/VBoxContainer"]
 layout_mode = 2
 
 [node name="StartPointLabel" type="Label" parent="Interface/TabContainer/Points/VBoxContainer/StartPointHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 2
 text = "Start"
 
 [node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Points/VBoxContainer/StartPointHBoxContainer"]
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 item_count = 4
 selected = 0
 popup/item_0/text = "None"
@@ -217,10 +264,13 @@ layout_mode = 2
 
 [node name="EndPointLabel" type="Label" parent="Interface/TabContainer/Points/VBoxContainer/EndPointHBoxContainer"]
 layout_mode = 2
-text = "End"
+size_flags_horizontal = 2
+text = "Finish"
 
 [node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Points/VBoxContainer/EndPointHBoxContainer"]
+custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
+size_flags_horizontal = 10
 item_count = 4
 selected = 0
 popup/item_0/text = "None"
@@ -231,10 +281,6 @@ popup/item_2/text = "Furthest"
 popup/item_2/id = 2
 popup/item_3/text = "Custom"
 popup/item_3/id = 3
-
-[node name="GeneratePointsButton" type="Button" parent="Interface/TabContainer/Points/VBoxContainer"]
-layout_mode = 2
-text = "Generate Points"
 
 [node name="Pathfinding" type="TabBar" parent="Interface/TabContainer"]
 visible = false

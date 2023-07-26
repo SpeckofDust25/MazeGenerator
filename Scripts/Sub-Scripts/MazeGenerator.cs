@@ -1,7 +1,11 @@
 ﻿using Godot;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Runtime.InteropServices;
 
 public static class MazeGenerator
 {
@@ -359,7 +363,74 @@ public static class MazeGenerator
         return _grid;
     }
 
+    public static Grid Ellers(ref Grid _grid, bool is_loop)
+    {
+        GD.Randomize();
+        int iteration = 1;
+        int y_index = 0;
+
+        List<List<Identifier>> cell_set_table = new List<List<Identifier>>();
+
+        //Set Cell Table
+        for (int y = 0; y < _grid.GetHeight(); y++) {
+            cell_set_table.Add(new List<Identifier>());
+
+            for (int x = 0; x < _grid.GetWidth(); x++)
+            {
+                cell_set_table[y].Add(new Identifier(iteration));
+                iteration += 1;
+            }
+        }
+
+        //Loop
+        while (y_index < _grid.GetHeight()) {
+
+            //Link, Go South and Merge Sets
+            if (y_index < _grid.GetHeight() - 1)
+            { 
+                Link(ref _grid, ref cell_set_table, y_index, is_loop);    //Link Row
+                RandomSouth(ref _grid, ref cell_set_table, y_index, is_loop);    //Get South
+            }
+            else
+            {    //Last 
+                LinkLast(ref _grid, ref cell_set_table);
+            }
+
+            y_index += 1;
+        }
+
+        return _grid;
+    }
+
     //Carve Path Methods
+    private static void CarvePathIndex(ref Grid _grid, int x, int y, Direction direction)
+    {
+        Cell cell = _grid.cells[x, y];
+
+        switch (direction)
+        {
+            case Direction.north:
+                _grid.cells[cell.index.X, cell.index.Y].north = true;
+                _grid.cells[cell.index.X, cell.index.Y - 1].south = true;
+                break;
+
+            case Direction.south:
+                _grid.cells[cell.index.X, cell.index.Y].south = true;
+                _grid.cells[cell.index.X, cell.index.Y + 1].north = true;
+                break;
+
+            case Direction.east:
+                _grid.cells[cell.index.X, cell.index.Y].east = true;
+                _grid.cells[cell.index.X + 1, cell.index.Y].west = true;
+                break;
+
+            case Direction.west:
+                _grid.cells[cell.index.X, cell.index.Y].west = true;
+                _grid.cells[cell.index.X - 1, cell.index.Y].east = true;
+                break;
+        }
+    }
+
     private static void CarvePathManual(ref Grid _grid, Cell cell, Direction direction)
     {
         switch (direction)
@@ -473,6 +544,120 @@ public static class MazeGenerator
 
 
     //Helper Methods
+
+    /* Used for Eller's Algorithm
+     * Links Up the passed in Identifiers Horizontally based on the unique id of each cell
+    */
+    private static void Link(ref Grid _grid, ref List<List<Identifier>> list, int y_index, bool is_loop)
+    {
+        List<Identifier> row_list = list[y_index];
+
+        for (int i = 0; i < row_list.Count - 1; i++)
+        {
+            int no_wall = (int)(GD.Randi() % 2);
+            
+            if (no_wall == 0)
+            {
+                if (is_loop || list[y_index][i].uid != list[y_index][i + 1].uid) {
+                    MergeSets(ref list, list[y_index][i].uid, list[y_index][i + 1].uid);
+                    CarvePathIndex(ref _grid, i, y_index, Direction.east);
+                }
+            }
+        }
+    }
+
+    private static void LinkLast(ref Grid _grid, ref List<List<Identifier>> list)
+    {
+        int y_index = _grid.GetHeight() - 1;
+
+        for (int i = 0; i < list[y_index].Count - 1; i++)
+        {
+            if (list[y_index][i].uid != list[y_index][i + 1].uid)
+            {
+                MergeSets(ref list, list[y_index][i].uid, list[y_index][i + 1].uid);
+                CarvePathIndex(ref _grid, i, y_index, Direction.east);
+            }
+        }
+    }
+  
+    private static void RandomSouth(ref Grid _grid, ref List<List<Identifier>> list, int y_index, bool is_loop)
+    {
+        int count = 0;
+        int number = list[y_index][0].uid;
+
+        //Iterate Through Row
+        for (int i = 0; i < list[0].Count(); i++)
+        {
+            //Found Another Number
+            if (list[y_index][i].uid == number)
+            {
+                count += 1;
+            }
+
+            //Set Random Number
+            int num = count;
+            int south_count = 1;
+
+            if (count > 0)
+            {
+                num = (int)(GD.Randi() % count);
+
+                //Number of Times we Carve South
+                for (int s = 0; s < count - 1; s++)
+                {
+                    int sn = (int)(GD.Randi() % 3);
+
+                    if (sn == 0)
+                    {
+                        south_count += 1;
+                    }
+                }
+            }
+
+            //Check Next Number
+            if (i < list[y_index].Count - 1) {
+                if (list[y_index][i + 1].uid != number)
+                {
+                    //Carve South
+                    while (south_count > 0) {
+                        num = (int)(GD.Randi() % count);
+
+                        if (!_grid.cells[i - num, y_index].south) { //Go South
+                            MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
+                            CarvePathIndex(ref _grid, i - num, y_index, Direction.south);
+                            south_count -= 1;
+
+                            if (is_loop)    //TODO: Support for Eller's Loop
+                            {
+                                
+                            }
+                        }
+                    }
+                    
+                    number = list[y_index][i + 1].uid;
+                    count = 0;
+                }
+            } else {
+                MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
+                CarvePathIndex(ref _grid, i - num , y_index, Direction.south);
+            }
+        }
+    }
+
+    private static void MergeSets(ref List<List<Identifier>> cell_set_table, int first, int second, bool vertical = false)
+    {
+        for (int y = 0; y < cell_set_table.Count; y++)
+        {
+            for (int x = 0; x < cell_set_table[y].Count; x++)
+            {
+                if (cell_set_table[y][x].uid == second)
+                {
+                    cell_set_table[y][x].uid = first;
+                }
+            }
+        }
+    }
+
     private static Direction GetAdjacentUnvisited(ref Grid _grid, Cell cell)
     {
         Direction dir = Direction.none;
@@ -665,3 +850,88 @@ public static class MazeGenerator
         return deadends;
     }
 }
+
+//Link
+/*
+       while (!all_linked) {
+
+           int index = (int)(GD.Randi() % row_list.Count);
+
+           if (!row_list[index].used) //Link Conditions
+           {
+               int dir = (int)GD.Randi() % 2;
+
+               //Link
+               if (dir == 0)   //Right
+               {
+                   if (index < (row_list.Count - 1))
+                   {
+                       if (!row_list[index + 1].used)
+                       {
+                           MergeSets(ref list, row_list[index].uid, row_list[index + 1].uid);
+                           CarvePathIndex(ref _grid, index, y_index, Direction.east);
+
+                           row_list[index + 1].uid = row_list[index].uid;
+                           row_list[index].used = true;
+                           row_list[index + 1].used = true;
+                       }
+                   }
+               } else if (dir == 1) {  //Left
+
+                   if (index > 0)
+                   {
+                       if (!row_list[index - 1].used)
+                       {
+                           MergeSets(ref list, row_list[index].uid, row_list[index - 1].uid);
+                           CarvePathIndex(ref _grid, index, y_index, Direction.west);
+
+                           row_list[index - 1].uid = row_list[index].uid;
+                           row_list[index].used = true;
+                           row_list[index - 1].used = true;
+                       }
+                   }
+               }
+           }
+
+           //Enable Unusable cells as used
+           for (int i = 0; i < row_list.Count; i++)
+           {
+               if (i > 0 && i < row_list.Count - 1)    //Check Both Sides
+               {
+                   if (!row_list[i].used && row_list[i + 1].used && row_list[i - 1].used)
+                   {
+                       row_list[i].used = true;
+                   }
+               } else {
+                   if (i > 0)  //Check Left
+                   {
+                       if (!row_list[i].used && row_list[i - 1].used)
+                       {
+                           row_list[i].used = true;
+                       }
+                   }
+
+                   if (i < row_list.Count - 1)
+                   {
+                       if (!row_list[i].used && row_list[i + 1].used)
+                       {
+                           row_list[i].used = true;
+                       }
+                   }
+               }
+           }
+
+           //Check If we can Merge anymore cells
+           for (int i = 0; i < row_list.Count - 1; i++)
+           {
+               if (!row_list[i].used && !row_list[i + 1].used)
+               {
+                   all_linked = false;
+                   break;
+
+               } else {
+                   all_linked = true;
+               }
+           }
+       }
+       */

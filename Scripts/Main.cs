@@ -2,7 +2,8 @@ using Godot;
 
 public partial class Main : CanvasLayer
 {
-    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker, Ellers, Ellers_Loop }
+    enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker, Ellers, Ellers_Loop,
+        BinaryTree_Random, BinaryTree_Last, BinaryTree_Mix }
     enum EPointType { None = 0, Random, Furthest, Custom };
 
     //Grid Properties
@@ -220,6 +221,18 @@ public partial class Main : CanvasLayer
             case EMazeType.Ellers_Loop:
                 MazeGenerator.Ellers(ref grid, true);
                 break;
+
+            case EMazeType.BinaryTree_Random:
+                MazeGenerator.BinaryTree(ref grid, 0);
+                break;
+
+            case EMazeType.BinaryTree_Last:
+                MazeGenerator.BinaryTree(ref grid, 1);
+                break;
+
+            case EMazeType.BinaryTree_Mix:
+                MazeGenerator.BinaryTree(ref grid, 2);
+                break;
         }
 
         //Set Points
@@ -263,6 +276,18 @@ public partial class Main : CanvasLayer
 
             case ((long)EMazeType.Ellers_Loop):
                 maze_type = EMazeType.Ellers_Loop;
+                break;
+
+            case ((long)EMazeType.BinaryTree_Random):
+                maze_type = EMazeType.BinaryTree_Random;
+                break;
+
+            case ((long)EMazeType.BinaryTree_Last):
+                maze_type = EMazeType.BinaryTree_Last;
+                break;
+
+            case ((long)EMazeType.BinaryTree_Mix):
+                maze_type = EMazeType.BinaryTree_Mix;
                 break;
         }
     }

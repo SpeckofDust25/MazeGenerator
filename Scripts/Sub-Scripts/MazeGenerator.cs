@@ -402,33 +402,81 @@ public static class MazeGenerator
         return _grid;
     }
 
+    //Types: Random = 0, Last = 1, Mix = 2
+    public static Grid BinaryTree(ref Grid _grid, int type = 0)
+    {
+        List<Cell> active_list = new List<Cell>();
+        active_list.Add(_grid.cells[(int)(GD.Randi() % _grid.GetWidth()), (int)(GD.Randi() % _grid.GetHeight())]);
+
+        while(active_list.Count > 0)
+        {
+            int index = (int)(GD.Randi() % active_list.Count);
+            Cell cell = active_list[index];
+            Direction dir = GetAdjacentUnvisited(ref _grid, cell);
+
+            if (type == 1) {    //Last
+                index = active_list.Count - 1;
+                cell = active_list[index];
+                dir = GetAdjacentUnvisited(ref _grid, cell);
+
+            } else if (type == 2) { //Mixed
+                if ((int)(GD.Randi() % 2) == 0) {
+                    index = active_list.Count - 1;
+                    cell = active_list[index];
+                    dir = GetAdjacentUnvisited(ref _grid, cell);
+                }
+            }
+
+            if (dir != Direction.none)
+            {
+                Cell new_cell = CarvePathIndex(ref _grid, cell.index.X, cell.index.Y, dir);
+
+                if (new_cell.index.X != cell.index.X || new_cell.index.Y != cell.index.Y)
+                {
+                    active_list.Add(new_cell);
+                }
+            } else {
+                active_list.RemoveAt(index);
+            }
+        }
+
+        return _grid;
+    }
+
     //Carve Path Methods
-    private static void CarvePathIndex(ref Grid _grid, int x, int y, Direction direction)
+    private static Cell CarvePathIndex(ref Grid _grid, int x, int y, Direction direction)
     {
         Cell cell = _grid.cells[x, y];
+        Vector2I index = cell.index;
 
         switch (direction)
         {
             case Direction.north:
                 _grid.cells[cell.index.X, cell.index.Y].north = true;
                 _grid.cells[cell.index.X, cell.index.Y - 1].south = true;
+                index = new Vector2I(cell.index.X, cell.index.Y - 1);
                 break;
 
             case Direction.south:
                 _grid.cells[cell.index.X, cell.index.Y].south = true;
                 _grid.cells[cell.index.X, cell.index.Y + 1].north = true;
+                index = new Vector2I(cell.index.X, cell.index.Y + 1);
                 break;
 
             case Direction.east:
                 _grid.cells[cell.index.X, cell.index.Y].east = true;
                 _grid.cells[cell.index.X + 1, cell.index.Y].west = true;
+                index = new Vector2I(cell.index.X + 1, cell.index.Y);
                 break;
 
             case Direction.west:
                 _grid.cells[cell.index.X, cell.index.Y].west = true;
                 _grid.cells[cell.index.X - 1, cell.index.Y].east = true;
+                index = new Vector2I(cell.index.X - 1, cell.index.Y);
                 break;
         }
+
+        return _grid.cells[index.X, index.Y];
     }
 
     private static void CarvePathManual(ref Grid _grid, Cell cell, Direction direction)
@@ -580,6 +628,7 @@ public static class MazeGenerator
         }
     }
   
+    //TODO: Create SpinBox that can modify the chance of Loops
     private static void RandomSouth(ref Grid _grid, ref List<List<Identifier>> list, int y_index, bool is_loop)
     {
         int count = 0;
@@ -594,10 +643,10 @@ public static class MazeGenerator
                 count += 1;
             }
 
-            //Set Random Number
             int num = count;
             int south_count = 1;
 
+            //Set Random Number: No Loop
             if (count > 0)
             {
                 num = (int)(GD.Randi() % count);
@@ -612,24 +661,64 @@ public static class MazeGenerator
                         south_count += 1;
                     }
                 }
-            }
+            } 
 
-            //Check Next Number
-            if (i < list[y_index].Count - 1) {
+            //Carve South: Loop and No Loop
+            if (i < list[y_index].Count - 1) {  //Not At End
                 if (list[y_index][i + 1].uid != number)
                 {
-                    //Carve South
-                    while (south_count > 0) {
-                        num = (int)(GD.Randi() % count);
+                    if (is_loop) {
+                        south_count = 0;
+                        bool carved = false;
 
-                        if (!_grid.cells[i - num, y_index].south) { //Go South
-                            MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
-                            CarvePathIndex(ref _grid, i - num, y_index, Direction.south);
-                            south_count -= 1;
+                        for (int l = 0; l < count; l++)
+                        {
+                            bool can_carve = false;
 
-                            if (is_loop)    //TODO: Support for Eller's Loop
+                            if ((int)(GD.Randi() % 2) == 0)
                             {
+                                Cell middle = _grid.cells[i - l, y_index];
+                                Cell right = _grid.cells[i - l + 1, y_index];
+                                Cell left = middle;
                                 
+                                if (middle.index.X != 0)
+                                {
+                                    left = _grid.cells[i - l - 1, y_index];
+                                }
+
+                                if (!middle.south && !right.south && !left.south) //&& !right.south)
+                                {
+                                    can_carve = true;
+                                }
+
+                                //Carve South
+                                if (can_carve)
+                                {
+                                    carved = true;
+                                    MergeSets(ref list, number, list[y_index + 1][i - l].uid, true);
+                                    CarvePathIndex(ref _grid, i - l, y_index, Direction.south);
+                                }
+                            }
+                        }
+
+                        if (!carved)
+                        {
+                            if (!_grid.cells[i - num, y_index].south)
+                            { //Go South
+                                MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
+                                CarvePathIndex(ref _grid, i - num, y_index, Direction.south);
+                            }
+                        }
+
+                    } else {    //No Loop
+
+                        while (south_count > 0) {
+                            num = (int)(GD.Randi() % count);
+
+                            if (!_grid.cells[i - num, y_index].south) { //Go South
+                                MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
+                                CarvePathIndex(ref _grid, i - num, y_index, Direction.south);
+                                south_count -= 1;
                             }
                         }
                     }
@@ -637,9 +726,9 @@ public static class MazeGenerator
                     number = list[y_index][i + 1].uid;
                     count = 0;
                 }
-            } else {
+            } else { //At End of Row
                 MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
-                CarvePathIndex(ref _grid, i - num , y_index, Direction.south);
+                CarvePathIndex(ref _grid, i - num, y_index, Direction.south);
             }
         }
     }

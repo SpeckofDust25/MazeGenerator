@@ -3,7 +3,7 @@ using Godot;
 public partial class Main : CanvasLayer
 {
     enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker, Ellers, Ellers_Loop,
-        BinaryTree_Random, BinaryTree_Last, BinaryTree_Mix }
+        GrowingTree_Random, GrowingTree_Last, GrowingTree_Mix, Kruskals_Random, Prims_Simple, Prims_True }
     enum EPointType { None = 0, Random, Furthest, Custom };
 
     //Grid Properties
@@ -222,16 +222,28 @@ public partial class Main : CanvasLayer
                 MazeGenerator.Ellers(ref grid, true);
                 break;
 
-            case EMazeType.BinaryTree_Random:
-                MazeGenerator.BinaryTree(ref grid, 0);
+            case EMazeType.GrowingTree_Random:
+                MazeGenerator.GrowingTree(ref grid, 0);
                 break;
 
-            case EMazeType.BinaryTree_Last:
-                MazeGenerator.BinaryTree(ref grid, 1);
+            case EMazeType.GrowingTree_Last:
+                MazeGenerator.GrowingTree(ref grid, 1);
                 break;
 
-            case EMazeType.BinaryTree_Mix:
-                MazeGenerator.BinaryTree(ref grid, 2);
+            case EMazeType.GrowingTree_Mix:
+                MazeGenerator.GrowingTree(ref grid, 2);
+                break;
+
+            case EMazeType.Kruskals_Random:
+                MazeGenerator.Kruskals(ref grid);
+                break;
+
+            case EMazeType.Prims_Simple:
+                MazeGenerator.Prims_Simple(ref grid);
+                break;
+
+            case EMazeType.Prims_True:
+                MazeGenerator.Prims_True(ref grid);
                 break;
         }
 
@@ -278,16 +290,28 @@ public partial class Main : CanvasLayer
                 maze_type = EMazeType.Ellers_Loop;
                 break;
 
-            case ((long)EMazeType.BinaryTree_Random):
-                maze_type = EMazeType.BinaryTree_Random;
+            case ((long)EMazeType.GrowingTree_Random):
+                maze_type = EMazeType.GrowingTree_Random;
                 break;
 
-            case ((long)EMazeType.BinaryTree_Last):
-                maze_type = EMazeType.BinaryTree_Last;
+            case ((long)EMazeType.GrowingTree_Last):
+                maze_type = EMazeType.GrowingTree_Last;
                 break;
 
-            case ((long)EMazeType.BinaryTree_Mix):
-                maze_type = EMazeType.BinaryTree_Mix;
+            case ((long)EMazeType.GrowingTree_Mix):
+                maze_type = EMazeType.GrowingTree_Mix;
+                break;
+
+            case ((long)EMazeType.Kruskals_Random):
+                maze_type = EMazeType.Kruskals_Random;
+                break;
+
+            case ((long)EMazeType.Prims_Simple):
+                maze_type = EMazeType.Prims_Simple;
+                break;
+
+            case ((long)EMazeType.Prims_True):
+                maze_type = EMazeType.Prims_True;
                 break;
         }
     }

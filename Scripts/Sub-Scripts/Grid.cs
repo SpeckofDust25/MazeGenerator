@@ -6,12 +6,13 @@ public class Grid {
 
 	private int cell_size = 10;
 	private int wall_size = 10;
+	private int exterior_size = 0;
 	private int width = 10;
 	private int height = 10;
 
 	public Cell[,] cells;
 
-	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1) {
+	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1, int _exterior_size = 0) {
 		width = _width;
 		height = _height;
 		cells = new Cell[width, height];
@@ -26,6 +27,7 @@ public class Grid {
 
 		wall_size = _thickness;
 		cell_size = _cell_size;
+		exterior_size = _exterior_size;
 	}
 
 	//Setters
@@ -38,6 +40,10 @@ public class Grid {
 		wall_size = _wall_size;
 	}
 
+	public void SetExteriorSize(int _exterior_size)
+	{
+		exterior_size = _exterior_size;
+	}
 
 	//Getters
 
@@ -60,6 +66,11 @@ public class Grid {
 
 	public int GetWallSize() {
 		return wall_size;
+	}
+
+	public int GetExteriorSize()
+	{
+		return exterior_size;
 	}
 
 	//Image Data: Width, Height Getters in Pixels

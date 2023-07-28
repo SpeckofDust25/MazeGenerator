@@ -10,12 +10,14 @@ public partial class MazeProperties : TabBar
 	[Signal] public delegate void CellsYEventHandler();
 	[Signal] public delegate void CellSizeEventHandler();
 	[Signal] public delegate void WallSizeEventHandler();
+	[Signal] public delegate void ExteriorSizeEventHandler();
 
     //Nodes
     private Button generate_maze_button;
     private OptionButton maze_type_option_button;
     private SpinBox cells_x_spin_box, cells_y_spin_box;
     private SpinBox cell_size_spin_box, wall_size_spin_box;
+	private SpinBox exterior_size_spin_box;
 
     public override void _Ready() {
 		SetupNodes();
@@ -32,6 +34,7 @@ public partial class MazeProperties : TabBar
 		cells_y_spin_box = GetNode<SpinBox>("VBoxContainer/HeightHBoxContainer/CellsYSpinBox");
 		cell_size_spin_box = GetNode<SpinBox>("VBoxContainer/CellSizeHBoxContainer/CellSizeSpinBox");
 		wall_size_spin_box = GetNode<SpinBox>("VBoxContainer/WallSizeHBoxContainer/WallSizeSpinBox");
+		exterior_size_spin_box = GetNode<SpinBox>("VBoxContainer/ExteriorSizeHBoxContainer/ExteriorSizeSpinBox");
 	}
 	
 	private void SetupConnections() {
@@ -43,6 +46,7 @@ public partial class MazeProperties : TabBar
 		cells_y_spin_box.ValueChanged += CellsYChanged;
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
+		exterior_size_spin_box.ValueChanged += ExteriorSizeChanged;
     }
 
 
@@ -73,5 +77,10 @@ public partial class MazeProperties : TabBar
 	private void WallSizeChanged(double value)
 	{
 		EmitSignal(SignalName.WallSize, value);
+	}
+
+	private void ExteriorSizeChanged(double value)
+	{
+		EmitSignal(SignalName.ExteriorSize, value);
 	}
 }

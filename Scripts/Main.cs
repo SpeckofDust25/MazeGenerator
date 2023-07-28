@@ -11,6 +11,7 @@ public partial class Main : CanvasLayer
     private EMazeType maze_type;
     private int x_cells, y_cells;
     private int wall_size, cell_size;
+    private int exterior_size;
 
     //Nodes
     private TextureRect texture_rect;
@@ -27,7 +28,7 @@ public partial class Main : CanvasLayer
     private EPointType first_point_type = EPointType.None, second_point_type = EPointType.None;
     private Vector2I start_point, end_point;
     private Color start_point_color, end_point_color;
-
+    private bool can_draw_points = false;
 
     public override void _Ready()
     {
@@ -50,7 +51,8 @@ public partial class Main : CanvasLayer
 
     private void GenerateMazeImage()
     {
-        image = Image.Create(grid.GetTotalWidthPx(), grid.GetTotalHeightPx(), false, Image.Format.Rgb8);
+        int exterior_size = grid.GetExteriorSize();
+        image = Image.Create(grid.GetTotalWidthPx() + (exterior_size * 2), grid.GetTotalHeightPx() + (exterior_size * 2), false, Image.Format.Rgb8);
         image.Fill(Colors.White);   //Fill Image
 
         //Draw Points
@@ -70,32 +72,48 @@ public partial class Main : CanvasLayer
 
     private void DrawStartEndPoints()
     {
-        Rect2I start_rect = new Rect2I(start_point.X * (grid.GetCellSize() + grid.GetWallSize()), start_point.Y * (grid.GetCellSize() + grid.GetWallSize()), grid.GetCellSizePx());
-        image.FillRect(start_rect, start_point_color);
+        if (can_draw_points) {
+            Rect2I start_rect = new Rect2I(start_point.X * (grid.GetCellSize() + grid.GetWallSize()), start_point.Y * (grid.GetCellSize() + grid.GetWallSize()), grid.GetCellSizePx());
+            image.FillRect(start_rect, start_point_color);
 
-        Rect2I end_rect = new Rect2I(end_point.X * (grid.GetCellSize() + grid.GetWallSize()), end_point.Y * (grid.GetCellSize() + grid.GetWallSize()), grid.GetCellSizePx());
-        image.FillRect(end_rect, end_point_color);
+            Rect2I end_rect = new Rect2I(end_point.X * (grid.GetCellSize() + grid.GetWallSize()), end_point.Y * (grid.GetCellSize() + grid.GetWallSize()), grid.GetCellSizePx());
+            image.FillRect(end_rect, end_point_color);
+        }
     }
 
     private void SetMazeColors(Color wall_color, ref Image _image, int _x, int _y)
     {
+        int exterior_offset = grid.GetExteriorSize();
+        GD.Print(exterior_offset);
         Cell cell = grid.cells[_x, _y];
 
         //Wall Drawing
         if (!cell.north) { // North
-            image.FillRect(grid.GetNorthWall(_x, _y), wall_color);
+            Rect2I north_wall = grid.GetNorthWall(_x, _y);
+            north_wall.Position += new Vector2I(exterior_offset, exterior_offset);
+
+            image.FillRect(north_wall, wall_color);
         }
 
         if (!cell.south) {  //South
-            image.FillRect(grid.GetSouthWall(_x, _y), wall_color);
+            Rect2I south_wall = grid.GetSouthWall(_x, _y);
+            south_wall.Position += new Vector2I(exterior_offset, exterior_offset);
+
+            image.FillRect(south_wall, wall_color);
         }
         
 		if (!cell.east) {   //East
-            image.FillRect(grid.GetEastWall(_x, _y), wall_color);
+            Rect2I east_wall = grid.GetEastWall(_x, _y);
+            east_wall.Position += new Vector2I(exterior_offset, exterior_offset);
+
+            image.FillRect(east_wall, wall_color);
         }
 
 		if (!cell.west) { //West
-            image.FillRect(grid.GetWestWall(_x, _y), wall_color);
+            Rect2I west_wall = grid.GetWestWall(_x, _y);
+            west_wall.Position += new Vector2I(exterior_offset, exterior_offset);
+
+            image.FillRect(west_wall, wall_color);
         }
     }
 
@@ -120,6 +138,7 @@ public partial class Main : CanvasLayer
         if (!maze_properties.HasSignal("CellsY")) { GD.PrintErr("Can't Find CellsY Signal!"); }
         if (!maze_properties.HasSignal("CellSize")) { GD.PrintErr("Can't Find CellSize Signal!"); }
         if (!maze_properties.HasSignal("WallSize")) { GD.PrintErr("Can't Find WallSize Signal! "); }
+        if (!maze_properties.HasSignal("ExteriorSize")) { GD.PrintErr("Can't Find ExteriorSize Signal! "); }
 
         Callable c_generate_maze = new Callable(this, "GenerateMaze");
         Callable c_maze_type = new Callable(this, "MazeType");
@@ -127,13 +146,15 @@ public partial class Main : CanvasLayer
         Callable c_cells_y = new Callable(this, "CellsYChanged");
         Callable c_cell_size = new Callable(this, "CellSizeChanged");
         Callable c_wall_size = new Callable(this, "WallSizeChanged");
-        
+        Callable c_exterior_size = new Callable(this, "ExteriorSizeChanged");
+
         maze_properties.Connect("GenerateMaze", c_generate_maze);
         maze_properties.Connect("MazeType", c_maze_type);
         maze_properties.Connect("CellsX", c_cells_x);
         maze_properties.Connect("CellsY", c_cells_y);
         maze_properties.Connect("CellSize", c_cell_size);
         maze_properties.Connect("WallSize", c_wall_size);
+        maze_properties.Connect("ExteriorSize", c_exterior_size);
 
         //Point Properties
         if (!points_properties.HasSignal("StartPointType")) { GD.PrintErr("Can't Find StartPointType"); }
@@ -186,7 +207,7 @@ public partial class Main : CanvasLayer
     private void GenerateMaze()
     {
         //Create New Grid
-        grid = new Grid(x_cells, y_cells, wall_size, cell_size);
+        grid = new Grid(x_cells, y_cells, wall_size, cell_size, exterior_size);
 
         switch (maze_type)
         {
@@ -337,6 +358,13 @@ public partial class Main : CanvasLayer
     {
         wall_size = (int)value;
         grid.SetWallSize(wall_size);
+        GenerateMazeImage();
+    }
+
+    private void ExteriorSizeChanged(double value)
+    {
+        exterior_size = (int)value;
+        grid.SetExteriorSize(exterior_size);
         GenerateMazeImage();
     }
 

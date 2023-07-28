@@ -568,7 +568,6 @@ public static class MazeGenerator
             Cell neighbor = active[0];
 
             //Get Lowest Cost Neighbor
-
             if (lowest_cost_cell.index.Y > 0)  {   //North
                 Cell temp = _grid.cells[lowest_cost_cell.index.X, lowest_cost_cell.index.Y - 1];
                 if (!temp.IsVisited())

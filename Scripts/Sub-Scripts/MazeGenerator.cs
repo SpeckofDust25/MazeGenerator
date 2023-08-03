@@ -862,6 +862,7 @@ public static class MazeGenerator
         //Open Random Cell
         if (cells_added.Count > 0) {
             int random_index = (int)(GD.Randi() % cells_added.Count());
+            
             /*for (int i = 0; i < cells_added.Count; i++)
             {
                 GD.Print(cells_added[i].index);
@@ -893,54 +894,15 @@ public static class MazeGenerator
     {
         Grid first = null;
         Grid second = null;
-        bool is_divide_horizontal = ((GD.Randi() % 2) == 1);
-        bool can_divide = false;
 
-        GD.Print("Grid Size: " + _grid.GetWidth().ToString() + "," + _grid.GetHeight().ToString());
-
-        //Can we Divide the Grid 
-        if (_grid.GetWidth() > 1 && _grid.GetHeight() > 1) {
-            can_divide = true;
-        }
+        //GD.Print("Grid Size: " + _grid.GetWidth().ToString() + "," + _grid.GetHeight().ToString());
 
         //Create Walls
         CreateRandomWall(ref _grid, max_size);
-        
-        //Divide Grid into 2 Pieces
-        if (can_divide) {
 
-            //Determines Horizontal or Vertical Line
-            if (is_divide_horizontal) 
-            {
-                int first_index = (int)Mathf.Ceil((float)_grid.GetHeight() / 2f);
-                int second_index = (int)Mathf.Floor((float)_grid.GetHeight() / 2f);
-
-                if (first_index > 0) {
-                    first = new Grid(_grid.GetWidth(), first_index);
-                }
-
-                if (second_index > 0) {
-                    second = new Grid(_grid.GetWidth(), second_index);
-                }
-
-            } else {
-                int first_index = (int)Mathf.Ceil((float)_grid.GetWidth() / 2f);
-                int second_index = (int)Mathf.Floor((float)_grid.GetWidth() / 2f);
-
-                if (first_index > 0)
-                {
-                    first = new Grid(first_index, _grid.GetHeight());
-                }
-                
-                if (second_index > 0) 
-                {
-                    second = new Grid(second_index, _grid.GetHeight());
-                }
-            }
-
-            //Add Cells to Grid
-            AddCellsToGrid(ref first, ref second, ref _grid, is_divide_horizontal);
-        }
+        //Divide Grid
+        first = DivideGrid(ref _grid, true);
+        second = DivideGrid(ref _grid, false);
 
         //Recursive Call
         if (first != null) {
@@ -964,36 +926,89 @@ public static class MazeGenerator
 
     /* Recursive Division Methods
      */
-    private static void AddCellsToGrid(ref Grid first, ref Grid second, ref Grid grid, bool is_divide_horizontal)
+    private static Grid DivideGrid(ref Grid grid, bool first)
     {
+        Grid new_grid = null;
+        bool is_divide_horizontal = ((GD.Randi() % 2) == 1);
+
+        int first_index = 0;
+        int second_index = 0;
+
+        //Cell Count
+
+        //Horizontal
+        if (is_divide_horizontal)
+        {
+            first_index = (int)Mathf.Ceil((float)grid.GetHeight() / 2f);
+            second_index = (int)Mathf.Floor((float)grid.GetHeight() / 2f);
+
+            if (first)
+            {
+                new_grid = new Grid(grid.GetWidth(), first_index);
+            } else {
+                new_grid = new Grid(grid.GetWidth(), second_index);
+            }
+        }
+
+        //Vertical
+        if (!is_divide_horizontal)
+        {
+            first_index = (int)Mathf.Ceil((float)grid.GetWidth() / 2f);
+            second_index = (int)Mathf.Floor((float)grid.GetWidth() / 2f);
+
+            if (first) {
+                new_grid = new Grid(first_index, grid.GetHeight());
+            } else {
+                new_grid = new Grid(second_index, grid.GetHeight());
+            }
+        }
+
+        //Populate Grid
         for (int x = 0; x < grid.GetWidth(); x++)
         {
             for (int y = 0; y < grid.GetHeight(); y++)
             {
-                if (!is_divide_horizontal)
+
+                //Horizontal
+                if (is_divide_horizontal)
                 {
-                    if (x < first.GetWidth())
+                    if (first)
                     {
-                        first.cells[x, y] = grid.cells[x, y];
-                    }
-                    else
-                    {
-                        second.cells[x - first.GetWidth(), y] = grid.cells[x, y];
+                        if (y < first_index)
+                        {
+                            new_grid.cells[x, y] = grid.cells[x, y];
+                        }
+                    } else {
+
+                        if (y >= first_index)
+                        {
+                            new_grid.cells[x, y - first_index] = grid.cells[x, y];
+                        }
                     }
                 }
-                else
+
+                //Vertical
+                if (!is_divide_horizontal)
                 {
-                    if (y < first.GetHeight())
+                    if (first)
                     {
-                        first.cells[x, y] = grid.cells[x, y];
+                        if (x < first_index)
+                        {
+                            new_grid.cells[x, y] = grid.cells[x, y];
+                        }
                     }
                     else
                     {
-                        second.cells[x, y - first.GetHeight()] = grid.cells[x, y];
+                        if (x >= first_index)
+                        {
+                            new_grid.cells[x - first_index, y] = grid.cells[x, y];
+                        }
                     }
                 }
             }
         }
+
+        return new_grid;
     }
 
 

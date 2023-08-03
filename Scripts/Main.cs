@@ -3,7 +3,7 @@ using Godot;
 public partial class Main : CanvasLayer
 {
     enum EMazeType { BinaryTree, Sidewinder, Aldous_Broder, Wilsons, HuntandKill, Recursive_Backtracker, Ellers, Ellers_Loop,
-        GrowingTree_Random, GrowingTree_Last, GrowingTree_Mix, Kruskals_Random, Prims_Simple, Prims_True }
+        GrowingTree_Random, GrowingTree_Last, GrowingTree_Mix, Kruskals_Random, Prims_Simple, Prims_True, GrowingForest, Recursive_Division }
     enum EPointType { None = 0, Random, Furthest, Custom };
 
     //Grid Properties
@@ -84,7 +84,6 @@ public partial class Main : CanvasLayer
     private void SetMazeColors(Color wall_color, ref Image _image, int _x, int _y)
     {
         int exterior_offset = grid.GetExteriorSize();
-        GD.Print(exterior_offset);
         Cell cell = grid.cells[_x, _y];
 
         //Wall Drawing
@@ -266,6 +265,14 @@ public partial class Main : CanvasLayer
             case EMazeType.Prims_True:
                 MazeGenerator.Prims_True(ref grid);
                 break;
+
+            case EMazeType.GrowingForest:
+                MazeGenerator.GrowingForest(ref grid);
+                break;
+
+            case EMazeType.Recursive_Division:
+                MazeGenerator.Recursive_Division(ref grid);
+                break;
         }
 
         //Set Points
@@ -333,6 +340,14 @@ public partial class Main : CanvasLayer
 
             case ((long)EMazeType.Prims_True):
                 maze_type = EMazeType.Prims_True;
+                break;
+
+            case ((long)EMazeType.GrowingForest):
+                maze_type = EMazeType.GrowingForest;
+                break;
+
+            case ((long)EMazeType.Recursive_Division):
+                maze_type = EMazeType.Recursive_Division;
                 break;
         }
     }

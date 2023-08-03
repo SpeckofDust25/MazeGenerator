@@ -53,6 +53,7 @@ size_flags_horizontal = 2
 text = "Algorithm"
 
 [node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/VBoxContainer/TypeHBoxContainer"]
+clip_contents = true
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -87,9 +88,9 @@ popup/item_12/text = "Prim's (simple)"
 popup/item_12/id = 12
 popup/item_13/text = "Prim's (true)"
 popup/item_13/id = 13
-popup/item_14/text = "Recursive Division"
+popup/item_14/text = "Growing Forest"
 popup/item_14/id = 14
-popup/item_15/text = "Growing Forest"
+popup/item_15/text = "Recursive Division"
 popup/item_15/id = 15
 
 [node name="ShapeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/VBoxContainer"]

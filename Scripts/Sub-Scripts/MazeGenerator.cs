@@ -627,6 +627,32 @@ public static class MazeGenerator
         return _grid;
     }
 
+    public static Grid GrowingForest(ref Grid _grid)
+    {
+        return _grid;
+    }
+
+    public static Grid Recursive_Division(ref Grid _grid)
+    {
+        //Get Rid of Walls
+        for (int x = 0; x < _grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < _grid.GetHeight(); y++)
+            {
+                if (y > 0) { _grid.cells[x, y].north = true; }
+                if (y < _grid.GetHeight() - 1) { _grid.cells[x, y].south = true; }
+                if (x < _grid.GetWidth() - 1) { _grid.cells[x, y].east = true; }
+                if (x > 0) { _grid.cells[x, y].west = true; }
+            }
+        }
+
+        Division(ref _grid, new Vector2I(_grid.GetWidth(), _grid.GetHeight()));
+
+        return _grid;
+    }
+
+
+
     //Carve Path Methods
     private static Cell CarvePathIndex(ref Grid _grid, int x, int y, Direction direction)
     {
@@ -774,8 +800,202 @@ public static class MazeGenerator
         }
     }
 
+    private static void CreateRandomWall(ref Grid _grid, Vector2I max_size)
+    {
+        bool is_horizontal = ((GD.Randi() % 2) == 1);
+        List<Cell> cells_added = new List<Cell>();
+        Direction dir = Direction.none;
+
+        //Can't Create Walls on Single Cells
+        if (_grid.GetWidth() == 1) { is_horizontal = false; }
+        if (_grid.GetHeight() == 1) { is_horizontal = true; }
+        if (_grid.GetWidth() <= 1 && _grid.GetHeight() <= 1) { return; }
+
+        //Horizontal
+        if (is_horizontal) {
+            bool is_north = ((GD.Randi() % 2) == 1);
+            Cell cell = _grid.cells[0, _grid.GetHeight() - 1];
+
+            if (cell.index.Y == 0) { is_north = false; }
+            if (cell.index.Y >= max_size.Y - 1) { is_north = true; }
+
+            for (int i = 0; i < _grid.GetWidth(); i++)
+            {
+                if (is_north) {
+                    _grid.cells[i, _grid.GetHeight() - 1].north = false;
+                    dir = Direction.north;
+                } else {
+                    _grid.cells[i, _grid.GetHeight() - 1].south = false;
+                    dir = Direction.south;
+                }
+
+                cells_added.Add(_grid.cells[i, _grid.GetHeight() - 1]);
+            }
+        }
+
+        //Vertical
+        if (!is_horizontal)
+        {
+            bool is_east = ((GD.Randi() % 2) == 1);
+            Cell cell = _grid.cells[_grid.GetWidth() - 1, 0];
+
+            if (cell.index.X >= max_size.X - 1) { is_east = false; }
+            if (cell.index.X == 0) { is_east = true; }
+
+            for (int i = 0; i < _grid.GetHeight(); i++)
+            {
+                if (is_east)
+                {
+                    _grid.cells[_grid.GetWidth() - 1, i].east = false;
+                    dir = Direction.east;
+                }
+                else
+                {
+                    _grid.cells[_grid.GetWidth() - 1, i].west = false;
+                    dir = Direction.west;
+                }
+
+                cells_added.Add(_grid.cells[_grid.GetWidth() - 1, i]);
+            }
+        }
+
+        //Open Random Cell
+        if (cells_added.Count > 0) {
+            int random_index = (int)(GD.Randi() % cells_added.Count());
+            /*for (int i = 0; i < cells_added.Count; i++)
+            {
+                GD.Print(cells_added[i].index);
+            }*/
+
+            switch(dir)
+            {
+                case Direction.north:
+                    cells_added[random_index].north = true;
+                    break;
+
+                case Direction.south:
+                    cells_added[random_index].south = true;
+                    break;
+
+                case Direction.east:
+                    cells_added[random_index].east = true;
+                    break;
+
+                case Direction.west:
+                    cells_added[random_index].west = true;
+                    break;
+            }
+        }
+    }
 
     //Helper Methods
+    private static Grid Division(ref Grid _grid, Vector2I max_size)
+    {
+        Grid first = null;
+        Grid second = null;
+        bool is_divide_horizontal = ((GD.Randi() % 2) == 1);
+        bool can_divide = false;
+
+        GD.Print("Grid Size: " + _grid.GetWidth().ToString() + "," + _grid.GetHeight().ToString());
+
+        //Can we Divide the Grid 
+        if (_grid.GetWidth() > 1 && _grid.GetHeight() > 1) {
+            can_divide = true;
+        }
+
+        //Create Walls
+        CreateRandomWall(ref _grid, max_size);
+        
+        //Divide Grid into 2 Pieces
+        if (can_divide) {
+
+            //Determines Horizontal or Vertical Line
+            if (is_divide_horizontal) 
+            {
+                int first_index = (int)Mathf.Ceil((float)_grid.GetHeight() / 2f);
+                int second_index = (int)Mathf.Floor((float)_grid.GetHeight() / 2f);
+
+                if (first_index > 0) {
+                    first = new Grid(_grid.GetWidth(), first_index);
+                }
+
+                if (second_index > 0) {
+                    second = new Grid(_grid.GetWidth(), second_index);
+                }
+
+            } else {
+                int first_index = (int)Mathf.Ceil((float)_grid.GetWidth() / 2f);
+                int second_index = (int)Mathf.Floor((float)_grid.GetWidth() / 2f);
+
+                if (first_index > 0)
+                {
+                    first = new Grid(first_index, _grid.GetHeight());
+                }
+                
+                if (second_index > 0) 
+                {
+                    second = new Grid(second_index, _grid.GetHeight());
+                }
+            }
+
+            //Add Cells to Grid
+            AddCellsToGrid(ref first, ref second, ref _grid, is_divide_horizontal);
+        }
+
+        //Recursive Call
+        if (first != null) {
+            if (first.GetWidth() > 1 && first.GetHeight() > 1)
+            {
+                Division(ref first, max_size);
+            }
+        }
+
+        if (second != null)
+        {
+            if (second.GetWidth() > 1 && second.GetHeight() > 1)
+            {
+                Division(ref second, max_size);
+            }
+        }
+
+        return _grid;
+    }
+
+
+    /* Recursive Division Methods
+     */
+    private static void AddCellsToGrid(ref Grid first, ref Grid second, ref Grid grid, bool is_divide_horizontal)
+    {
+        for (int x = 0; x < grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
+                if (!is_divide_horizontal)
+                {
+                    if (x < first.GetWidth())
+                    {
+                        first.cells[x, y] = grid.cells[x, y];
+                    }
+                    else
+                    {
+                        second.cells[x - first.GetWidth(), y] = grid.cells[x, y];
+                    }
+                }
+                else
+                {
+                    if (y < first.GetHeight())
+                    {
+                        first.cells[x, y] = grid.cells[x, y];
+                    }
+                    else
+                    {
+                        second.cells[x, y - first.GetHeight()] = grid.cells[x, y];
+                    }
+                }
+            }
+        }
+    }
+
 
     /* Used for Eller's Algorithm
      * Links Up the passed in Identifiers Horizontally based on the unique id of each cell

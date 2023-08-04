@@ -1,4 +1,5 @@
 ﻿using Godot;
+using Godot.NativeInterop;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design.Serialization;
@@ -894,20 +895,24 @@ public static class MazeGenerator
     {
         Grid first = null;
         Grid second = null;
+        bool is_horizontal = ((GD.Randi() % 2) == 1);
 
         //GD.Print("Grid Size: " + _grid.GetWidth().ToString() + "," + _grid.GetHeight().ToString());
 
         //Create Walls
         CreateRandomWall(ref _grid, max_size);
 
+        GD.Print("Divide Grid: "); 
+
         //Divide Grid
-        first = DivideGrid(ref _grid, true);
-        second = DivideGrid(ref _grid, false);
+        first = DivideGrid(ref _grid, true, is_horizontal);
+        second = DivideGrid(ref _grid, false, is_horizontal);
 
         //Recursive Call
         if (first != null) {
             if (first.GetWidth() > 1 && first.GetHeight() > 1)
             {
+                GD.Print("Divide");
                 Division(ref first, max_size);
             }
         }
@@ -916,6 +921,7 @@ public static class MazeGenerator
         {
             if (second.GetWidth() > 1 && second.GetHeight() > 1)
             {
+                GD.Print("Divide");
                 Division(ref second, max_size);
             }
         }
@@ -926,10 +932,9 @@ public static class MazeGenerator
 
     /* Recursive Division Methods
      */
-    private static Grid DivideGrid(ref Grid grid, bool first)
+    private static Grid DivideGrid(ref Grid grid, bool first, bool is_horizontal)
     {
         Grid new_grid = null;
-        bool is_divide_horizontal = ((GD.Randi() % 2) == 1);
 
         int first_index = 0;
         int second_index = 0;
@@ -937,7 +942,7 @@ public static class MazeGenerator
         //Cell Count
 
         //Horizontal
-        if (is_divide_horizontal)
+        if (is_horizontal)
         {
             first_index = (int)Mathf.Ceil((float)grid.GetHeight() / 2f);
             second_index = (int)Mathf.Floor((float)grid.GetHeight() / 2f);
@@ -948,10 +953,12 @@ public static class MazeGenerator
             } else {
                 new_grid = new Grid(grid.GetWidth(), second_index);
             }
+
+            GD.Print("Horizontal: " + (new_grid.GetWidth() - 1) + ", " + (new_grid.GetHeight() - 1));
         }
 
         //Vertical
-        if (!is_divide_horizontal)
+        if (!is_horizontal)
         {
             first_index = (int)Mathf.Ceil((float)grid.GetWidth() / 2f);
             second_index = (int)Mathf.Floor((float)grid.GetWidth() / 2f);
@@ -961,6 +968,8 @@ public static class MazeGenerator
             } else {
                 new_grid = new Grid(second_index, grid.GetHeight());
             }
+
+            GD.Print("Vertical: " + (new_grid.GetWidth() - 1) + ", " + (new_grid.GetHeight() - 1));
         }
 
         //Populate Grid
@@ -970,7 +979,7 @@ public static class MazeGenerator
             {
 
                 //Horizontal
-                if (is_divide_horizontal)
+                if (is_horizontal)
                 {
                     if (first)
                     {
@@ -988,7 +997,7 @@ public static class MazeGenerator
                 }
 
                 //Vertical
-                if (!is_divide_horizontal)
+                if (!is_horizontal)
                 {
                     if (first)
                     {

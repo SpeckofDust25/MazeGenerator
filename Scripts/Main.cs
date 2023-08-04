@@ -6,6 +6,9 @@ public partial class Main : CanvasLayer
         GrowingTree_Random, GrowingTree_Last, GrowingTree_Mix, Kruskals_Random, Prims_Simple, Prims_True, GrowingForest, Recursive_Division }
     enum EPointType { None = 0, Random, Furthest, Custom };
 
+    //Event Handlers
+    [Signal] public delegate void ExpandingEventHandler(bool _expanding);
+
     //Grid Properties
     private Grid grid;
     private EMazeType maze_type;
@@ -14,12 +17,16 @@ public partial class Main : CanvasLayer
     private int exterior_size;
 
     //Nodes
+    private TabContainer tab_container;
+    private Panel panel;
     private TextureRect texture_rect;
     private TabBar maze_properties;
     private TabBar points_properties;
     private TabBar pathfinding_properties;
     private TabBar animation_properties;
     private TabBar export_properties;
+
+    private MazeInterface maze_interface;
 
     //Image
     private Image image;
@@ -29,6 +36,9 @@ public partial class Main : CanvasLayer
     private Vector2I start_point, end_point;
     private Color start_point_color, end_point_color;
     private bool can_draw_points = false;
+
+
+    bool can_expand = false;
 
     public override void _Ready()
     {
@@ -47,6 +57,33 @@ public partial class Main : CanvasLayer
         SetupNodes();
         SetupConnections();
         GenerateMaze();
+    }
+
+    public override void _Process(double delta)
+    {
+        //Expand UI
+        Vector2 start_position = new Vector2(tab_container.Size.X, 0);
+        Vector2 size = new Vector2((panel.Position.X - tab_container.Size.X) + 2, panel.Size.Y);
+        Rect2 middle_bar = new Rect2(start_position, size);
+
+        if (middle_bar.HasPoint(GetViewport().GetMousePosition()))
+        {
+           if (Input.IsActionJustPressed("panning")) {
+               can_expand = true;
+           }
+        }
+
+        if (can_expand)
+        {
+            tab_container.CustomMinimumSize = new Vector2(GetViewport().GetMousePosition().X, 0);
+
+            if (Input.IsActionJustReleased("panning"))
+            {
+                can_expand = false;
+            }
+        }
+
+        EmitSignal(SignalName.Expanding, can_expand);
     }
 
     private void GenerateMazeImage()
@@ -120,6 +157,15 @@ public partial class Main : CanvasLayer
     //Setup Methods
     private void SetupNodes()
     {
+        tab_container = GetNode<TabContainer>("Interface/TabContainer");
+        panel = GetNode<Panel>("Interface/MazePanel");
+        maze_interface = (MazeInterface)panel;
+
+        if (maze_interface.HasMethod("IsExpanding"))
+        {
+            maze_interface.IsExpanding(false);
+        }
+
         texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
         maze_properties = GetNode<MazeProperties>("Interface/TabContainer/Maze");
         points_properties = GetNode<PointProperties>("Interface/TabContainer/Points");
@@ -171,6 +217,13 @@ public partial class Main : CanvasLayer
         Callable c_save_image = new Callable(this, "SaveImage");
 
         export_properties.Connect("SaveImage", c_save_image);
+
+        //Maze Interface
+        if (!maze_interface.HasMethod("IsExpanding")) { GD.PrintErr("Can't Find IsExpanding Method! ");  }
+        
+        Callable c_expanding = new Callable(maze_interface, "IsExpanding");
+
+        Connect("Expanding", c_expanding);
     }
 
     //Connections

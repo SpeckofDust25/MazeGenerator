@@ -16,6 +16,7 @@ public partial class MazeInterface : Panel
 	private Vector2 panning_vec;
 	private bool is_focused;
 	private float magnify_increment = 0.10f;
+	private bool is_expanding = false;
 
 	public override void _Ready()
 	{
@@ -45,7 +46,7 @@ public partial class MazeInterface : Panel
 	public void HandleInput()
 	{
 		//Panning Image
-		if (Input.IsActionPressed("panning")) {
+		if (Input.IsActionPressed("panning") && !is_expanding) {
 			if (is_focused) { //Stay Focused Outside Panel Range
 				n_maze_image.Position += panning_vec;
 			} else if (GetGlobalRect().HasPoint(GetGlobalMousePosition())) {
@@ -123,4 +124,8 @@ public partial class MazeInterface : Panel
 		UpdateMagnifyIndicators(false);
 	}
 
+	public void IsExpanding(bool _expanding)
+	{
+		is_expanding = _expanding;
+	}
 }

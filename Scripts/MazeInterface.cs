@@ -10,6 +10,7 @@ public partial class MazeInterface : Panel
 	private Button n_center;
 	private HSlider n_magnify_slider;
 	private Label n_magnify_label;
+	private Panel maze_panel;
 
 	//Variables
 	private bool panning = false;
@@ -26,6 +27,8 @@ public partial class MazeInterface : Panel
 
 		panning_vec = new Vector2();
 		FocusMode = FocusModeEnum.All;
+
+		maze_panel = (Panel)this;
 	}
 
 	public override void _Process(double delta)
@@ -45,10 +48,27 @@ public partial class MazeInterface : Panel
 
 	public void HandleInput()
 	{
+		//Zoom in and out 
+		if (Input.IsActionJustPressed("zoom_in"))
+		{
+			if (maze_panel.GetRect().HasPoint(GetViewport().GetMousePosition())) {
+				_maximize_pressed();
+			}
+		}
+
+		if (Input.IsActionJustPressed("zoom_out"))
+		{
+            if (maze_panel.GetRect().HasPoint(GetViewport().GetMousePosition()))
+            {
+                _minimize_pressed();
+            }
+        }
+
 		//Panning Image
 		if (Input.IsActionPressed("panning") && !is_expanding) {
 			if (is_focused) { //Stay Focused Outside Panel Range
 				n_maze_image.Position += panning_vec;
+
 			} else if (GetGlobalRect().HasPoint(GetGlobalMousePosition())) {
 				is_focused = true;
 				n_maze_image.Position += panning_vec;
@@ -87,25 +107,21 @@ public partial class MazeInterface : Panel
 
 	public void _maximize_pressed()
 	{
-		if (n_maze_image.Scale.X < 4 - magnify_increment) {
-			n_maze_image.Scale += new Vector2(magnify_increment, magnify_increment);
-		}
-
+		n_maze_image.Scale += new Vector2(magnify_increment, magnify_increment);
 		UpdateMagnifyIndicators();
 	}
 
 	public void _minimize_pressed()
 	{
-		if (n_maze_image.Scale.X > 0.00) {
-			n_maze_image.Scale -= new Vector2(magnify_increment, magnify_increment);
-		}
-
+		n_maze_image.Scale -= new Vector2(magnify_increment, magnify_increment);
 		UpdateMagnifyIndicators();
 	}
 
 	public void UpdateMagnifyIndicators(bool update_slider = true)
 	{
-		n_magnify_label.Text = string.Format("{0:N0}", n_maze_image.Scale.X * 100) + "%";
+        float clamp_value = Mathf.Clamp(n_maze_image.Scale.X, 0, 60);
+        n_maze_image.Scale = new Vector2(clamp_value, clamp_value);
+        n_magnify_label.Text = string.Format("{0:N0}", n_maze_image.Scale.X * 100) + "%";
 		
 		if (update_slider) {
 			n_magnify_slider.Value = n_maze_image.Scale.X * 100;

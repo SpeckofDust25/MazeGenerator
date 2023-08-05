@@ -37,7 +37,6 @@ public partial class Main : CanvasLayer
     private Color start_point_color, end_point_color;
     private bool can_draw_points = false;
 
-
     bool can_expand = false;
 
     public override void _Ready()

@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 public static class MazeGenerator
 {
-    enum Direction { none, north, south, east, west }
+    public enum Direction { none, north, south, east, west }
 
     //Move North or East on each cell
     public static Grid BinaryTreeAlgorithm(ref Grid _grid)

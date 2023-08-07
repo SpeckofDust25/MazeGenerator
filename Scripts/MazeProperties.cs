@@ -3,7 +3,7 @@ using System;
 
 public partial class MazeProperties : TabBar
 {
-	//Signals
+	//Maze Signals
 	[Signal] public delegate void GenerateMazeEventHandler();
 	[Signal] public delegate void MazeTypeEventHandler();
 	[Signal] public delegate void CellsXEventHandler();
@@ -12,12 +12,20 @@ public partial class MazeProperties : TabBar
 	[Signal] public delegate void WallSizeEventHandler();
 	[Signal] public delegate void ExteriorSizeEventHandler();
 
+	//Point Signals
+	[Signal] public delegate void StartPointTypeEventHandler();
+	[Signal] public delegate void EndPointTypeEventHandler();
+	[Signal] public delegate void NewStartPointEventHandler();
+	[Signal] public delegate void NewEndPointEventHandler();
+
     //Nodes
     private Button generate_maze_button;
     private OptionButton maze_type_option_button;
     private SpinBox cells_x_spin_box, cells_y_spin_box;
     private SpinBox cell_size_spin_box, wall_size_spin_box;
 	private SpinBox exterior_size_spin_box;
+	private OptionButton start_option_button, end_option_button;
+	private Button new_start_point_button, new_end_point_button;
 
     public override void _Ready() {
 		SetupNodes();
@@ -27,15 +35,23 @@ public partial class MazeProperties : TabBar
 	//Setup Methods
 	private void SetupNodes() {
 
-		//Maze Properties
-		generate_maze_button = GetNode<Button>("VBoxContainer/GenerateMazeButton");
-		maze_type_option_button = GetNode<OptionButton>("VBoxContainer/TypeHBoxContainer/MazeTypeOptionButton");
-		cells_x_spin_box = GetNode<SpinBox>("VBoxContainer/WidthHBoxContainer/CellsXSpinBox");
-		cells_y_spin_box = GetNode<SpinBox>("VBoxContainer/HeightHBoxContainer/CellsYSpinBox");
-		cell_size_spin_box = GetNode<SpinBox>("VBoxContainer/CellSizeHBoxContainer/CellSizeSpinBox");
-		wall_size_spin_box = GetNode<SpinBox>("VBoxContainer/WallSizeHBoxContainer/WallSizeSpinBox");
-		exterior_size_spin_box = GetNode<SpinBox>("VBoxContainer/ExteriorSizeHBoxContainer/ExteriorSizeSpinBox");
-	}
+		string start_path = "ScrollContainer/HBoxContainer/VBoxContainer/";
+
+        //Maze Properties
+        generate_maze_button = GetNode<Button>(start_path + "GenerateMazeButton");
+		maze_type_option_button = GetNode<OptionButton>(start_path + "TypeHBoxContainer/MazeTypeOptionButton");
+		cells_x_spin_box = GetNode<SpinBox>(start_path + "WidthHBoxContainer/CellsXSpinBox");
+		cells_y_spin_box = GetNode<SpinBox>(start_path + "HeightHBoxContainer/CellsYSpinBox");
+		cell_size_spin_box = GetNode<SpinBox>(start_path + "CellSizeHBoxContainer/CellSizeSpinBox");
+		wall_size_spin_box = GetNode<SpinBox>(start_path + "WallSizeHBoxContainer/WallSizeSpinBox");
+		exterior_size_spin_box = GetNode<SpinBox>(start_path + "ExteriorSizeHBoxContainer/ExteriorSizeSpinBox");
+
+		//Point Properties
+		start_option_button = GetNode<OptionButton>(start_path + "StartPointHBoxContainer/OptionButton");
+        end_option_button = GetNode<OptionButton>(start_path + "EndPointHBoxContainer/OptionButton");
+		new_start_point_button = GetNode<Button>(start_path + "NewPointHBoxContainer/NewStartPointButton");
+		new_end_point_button = GetNode<Button>(start_path + "NewPointHBoxContainer/NewEndPointButton");
+    }
 	
 	private void SetupConnections() {
 
@@ -47,10 +63,18 @@ public partial class MazeProperties : TabBar
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
 		exterior_size_spin_box.ValueChanged += ExteriorSizeChanged;
+
+		//Point Properties
+		start_option_button.ItemSelected += StartPointTypeChanged;
+		end_option_button.ItemSelected += EndPointTypeChanged;
+		new_start_point_button.Pressed += NewStartPressed;
+		new_end_point_button.Pressed += NewEndPressed;
     }
 
 
 	//Connections
+
+	//Maze Properties
 	private void GenerateMazePressed() {
 		EmitSignal(SignalName.GenerateMaze);
 	}
@@ -82,5 +106,26 @@ public partial class MazeProperties : TabBar
 	private void ExteriorSizeChanged(double value)
 	{
 		EmitSignal(SignalName.ExteriorSize, value);
+	}
+
+    //Point Properties
+    private void StartPointTypeChanged(long index)
+    {
+		EmitSignal(SignalName.StartPointType, index);
+    }
+
+    private void EndPointTypeChanged(long index)
+    {
+		EmitSignal(SignalName.EndPointType, index);
+    }
+
+	private void NewStartPressed()
+	{
+		EmitSignal(SignalName.NewStartPoint);
+	}
+
+	private void NewEndPressed()
+	{
+		EmitSignal(SignalName.NewEndPoint);
 	}
 }

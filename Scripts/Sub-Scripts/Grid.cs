@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Godot;
 
@@ -142,4 +143,55 @@ public class Grid {
 
         return west_wall;
     } 
+
+
+	//Helper Methods
+	public List<Cell> GetAllEdgeDeadends()
+	{
+		List<Cell> deadends = new List<Cell>();
+
+		for (int x = 0; x < cells.GetLength(0); x++)
+		{
+			for (int y = 0; y < cells.GetLength(1); y++)
+			{
+                if (x == 0 || y == 0 || x >= GetWidth() - 1 || y >= GetHeight() - 1)
+                {
+					int count = 0;
+
+					//Count Walls
+					if (!cells[x, y].north) { count += 1; }
+					if (!cells[x, y].south) { count += 1; }
+					if (!cells[x, y].east) { count += 1; }
+					if (!cells[x, y].west) { count += 1; }
+
+					//Add to List
+					if (count >= 3)
+					{
+						deadends.Add(cells[x, y]);
+					}
+				}
+			}
+		}
+
+		return deadends;
+	}
+
+	public List<Cell> GetAllEdgeCells() {
+
+		List<Cell> edges = new List<Cell>();
+
+        //Create a List of Edge Cells
+        for (int x = 0; x < GetWidth(); x++)
+        {
+            for (int y = 0; y < GetHeight(); y++)
+            {
+                if (x == 0 || y == 0 || x >= GetWidth() - 1 || y >= GetHeight() - 1)
+                {
+                    edges.Add(cells[x, y]);
+                }
+            }
+        }
+
+		return edges;
+    }
 }

@@ -32,4 +32,18 @@ public class Cell {
 
 		return false;
 	}
+
+	public bool IsSameCell(Cell cell)
+	{
+		bool result = false;
+
+		if (cell != null) {
+			if (index.X == cell.index.X && index.Y == cell.index.Y)
+			{
+				result = true;
+			}
+		}
+
+		return result;
+	}
  }

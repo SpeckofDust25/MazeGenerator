@@ -463,7 +463,6 @@ public static class MazeGenerator
 
         while (!SetComplete(set))
         {
-            
             Cell cell = _grid.cells[(uint)(GD.Randi() % _grid.GetWidth()), (uint)(GD.Randi() % _grid.GetHeight())];
             Direction dir = GetAdjacent(ref _grid, cell); //Get Random Cell
 

@@ -5,10 +5,12 @@ using System;
 public class Cell {
 
 	//Grid Open Directions
-	public bool north, south, east, west;
+	public bool north, south, east, west;	//Is Open
 	public Vector2I index;
+	public bool dead_cell;
 
 	public Cell() {
+		dead_cell = false;
 		north = false;
 		south = false;
 		east = false;
@@ -18,6 +20,7 @@ public class Cell {
 
 	public Cell(Vector2I _index)
 	{
+		dead_cell = false;
         north = false;
         south = false;
         east = false;
@@ -46,4 +49,4 @@ public class Cell {
 
 		return result;
 	}
- }
+}

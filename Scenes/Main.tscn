@@ -1,10 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://cafws0hxf502i"]
+[gd_scene load_steps=6 format=3 uid="uid://cafws0hxf502i"]
 
 [ext_resource type="Script" path="res://Scripts/Main.cs" id="1_0tamq"]
 [ext_resource type="Script" path="res://Scripts/MazeInterface.cs" id="2_8kysj"]
 [ext_resource type="Script" path="res://Scripts/MazeProperties.cs" id="2_k5hc1"]
 [ext_resource type="Texture2D" uid="uid://kh2banqi5b60" path="res://icon.svg" id="2_xuhur"]
-[ext_resource type="Script" path="res://Scripts/MazeImage.cs" id="3_2squ8"]
 [ext_resource type="Script" path="res://Scripts/ExportProperties.cs" id="4_gbcqm"]
 
 [node name="Main" type="CanvasLayer"]
@@ -337,7 +336,6 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_xuhur")
 stretch_mode = 3
-script = ExtResource("3_2squ8")
 
 [node name="MazeImageInterface" type="HBoxContainer" parent="Interface/MazePanel"]
 custom_minimum_size = Vector2(230, 40)

@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Godot;
 
 public class Grid {
+
+	public enum Direction { none, north, south, east, west } 
 
 	private int cell_size = 10;
 	private int wall_size = 10;
@@ -48,7 +51,7 @@ public class Grid {
 
 	//Getters
 
-	//Grid Data: Width, Height Getters in Grid Units
+	//Grid Data----------------------------------
 	public int GetTotalCells() {
 		return width * height;
 	}
@@ -73,8 +76,9 @@ public class Grid {
 	{
 		return exterior_size;
 	}
+    //-------------------------------------------
 
-	//Image Data: Width, Height Getters in Pixels
+	//Image Drawing Methods ---------------------
 	public int GetTotalWidthWallsPx()
 	{
 		return (GetWidth() * wall_size) + wall_size;
@@ -97,56 +101,129 @@ public class Grid {
 
 	public int GetTotalWidthPx()
 	{
-		return GetTotalWidthWallsPx() + GetTotalWidthCellsPx();
+		return GetTotalWidthWallsPx() + GetTotalWidthCellsPx() + (exterior_size * 2);
 	}
 
 	public int GetTotalHeightPx()
 	{
-        return GetTotalHeightWallsPx() + GetTotalHeightCellsPx();
+        return GetTotalHeightWallsPx() + GetTotalHeightCellsPx() + (exterior_size * 2);
     }
 
-	public Vector2I GetCellSizePx()
-	{
-        return new Vector2I(GetCellSize() + (GetWallSize() * 2), GetCellSize() + (GetWallSize() * 2));
+    //Image Size of Walls------------------------
+    public Rect2I GetHorizontalWall(int x, int y, bool is_east)
+    {
+        if (is_east) { x += 1; }
+
+        Vector2I size = new Vector2I(GetWallSize(), (GetWallSize() * 2) + GetCellSize() );
+        Rect2I horizontal_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return horizontal_wall;
     }
 
-	public Rect2I GetNorthWall(int x, int y)	
-	{
-		Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), GetWallSize());
-		Rect2I north_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+    public Rect2I GetVerticalWall(int x, int y, bool is_south)
+    {
+        if (is_south) { y += 1; }
 
-		return north_wall;
+        Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), GetWallSize());
+        Rect2I vertical_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return vertical_wall;
+    }
+
+	public Rect2I GetCellSizePx(int x, int y)
+	{
+		Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), (GetWallSize() * 2) + GetCellSize());
+		return new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+	}
+    //-------------------------------------------
+
+
+    //Single Cell Data---------------------------
+	public Cell GetRandomCell()
+	{
+        return cells[(int)(GD.Randi() % GetWidth()), (int)(GD.Randi() % GetHeight())];
+    }
+	
+	public List<Direction> GetNeighbors(Vector2I index, bool north, bool south, bool east, bool west)
+	{
+		List<Direction> directions = new List<Direction>();
+
+        if (index.Y != 0 && north) { directions.Add(Direction.north); }
+        if (index.Y < GetHeight() - 1 && south) { directions.Add(Direction.south); }
+        if (index.X < GetWidth() - 1 && east) { directions.Add(Direction.east); }
+        if (index.X != 0 && west) { directions.Add(Direction.west); }
+
+        return directions;
 	}
 
-    public Rect2I GetSouthWall(int x, int y)
+    public List<Direction> GetValidNeighbors(Vector2I index)
     {
-		y += 1;
-        Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), GetWallSize());
-        Rect2I south_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+		//Properties
+		List<Direction> directions = new List<Direction>();
+		Cell temp_cell = null;
+        bool can_north = false;
+        bool can_south = false;
+        bool can_east = false;
+        bool can_west = false;
 
-        return south_wall;
+
+        //Boundary
+        if (index.X != 0) { can_west = true; }
+        if (index.Y != 0) { can_north = true; }
+        if (index.X < GetWidth() - 1) { can_east = true; }
+        if (index.Y < GetHeight() - 1) { can_south = true; }
+
+		//Valid Cell: North, South, East, West
+		if (can_north)
+		{
+			temp_cell = cells[index.X, index.Y - 1];
+
+			if (!temp_cell.dead_cell)
+			{
+				directions.Add(Direction.north);
+			}
+		}
+
+		if (can_south)
+		{
+            temp_cell = cells[index.X, index.Y + 1];
+
+			if (!temp_cell.dead_cell)
+			{
+				directions.Add(Direction.south);
+			}
+        }
+
+        if (can_east)
+        {
+            temp_cell = cells[index.X + 1, index.Y];
+
+			if (!temp_cell.dead_cell)
+			{
+				directions.Add(Direction.east);
+			}
+        }
+
+        if (can_west)
+		{
+			temp_cell = cells[index.X - 1, index.Y];
+
+			if (!temp_cell.dead_cell)
+			{
+				directions.Add(Direction.west);
+			}
+		}
+
+		return directions;
     }
+	//-------------------------------------------
 
-	public Rect2I GetEastWall(int x, int y) 
-    {
-		x += 1;
-        Vector2I size = new Vector2I(GetWallSize(), GetWallSize() + GetCellSize() + GetWallSize());
-        Rect2I east_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+	//Grid Sections------------------------------
 
-        return east_wall;
-    }
+	//-------------------------------------------
 
-    public Rect2I GetWestWall(int x, int y)
-    {
-        Vector2I size = new Vector2I(GetWallSize(), GetWallSize() + GetCellSize() + GetWallSize());
-        Rect2I west_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
-
-        return west_wall;
-    } 
-
-
-	//Helper Methods
-	public List<Cell> GetAllEdgeDeadends()
+    //Total Grid Data----------------------------
+    public List<Cell> GetAllEdgeDeadends()
 	{
 		List<Cell> deadends = new List<Cell>();
 
@@ -194,4 +271,23 @@ public class Grid {
 
 		return edges;
     }
+
+	public int GetTotalDeadCells()
+	{
+		int count = 0;
+
+		for (int x = 0; x < GetWidth(); x++)
+		{
+			for (int y = 0; y < GetHeight(); y++)
+			{
+				if (cells[x, y].dead_cell) { count += 1; }
+			}
+		}
+
+		return count;
+	}
+	//-------------------------------------------
+
+	
+
 }

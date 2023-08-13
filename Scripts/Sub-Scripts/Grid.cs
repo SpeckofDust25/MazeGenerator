@@ -166,7 +166,6 @@ public class Grid {
         bool can_east = false;
         bool can_west = false;
 
-
         //Boundary
         if (index.X != 0) { can_west = true; }
         if (index.Y != 0) { can_north = true; }
@@ -215,6 +214,94 @@ public class Grid {
 		}
 
 		return directions;
+    }
+	
+	public List<Direction> GetValidUnvisitedNeighbors(Vector2I index)
+	{
+        //Properties
+        List<Direction> directions = new List<Direction>();
+
+        Cell temp_cell = null;
+        bool can_north = false;
+        bool can_south = false;
+        bool can_east = false;
+        bool can_west = false;
+
+        //Boundary
+        if (index.X != 0) { can_west = true; }
+        if (index.Y != 0) { can_north = true; }
+        if (index.X < GetWidth() - 1) { can_east = true; }
+        if (index.Y < GetHeight() - 1) { can_south = true; }
+
+        //Valid Cell: North, South, East, West
+        if (can_north)
+        {
+            temp_cell = cells[index.X, index.Y - 1];
+
+            if (!temp_cell.dead_cell && !temp_cell.IsVisited())
+            {
+                directions.Add(Direction.north);
+            }
+        }
+
+        if (can_south)
+        {
+            temp_cell = cells[index.X, index.Y + 1];
+
+            if (!temp_cell.dead_cell && !temp_cell.IsVisited())
+            {
+                directions.Add(Direction.south);
+            }
+        }
+
+        if (can_east)
+        {
+            temp_cell = cells[index.X + 1, index.Y];
+
+            if (!temp_cell.dead_cell && !temp_cell.IsVisited())
+            {
+                directions.Add(Direction.east);
+            }
+        }
+
+        if (can_west)
+        {
+            temp_cell = cells[index.X - 1, index.Y];
+
+            if (!temp_cell.dead_cell && !temp_cell.IsVisited())
+            {
+                directions.Add(Direction.west);
+            }
+        }
+
+        return directions;
+    }
+
+	public Cell GetCellInDirection(Vector2I index, Direction direction)
+	{
+		Cell cell = null;
+
+        //Get Next Cell
+        switch (direction)
+        {
+            case Direction.north: //North
+                cell = cells[index.X, index.Y - 1];
+                break;
+
+            case Direction.south: //South
+                cell = cells[index.X, index.Y + 1];
+                break;
+
+            case Direction.east: //East
+				cell = cells[index.X + 1, index.Y];
+                break;
+
+            case Direction.west: //West
+                cell = cells[index.X - 1, index.Y];
+                break;
+        }
+
+		return cell;
     }
 	//-------------------------------------------
 

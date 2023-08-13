@@ -168,40 +168,15 @@ public partial class Main : CanvasLayer
         //Create New Grid
         grid = new Grid(x_cells, y_cells, wall_size, cell_size, exterior_size);
 
-        grid.cells[0, 5].dead_cell = true;
-        grid.cells[5, 5].dead_cell = true;
-        grid.cells[1, 5].dead_cell = true;
+        grid.cells[3, 3].dead_cell = true;
+        grid.cells[6, 3].dead_cell = true;
+
         grid.cells[2, 5].dead_cell = true;
-        grid.cells[3, 5].dead_cell = true;
-        grid.cells[4, 5].dead_cell = true;
-        grid.cells[6, 5].dead_cell = true;
-
-        grid.cells[0, 3].dead_cell = true;
-        grid.cells[5, 3].dead_cell = true;
-        grid.cells[1, 3].dead_cell = true;
-        grid.cells[2, 3].dead_cell = true;
-        //grid.cells[3, 3].dead_cell = true;
-        //grid.cells[4, 3].dead_cell = true;
-        //grid.cells[6, 3].dead_cell = true;
-        //grid.cells[6, 4].dead_cell = true;
-
-        grid.cells[0, 0].dead_cell = true;
-        grid.cells[1, 0].dead_cell = true;
-        grid.cells[2, 0].dead_cell = true;
-        grid.cells[3, 0].dead_cell = true;
-        grid.cells[4, 0].dead_cell = true;
-        grid.cells[5, 0].dead_cell = true;
-        grid.cells[3, 1].dead_cell = true;
-
-        grid.cells[0, 7].dead_cell = true;
-        grid.cells[1, 7].dead_cell = true;
-        grid.cells[2, 7].dead_cell = true;
-        grid.cells[3, 7].dead_cell = true;
-        grid.cells[4, 7].dead_cell = true;
-        grid.cells[5, 7].dead_cell = true;
-        grid.cells[3, 8].dead_cell = true;
-
-        grid.cells[6, 4].dead_cell = true;
+        grid.cells[3, 6].dead_cell = true;
+        grid.cells[4, 6].dead_cell = true;
+        grid.cells[5, 6].dead_cell = true;
+        grid.cells[6, 6].dead_cell = true;
+        grid.cells[7, 5].dead_cell = true;
 
         //Generate Maze
         switch (maze_type)

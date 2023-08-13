@@ -74,7 +74,7 @@ public static class MazeImage
         } else {    //Cover Cell
             Rect2I whole_cell = grid.GetCellSizePx(x, y);
             whole_cell.Position += new Vector2I(grid.GetExteriorSize(), grid.GetExteriorSize());
-            image.FillRect(whole_cell, wall_color);
+            image.FillRect(whole_cell, Colors.Green);
         }
     }
     //-------------------------------------------

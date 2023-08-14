@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 public partial class Main : CanvasLayer
@@ -168,16 +169,6 @@ public partial class Main : CanvasLayer
         //Create New Grid
         grid = new Grid(x_cells, y_cells, wall_size, cell_size, exterior_size);
 
-        grid.cells[3, 3].dead_cell = true;
-        grid.cells[6, 3].dead_cell = true;
-
-        grid.cells[2, 5].dead_cell = true;
-        grid.cells[3, 6].dead_cell = true;
-        grid.cells[4, 6].dead_cell = true;
-        grid.cells[5, 6].dead_cell = true;
-        grid.cells[6, 6].dead_cell = true;
-        grid.cells[7, 5].dead_cell = true;
-
         //Generate Maze
         switch (maze_type)
         {
@@ -258,9 +249,9 @@ public partial class Main : CanvasLayer
         UpdateMazeImage();
     }
 
-    private void UpdateMazeImage()
-    {
-        MazeImage.DrawRectangle(ref grid);
+    private void UpdateMazeImage() {
+
+        MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport());
         image = MazeImage.image;
         texture_rect.Texture = ImageTexture.CreateFromImage(image);
     }
@@ -614,6 +605,11 @@ public partial class Main : CanvasLayer
         }
 
         open_cell = null;
+    }
+
+    private bool HasMaskSupport()
+    {
+        return (maze_type == EMazeType.BinaryTree || maze_type == EMazeType.Sidewinder || maze_type == EMazeType.Ellers || maze_type == EMazeType.Ellers_Loop);
     }
 
     private void ResetPoints()

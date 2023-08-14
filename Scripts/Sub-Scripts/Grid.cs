@@ -135,6 +135,12 @@ public class Grid {
 		Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), (GetWallSize() * 2) + GetCellSize());
 		return new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
 	}
+
+	public Rect2I GetInsideCellSizePx(int x, int y)
+	{
+        Vector2I size = new Vector2I(GetCellSize(), GetCellSize());
+        return new Rect2I(x * (GetCellSize() + GetWallSize()) + GetWallSize(), y * (GetCellSize() + GetWallSize()) + GetWallSize(), size);
+    }
     //-------------------------------------------
 
 
@@ -144,6 +150,17 @@ public class Grid {
         return cells[(int)(GD.Randi() % GetWidth()), (int)(GD.Randi() % GetHeight())];
     }
 	
+	public Cell GetValidRandomCell()
+	{
+		Cell temp_cell = null;
+
+		do {
+			temp_cell = cells[(int)(GD.Randi() % GetWidth()), (int)(GD.Randi() % GetHeight())];
+		} while (temp_cell.dead_cell);
+
+		return temp_cell;
+    }
+
 	public List<Direction> GetNeighbors(Vector2I index, bool north, bool south, bool east, bool west)
 	{
 		List<Direction> directions = new List<Direction>();

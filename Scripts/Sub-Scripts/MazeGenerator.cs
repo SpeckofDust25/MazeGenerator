@@ -448,13 +448,8 @@ public static class MazeGenerator
             }
         }
 
-        int count = 0;
-
         while (!SetComplete(set))
         {
-            if (count > 5000) { break; }
-            count += 1;
-
             Cell cell = grid.GetValidRandomCell();
             List<Grid.Direction> directions = grid.GetValidNeighbors(cell.index);
 

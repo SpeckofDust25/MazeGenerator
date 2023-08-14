@@ -226,6 +226,18 @@ layout_mode = 2
 size_flags_horizontal = 10
 alignment = 1
 
+[node name="HBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Draw Mode"
+
+[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+
 [node name="GenerateMazeButton" type="Button" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Generate Maze"

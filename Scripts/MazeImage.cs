@@ -6,7 +6,7 @@ public static class MazeImage
 {
     public static Image image;
 
-    //Shapes-------------------------------------
+    //Main Shape Methods-------------------------
     public static void DrawRectangle(ref Grid grid, Color dead_cell_color, bool draw_dead_cells)
     {
         SetupImage(grid.GetTotalWidthPx(), grid.GetTotalHeightPx());
@@ -104,7 +104,6 @@ public static class MazeImage
         }
 
     }
-
     
     //-------------------------------------------
 }

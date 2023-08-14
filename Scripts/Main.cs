@@ -209,8 +209,6 @@ public partial class Main : CanvasLayer
         grid.cells[7, 3].dead_cell = true;
         grid.cells[6, 2].dead_cell = true;
 
-
-
         //Generate Maze
         switch (maze_type)
         {
@@ -509,7 +507,7 @@ public partial class Main : CanvasLayer
         List<Cell> current_list = new List<Cell>();
 
         //Get Possible Cells
-        deadend_cells = grid.GetAllEdgeDeadends();
+        deadend_cells = grid.GetAllValidEdgeDeadends();
         edge_cells = grid.GetAllEdgeCells();
 
         //List Conditions

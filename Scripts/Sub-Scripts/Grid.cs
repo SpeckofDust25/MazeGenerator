@@ -327,7 +327,7 @@ public class Grid {
 	//-------------------------------------------
 
     //Total Grid Data----------------------------
-    public List<Cell> GetAllEdgeDeadends()
+    public List<Cell> GetAllValidEdgeDeadends()
 	{
 		List<Cell> deadends = new List<Cell>();
 
@@ -337,18 +337,20 @@ public class Grid {
 			{
                 if (x == 0 || y == 0 || x >= GetWidth() - 1 || y >= GetHeight() - 1)
                 {
-					int count = 0;
+					if (!cells[x, y].dead_cell) {
+						int count = 0;
 
-					//Count Walls
-					if (!cells[x, y].north) { count += 1; }
-					if (!cells[x, y].south) { count += 1; }
-					if (!cells[x, y].east) { count += 1; }
-					if (!cells[x, y].west) { count += 1; }
+						//Count Walls
+						if (!cells[x, y].north) { count += 1; }
+						if (!cells[x, y].south) { count += 1; }
+						if (!cells[x, y].east) { count += 1; }
+						if (!cells[x, y].west) { count += 1; }
 
-					//Add to List
-					if (count >= 3)
-					{
-						deadends.Add(cells[x, y]);
+						//Add to List
+						if (count >= 3)
+						{
+							deadends.Add(cells[x, y]);
+						}
 					}
 				}
 			}

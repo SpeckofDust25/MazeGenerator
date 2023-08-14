@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://cafws0hxf502i"]
+[gd_scene load_steps=7 format=3 uid="uid://cafws0hxf502i"]
 
 [ext_resource type="Script" path="res://Scripts/Main.cs" id="1_0tamq"]
 [ext_resource type="Script" path="res://Scripts/MazeInterface.cs" id="2_8kysj"]
 [ext_resource type="Script" path="res://Scripts/MazeProperties.cs" id="2_k5hc1"]
 [ext_resource type="Texture2D" uid="uid://kh2banqi5b60" path="res://icon.svg" id="2_xuhur"]
 [ext_resource type="Script" path="res://Scripts/ExportProperties.cs" id="4_gbcqm"]
+[ext_resource type="Texture2D" uid="uid://dr0wtaxsk81m1" path="res://Sprites/User_Interface/spr_lock_open.png" id="6_u6tqt"]
 
 [node name="Main" type="CanvasLayer"]
 script = ExtResource("1_0tamq")
@@ -387,3 +388,15 @@ text = "  +  "
 [node name="CenterButton" type="Button" parent="Interface/MazePanel/MazeImageInterface"]
 layout_mode = 2
 text = "  C  "
+
+[node name="LockButton" type="TextureButton" parent="Interface/MazePanel"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 40.0
+grow_vertical = 0
+toggle_mode = true
+texture_normal = ExtResource("6_u6tqt")
+stretch_mode = 5

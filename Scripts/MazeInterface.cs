@@ -10,9 +10,15 @@ public partial class MazeInterface : Panel
 	private Button n_center;
 	private HSlider n_magnify_slider;
 	private Label n_magnify_label;
-	private Panel maze_panel;
+    private TextureButton n_lock_button;
+    private Panel maze_panel;
+
+	//Load Resources
+	Texture2D texture_lock_open = GD.Load<Texture2D>("Sprites/User_Interface/spr_lock_open.png");
+	Texture2D texture_lock_closed = GD.Load<Texture2D>("Sprites/User_Interface/spr_lock_closed.png");
 
 	//Variables
+	bool is_canvas_locked = false;
 	private bool panning = false;
 	private Vector2 panning_vec;
 	private bool is_focused;
@@ -65,16 +71,18 @@ public partial class MazeInterface : Panel
         }
 
 		//Panning Image
-		if (Input.IsActionPressed("panning") && !is_expanding) {
-			if (is_focused) { //Stay Focused Outside Panel Range
-				n_maze_image.Position += panning_vec;
+		if (!is_canvas_locked) {
+			if (Input.IsActionPressed("panning") && !is_expanding) {
+				if (is_focused) { //Stay Focused Outside Panel Range
+					n_maze_image.Position += panning_vec;
 
-			} else if (GetGlobalRect().HasPoint(GetGlobalMousePosition())) {
-				is_focused = true;
-				n_maze_image.Position += panning_vec;
-			} 
-		} else {
-			is_focused = false;
+				} else if (GetGlobalRect().HasPoint(GetGlobalMousePosition())) {
+					is_focused = true;
+					n_maze_image.Position += panning_vec;
+				} 
+			} else {
+				is_focused = false;
+			}
 		}
 
 		panning_vec = Vector2.Zero;
@@ -88,6 +96,7 @@ public partial class MazeInterface : Panel
 		n_center = GetNode<Button>("MazeImageInterface/CenterButton");
 		n_magnify_slider = GetNode<HSlider>("MazeImageInterface/MagnifySlider");
 		n_magnify_label = GetNode<Label>("MazeImageInterface/MagnifyLabel");
+		n_lock_button = GetNode<TextureButton>("LockButton");
 	}
 
 	private void SetupConnections()
@@ -103,18 +112,25 @@ public partial class MazeInterface : Panel
 
 		Callable c_magnify_slider = new Callable(this, "_magnify_slider_changed");
 		n_magnify_slider.Connect("value_changed", c_magnify_slider);
+
+
+		n_lock_button.Toggled += _toggle_lock_button;
 	}
 
 	public void _maximize_pressed()
 	{
-		n_maze_image.Scale += new Vector2(magnify_increment, magnify_increment);
-		UpdateMagnifyIndicators();
+		if (!is_canvas_locked) {
+			n_maze_image.Scale += new Vector2(magnify_increment, magnify_increment);
+			UpdateMagnifyIndicators();
+		}
 	}
 
 	public void _minimize_pressed()
 	{
-		n_maze_image.Scale -= new Vector2(magnify_increment, magnify_increment);
-		UpdateMagnifyIndicators();
+		if (!is_canvas_locked) {
+			n_maze_image.Scale -= new Vector2(magnify_increment, magnify_increment);
+			UpdateMagnifyIndicators();
+		}
 	}
 
 	public void UpdateMagnifyIndicators(bool update_slider = true)
@@ -130,18 +146,39 @@ public partial class MazeInterface : Panel
 
 	public void _center_pressed()
 	{
-		Vector2 center = GetGlobalRect().GetCenter() - n_maze_image.Size / 2;
-		n_maze_image.GlobalPosition = center;
+		if (!is_canvas_locked) {
+			Vector2 center = GetGlobalRect().GetCenter() - n_maze_image.Size / 2;
+			n_maze_image.GlobalPosition = center;
+		}
 	}
 
 	public void _magnify_slider_changed(float value)
 	{
-        n_maze_image.Scale = new Vector2(value, value) * 0.01f;
-		UpdateMagnifyIndicators(false);
+		if (!is_canvas_locked) {
+			n_maze_image.Scale = new Vector2(value, value) * 0.01f;
+			UpdateMagnifyIndicators(false);
+		}
 	}
 
-	public void IsExpanding(bool _expanding)
+    public void _toggle_lock_button(bool toggle)
+	{
+		if (toggle) { //Lock
+			n_lock_button.TextureNormal = texture_lock_closed;
+			n_magnify_slider.Editable = false;
+			is_canvas_locked = true;
+
+		} else { //Unlock
+			n_lock_button.TextureNormal = texture_lock_open;
+			n_magnify_slider.Editable = true;
+			is_canvas_locked = false;
+        }
+	}
+
+
+    public void IsExpanding(bool _expanding)
 	{
 		is_expanding = _expanding;
 	}
+
+
 }

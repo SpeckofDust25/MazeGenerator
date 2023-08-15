@@ -20,6 +20,9 @@ public class Grid {
 		width = _width;
 		height = _height;
 		cells = new Cell[width, height];
+        wall_size = _thickness;
+        cell_size = _cell_size;
+        exterior_size = _exterior_size;
 
 		//Populate Grid
 		for (int x = 0; x < cells.GetLength(0); x++) {
@@ -29,9 +32,22 @@ public class Grid {
 			}
 		}
 
-		wall_size = _thickness;
-		cell_size = _cell_size;
-		exterior_size = _exterior_size;
+		MazeMask.CreateNewMask(width, height, GetImageWidth(), GetImageHeight());
+
+		//Populate DeadCells
+		if (MazeMask.mask != null) {
+			Mask mask = MazeMask.mask;
+
+			for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
+			{
+				for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
+				{
+					cells[x, y].dead_cell = mask.dead_cells[x, y];
+				}
+			}
+		}
+
+
 	}
 
 	//Setters
@@ -79,34 +95,18 @@ public class Grid {
     //-------------------------------------------
 
 	//Image Drawing Methods ---------------------
-	public int GetTotalWidthWallsPx()
+	public int GetImageWidth()
 	{
-		return (GetWidth() * wall_size) + wall_size;
+		int wall_width = (GetWidth() * wall_size) + wall_size;
+		int cell_width = GetWidth() * GetCellSize();
+		return wall_width + cell_width + (exterior_size * 2);
 	}
 
-	public int GetTotalHeightWallsPx()
+	public int GetImageHeight()
 	{
-        return (GetHeight() * wall_size) + wall_size;
-	}
-
-	public int GetTotalWidthCellsPx()
-	{
-		return GetWidth() * GetCellSize();
-	}
-
-	public int GetTotalHeightCellsPx()
-	{
-		return GetHeight() * GetCellSize();
-	}
-
-	public int GetTotalWidthPx()
-	{
-		return GetTotalWidthWallsPx() + GetTotalWidthCellsPx() + (exterior_size * 2);
-	}
-
-	public int GetTotalHeightPx()
-	{
-        return GetTotalHeightWallsPx() + GetTotalHeightCellsPx() + (exterior_size * 2);
+		int wall_height = (GetHeight() * wall_size) + wall_size;
+		int cell_height = GetHeight() * GetCellSize();
+        return wall_height + cell_height + (exterior_size * 2);
     }
 
     //Image Size of Walls------------------------
@@ -130,10 +130,30 @@ public class Grid {
         return vertical_wall;
     }
 
+	public Rect2I GetHorizontalWallFull(int x, int y, bool is_east)
+	{
+        if (is_east) { x += 1; }
+
+        Vector2I size = new Vector2I(GetWallSize(), ((GetWallSize() * 2) + GetCellSize()) * GetHeight());
+        Rect2I horizontal_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return horizontal_wall;
+    }
+
+	public Rect2I GetVerticalWallFull(int x, int y, bool is_south)
+	{
+        if (is_south) { y += 1; }
+
+        Vector2I size = new Vector2I(((GetWallSize() * 2) + GetCellSize()) * GetWidth(), GetWallSize());
+        Rect2I vertical_wall = new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+
+        return vertical_wall;
+    }
+
 	public Rect2I GetCellSizePx(int x, int y)
 	{
 		Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), (GetWallSize() * 2) + GetCellSize());
-		return new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
+		return new Rect2I(x * (GetCellSize() + wall_size), y * (GetCellSize() + wall_size), size);
 	}
 
 	public Rect2I GetInsideCellSizePx(int x, int y)
@@ -141,7 +161,29 @@ public class Grid {
         Vector2I size = new Vector2I(GetCellSize(), GetCellSize());
         return new Rect2I(x * (GetCellSize() + GetWallSize()) + GetWallSize(), y * (GetCellSize() + GetWallSize()) + GetWallSize(), size);
     }
-    //-------------------------------------------
+    
+	public Vector2I GetCellIndexAtImagePosition(Vector2I position)
+	{
+		int x_position = 0;
+		int y_position = 0;
+
+		//Get X and Y Cells
+		for (int x = 0; x < GetWidth(); x++) {
+            for (int y = 0; y < GetHeight(); y++) {
+				Rect2I rect = GetCellSizePx(x, y);
+
+				if (rect.HasPoint(position))
+				{
+					x_position = x;
+					y_position = y;
+					break;
+				}
+			}
+        }
+
+		return new Vector2I(x_position, y_position);
+	}
+	//-------------------------------------------
 
 
     //Single Cell Data---------------------------

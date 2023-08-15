@@ -17,6 +17,7 @@ public partial class MazeProperties : TabBar
 	[Signal] public delegate void EndPointTypeEventHandler();
 	[Signal] public delegate void NewStartPointEventHandler();
 	[Signal] public delegate void NewEndPointEventHandler();
+	[Signal] public delegate void DrawToggledEventHandler();
 
     //Nodes
     private Button generate_maze_button;
@@ -26,6 +27,7 @@ public partial class MazeProperties : TabBar
 	private SpinBox exterior_size_spin_box;
 	private OptionButton start_option_button, end_option_button;
 	private Button new_start_point_button, new_end_point_button;
+	private CheckButton draw_button;
 
     public override void _Ready() {
 		SetupNodes();
@@ -45,6 +47,7 @@ public partial class MazeProperties : TabBar
 		cell_size_spin_box = GetNode<SpinBox>(start_path + "CellSizeHBoxContainer/CellSizeSpinBox");
 		wall_size_spin_box = GetNode<SpinBox>(start_path + "WallSizeHBoxContainer/WallSizeSpinBox");
 		exterior_size_spin_box = GetNode<SpinBox>(start_path + "ExteriorSizeHBoxContainer/ExteriorSizeSpinBox");
+		draw_button = GetNode<CheckButton>(start_path + "DrawHBoxContainer/CheckButton");
 
 		//Point Properties
 		start_option_button = GetNode<OptionButton>(start_path + "StartPointHBoxContainer/OptionButton");
@@ -63,6 +66,7 @@ public partial class MazeProperties : TabBar
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
 		exterior_size_spin_box.ValueChanged += ExteriorSizeChanged;
+		draw_button.Toggled += DrawButtonToggled;
 
 		//Point Properties
 		start_option_button.ItemSelected += StartPointTypeChanged;
@@ -70,7 +74,6 @@ public partial class MazeProperties : TabBar
 		new_start_point_button.Pressed += NewStartPressed;
 		new_end_point_button.Pressed += NewEndPressed;
     }
-
 
 	//Connections
 
@@ -127,5 +130,10 @@ public partial class MazeProperties : TabBar
 	private void NewEndPressed()
 	{
 		EmitSignal(SignalName.NewEndPoint);
+	}
+
+	private void DrawButtonToggled(bool toggle)
+	{
+		EmitSignal(SignalName.DrawToggled, toggle);
 	}
 }

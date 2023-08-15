@@ -9,7 +9,7 @@ public static class MazeImage
     //Main Shape Methods-------------------------
     public static void DrawRectangle(ref Grid grid, Color dead_cell_color, bool draw_dead_cells)
     {
-        SetupImage(grid.GetTotalWidthPx(), grid.GetTotalHeightPx());
+        SetupImage(grid.GetImageWidth(), grid.GetImageHeight());
 
         //Draw Dead Cells and Solid Cells
         if (!draw_dead_cells) {

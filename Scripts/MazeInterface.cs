@@ -11,6 +11,7 @@ public partial class MazeInterface : Panel
 	private HSlider n_magnify_slider;
 	private Label n_magnify_label;
     private TextureButton n_lock_button;
+    private Label n_fps_label;
     private Panel maze_panel;
 
 	//Load Resources
@@ -39,9 +40,10 @@ public partial class MazeInterface : Panel
 
 	public override void _Process(double delta)
 	{
+		n_fps_label.Text = "Fps: " + Engine.GetFramesPerSecond().ToString();
         n_maze_image.PivotOffset = n_maze_image.Size / 2;
         HandleInput();
-	}
+    }
 
 	public override void _GuiInput(InputEvent inputEvent)
 	{
@@ -58,7 +60,8 @@ public partial class MazeInterface : Panel
 		if (Input.IsActionJustPressed("zoom_in"))
 		{
 			if (maze_panel.GetRect().HasPoint(GetViewport().GetMousePosition())) {
-				_maximize_pressed();
+				SetPivotToMousePosition();
+                _maximize_pressed();
 			}
 		}
 
@@ -66,6 +69,7 @@ public partial class MazeInterface : Panel
 		{
             if (maze_panel.GetRect().HasPoint(GetViewport().GetMousePosition()))
             {
+				SetPivotToMousePosition();
                 _minimize_pressed();
             }
         }
@@ -97,6 +101,7 @@ public partial class MazeInterface : Panel
 		n_magnify_slider = GetNode<HSlider>("MazeImageInterface/MagnifySlider");
 		n_magnify_label = GetNode<Label>("MazeImageInterface/MagnifyLabel");
 		n_lock_button = GetNode<TextureButton>("LockButton");
+		n_fps_label = GetNode<Label>("FpsLabel");
 	}
 
 	private void SetupConnections()
@@ -175,10 +180,17 @@ public partial class MazeInterface : Panel
 	}
 
 
-    public void IsExpanding(bool _expanding)
-	{
+    public void IsExpanding(bool _expanding) {
 		is_expanding = _expanding;
 	}
 
-
+	//TODO: Figure out how to Zoom in on mouse position
+	private void SetPivotToMousePosition() {
+        /*if (n_maze_image.Scale.X != 0)
+		{
+            Vector2 new_offset = n_maze_image.GetLocalMousePosition();
+            GD.Print(new_offset.Round());
+            n_maze_image.PivotOffset = new_offset.Round() + (n_maze_image.Scale * n_maze_image.Size);
+		}*/
+    }
 }

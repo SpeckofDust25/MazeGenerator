@@ -235,13 +235,8 @@ public static class MazeGenerator
 
         Cell cell = grid.GetRandomCell();
 
-        int count = 0;
-
         while (!(visited_count >= (grid.GetWidth() * grid.GetHeight())))
         {
-            if (count > 10000) { break; }
-            count += 1;
-
             //Get Valid Cell
             if (cell.dead_cell) {
                 do {

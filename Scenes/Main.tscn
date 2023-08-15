@@ -227,15 +227,15 @@ layout_mode = 2
 size_flags_horizontal = 10
 alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="DrawHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="DrawLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Draw Mode"
 
-[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HBoxContainer"]
+[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
 
@@ -341,10 +341,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_xuhur")
@@ -400,3 +400,15 @@ grow_vertical = 0
 toggle_mode = true
 texture_normal = ExtResource("6_u6tqt")
 stretch_mode = 5
+
+[node name="FpsLabel" type="Label" parent="Interface/MazePanel"]
+custom_minimum_size = Vector2(75, 25)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 23.0
+grow_horizontal = 0
+text = "FPS: 60"
+vertical_alignment = 1

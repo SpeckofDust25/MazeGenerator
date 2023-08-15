@@ -21,13 +21,12 @@ public partial class Main : CanvasLayer
     //Nodes
     private TabContainer tab_container;
     private Panel panel;
-    private TextureRect texture_rect;
     private TabBar maze_properties;
     private TabBar points_properties;
     private TabBar pathfinding_properties;
     private TabBar animation_properties;
     private TabBar export_properties;
-
+    private TextureRect maze_image;
     private MazeInterface maze_interface;
 
     //Image
@@ -38,7 +37,7 @@ public partial class Main : CanvasLayer
     private Cell start_point, end_point;
     private MazeGenerator.Direction start_point_dir, end_point_dir;
     private Color start_point_color, end_point_color;
-    private bool can_draw_points = false;
+    private bool is_draw_mode = false;
 
     bool can_expand = false;
 
@@ -60,6 +59,12 @@ public partial class Main : CanvasLayer
 
     public override void _Process(double delta)
     {
+        if (is_draw_mode)
+        {
+            MazeMask.UpdateImage(ref grid, (Vector2I)maze_image.GetLocalMousePosition(), Input.IsActionJustPressed("right_click"));
+            SetImage(MazeMask.image);
+        }
+
         //Expand UI
         Vector2 start_position = new Vector2(tab_container.Size.X, 0);
         Vector2 size = new Vector2((panel.Position.X - tab_container.Size.X) + 2, panel.Size.Y);
@@ -88,6 +93,7 @@ public partial class Main : CanvasLayer
     //Setup Methods------------------------------
     private void SetupNodes()
     {
+        maze_image = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
         tab_container = GetNode<TabContainer>("Interface/TabContainer");
         panel = GetNode<Panel>("Interface/MazePanel");
         maze_interface = (MazeInterface)panel;
@@ -97,7 +103,6 @@ public partial class Main : CanvasLayer
             maze_interface.IsExpanding(false);
         }
 
-        texture_rect = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
         maze_properties = GetNode<MazeProperties>("Interface/TabContainer/Maze");
         export_properties = GetNode<ExportProperties>("Interface/TabContainer/Export");
     }
@@ -112,6 +117,7 @@ public partial class Main : CanvasLayer
         if (!maze_properties.HasSignal("CellSize")) { GD.PrintErr("Can't Find CellSize Signal!"); }
         if (!maze_properties.HasSignal("WallSize")) { GD.PrintErr("Can't Find WallSize Signal! "); }
         if (!maze_properties.HasSignal("ExteriorSize")) { GD.PrintErr("Can't Find ExteriorSize Signal! "); }
+        if (!maze_properties.HasSignal("DrawToggled")) { GD.PrintErr("Can't Find DrawButtonToggled! "); }
 
         Callable c_generate_maze = new Callable(this, "CreateNewMaze");
         Callable c_maze_type = new Callable(this, "MazeType");
@@ -120,6 +126,7 @@ public partial class Main : CanvasLayer
         Callable c_cell_size = new Callable(this, "CellSizeChanged");
         Callable c_wall_size = new Callable(this, "WallSizeChanged");
         Callable c_exterior_size = new Callable(this, "ExteriorSizeChanged");
+        Callable c_draw_toggled = new Callable(this, "DrawButtonToggle");
 
         maze_properties.Connect("GenerateMaze", c_generate_maze);
         maze_properties.Connect("MazeType", c_maze_type);
@@ -128,6 +135,7 @@ public partial class Main : CanvasLayer
         maze_properties.Connect("CellSize", c_cell_size);
         maze_properties.Connect("WallSize", c_wall_size);
         maze_properties.Connect("ExteriorSize", c_exterior_size);
+        maze_properties.Connect("DrawToggled", c_draw_toggled);
 
         //Point Properties
         if (!maze_properties.HasSignal("StartPointType")) { GD.PrintErr(" Can't Find StartPointType Signal! ");  }
@@ -157,7 +165,7 @@ public partial class Main : CanvasLayer
     }
     //-------------------------------------------
 
-    //Generate Maze and Image------------------------
+    //Generate Maze and Image--------------------
     private void CreateNewMaze()
     {
         GenerateMaze();
@@ -166,48 +174,10 @@ public partial class Main : CanvasLayer
 
     private void GenerateMaze()
     {
-        //Create New Grid
+
+        //Create New Grid and Mask
+        MazeMask.UpdateImage(ref grid, (Vector2I)maze_image.GetLocalMousePosition(), Input.IsActionJustPressed("right_click"));
         grid = new Grid(x_cells, y_cells, wall_size, cell_size, exterior_size);
-
-        grid.cells[0, 0].dead_cell = true;
-        grid.cells[9, 0].dead_cell = true;
-        grid.cells[0, 9].dead_cell = true;
-        grid.cells[9, 9].dead_cell = true;
-
-        grid.cells[4, 0].dead_cell = true;
-        grid.cells[5, 0].dead_cell = true;
-
-        grid.cells[4, 9].dead_cell = true;
-        grid.cells[5, 9].dead_cell = true;
-
-        grid.cells[9, 4].dead_cell = true;
-        grid.cells[9, 5].dead_cell = true;
-
-        grid.cells[0, 4].dead_cell = true;
-        grid.cells[0, 5].dead_cell = true;
-
-        grid.cells[4, 4].dead_cell = true;
-        grid.cells[4, 5].dead_cell = true;
-        grid.cells[5, 4].dead_cell = true;
-        grid.cells[5, 5].dead_cell = true;
-
-        grid.cells[2, 2].dead_cell = true;
-        grid.cells[2, 3].dead_cell = true;
-        grid.cells[3, 2].dead_cell = true;
-
-        grid.cells[7, 7].dead_cell = true;
-        grid.cells[6, 7].dead_cell = true;
-        grid.cells[7, 6].dead_cell = true;
-
-
-        grid.cells[2, 7].dead_cell = true;
-        grid.cells[2, 6].dead_cell = true;
-        grid.cells[3, 7].dead_cell = true;
-
-
-        grid.cells[7, 2].dead_cell = true;
-        grid.cells[7, 3].dead_cell = true;
-        grid.cells[6, 2].dead_cell = true;
 
         //Generate Maze
         switch (maze_type)
@@ -292,8 +262,16 @@ public partial class Main : CanvasLayer
     private void UpdateMazeImage() {
 
         MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport());
-        image = MazeImage.image;
-        texture_rect.Texture = ImageTexture.CreateFromImage(image);
+        
+        if (!is_draw_mode) {
+            image = MazeImage.image;
+            maze_image.Texture = ImageTexture.CreateFromImage(image);
+        }
+    }
+    
+    private void SetImage(Image _image)
+    {
+        maze_image.Texture = ImageTexture.CreateFromImage(_image);
     }
     //-------------------------------------------
 
@@ -398,6 +376,16 @@ public partial class Main : CanvasLayer
         exterior_size = (int)value;
         grid.SetExteriorSize(exterior_size);
         UpdateMazeImage();
+    }
+
+    private void DrawButtonToggle(bool toggle)
+    {
+        if (toggle) {
+            is_draw_mode = true;
+        } else {
+            SetImage(MazeImage.image);
+            is_draw_mode = false;
+        }
     }
 
     //Point Properties

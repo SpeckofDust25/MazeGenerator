@@ -6,7 +6,6 @@ using MazeGeneratorGlobal;
 
 public partial class MazeProperties : TabBar
 {
-
     //Signals 
     [Signal] public delegate void GenerateMazeEventHandler();
     [Signal] public delegate void DrawToggledEventHandler();
@@ -17,6 +16,7 @@ public partial class MazeProperties : TabBar
 	Grid grid;
     private EMazeType maze_type;
     private bool is_draw_mode = false;
+    private Vector2I local_mouse_position;
 
     //Nodes
     private Button generate_maze_button;
@@ -30,6 +30,7 @@ public partial class MazeProperties : TabBar
 
 	//Default Methods----------------------------
     public override void _Ready() {
+        local_mouse_position = new Vector2I(-1, -1);
 		SetupNodes();
 		SetupConnections();
         //points = new Point();
@@ -37,10 +38,21 @@ public partial class MazeProperties : TabBar
         maze_type = EMazeType.BinaryTree;
         UpdateMaze();
     }
-	//-------------------------------------------
 
-	//Setup Methods------------------------------
-	private void SetupNodes() {
+    public override void _Process(double delta)
+    {
+        bool did_update = MazeMask.Update(ref grid, local_mouse_position);
+
+        if (did_update)
+        {
+            EmitSignal(SignalName.GenerateMaze);
+        }
+    }
+
+    //-------------------------------------------
+
+    //Setup Methods------------------------------
+    private void SetupNodes() {
 
 		string start_path = "ScrollContainer/HBoxContainer/VBoxContainer/";
 
@@ -84,18 +96,15 @@ public partial class MazeProperties : TabBar
     //Update Methods-----------------------------
     private void UpdateMaze()
     {
-        //Create New Grid and Mask
-        //MazeMask.UpdateImage(ref grid, (Vector2I)maze_image.GetLocalMousePosition());
-        //MazeMask.CreateNewMask(ref grid);
-        //grid.SetMask(MazeMask.mask);
-
-        if (grid != null)
-        {
+        if (grid != null) {
             grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize(), grid.GetExteriorSize());
         } else {
             grid = new Grid(10, 10, 10, 10, 0);
         }
-        
+
+        MazeMask.Update(ref grid, Vector2I.Zero);
+        grid.SetMask(MazeMask.mask);
+
         //Generate Maze
         switch (maze_type)
         {
@@ -171,14 +180,17 @@ public partial class MazeProperties : TabBar
     {
         //Update Image
         MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport());
-
-        if (!is_draw_mode)
-        {
-            EmitSignal(SignalName.GenerateMaze, MazeImage.image);
-        }
+        EmitSignal(SignalName.GenerateMaze);
     }
 
     //-------------------------------------------
+
+
+    //Setters
+    public void SetLocalImageMousePosition(Vector2I _local_mouse_position)
+    {
+        local_mouse_position = _local_mouse_position;
+    }
 
     //Connections
 
@@ -368,7 +380,16 @@ public partial class MazeProperties : TabBar
 
 	private void DrawButtonToggled(bool toggle)
 	{
-        EmitSignal(SignalName.DrawToggled, toggle);
+        is_draw_mode = toggle;
+
+        if (!is_draw_mode)
+        {
+            EmitSignal(SignalName.DrawToggled, toggle);
+        }
+        else
+        {
+            EmitSignal(SignalName.DrawToggled, toggle);
+        }
     }
 
     //Point Methods
@@ -377,6 +398,4 @@ public partial class MazeProperties : TabBar
     {
         return (maze_type == EMazeType.BinaryTree || maze_type == EMazeType.Sidewinder || maze_type == EMazeType.Ellers || maze_type == EMazeType.Ellers_Loop);
     }
-
-
 }

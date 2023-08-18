@@ -163,7 +163,6 @@ alignment = 1
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HeightHBoxContainer"]
-visible = false
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Height"

@@ -36,20 +36,21 @@ public class Grid {
 		}
 	}
 
-
 	//Setters
 	public void SetMask(Mask mask)
 	{
         //Populate DeadCells
         if (MazeMask.mask != null)
         {
-            for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
-            {
-                for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
-                {
-                    cells[x, y].dead_cell = mask.dead_cells[x, y];
-                }
-            }
+			if (mask.dead_cells.GetLength(0) == GetWidth() && mask.dead_cells.GetLength(1) == GetHeight()) {
+				for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
+				{
+					for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
+					{
+						cells[x, y].dead_cell = mask.dead_cells[x, y];
+					}
+				}
+			}
         }
     }
 	

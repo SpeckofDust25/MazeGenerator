@@ -22,10 +22,6 @@ public partial class Main : CanvasLayer
     private TextureRect n_maze_image;
     private MazeInterface maze_interface;
 
-    //Image
-    private Image maze_image;
-    private Image mask_image;
-
     public override void _EnterTree()
     {
         SetupNodes();
@@ -34,11 +30,13 @@ public partial class Main : CanvasLayer
 
     public override void _Process(double delta)
     {
-        /*if (is_draw_mode)
+        //Set Local Mouse 
+        MazeProperties s_maze_properties = (MazeProperties)maze_properties;
+
+        if (s_maze_properties != null )
         {
-            //MazeMask.UpdateImage(ref grid, (Vector2I)maze_image.GetLocalMousePosition());
-            SetImage(MazeMask.image);
-        }*/
+            s_maze_properties.SetLocalImageMousePosition((Vector2I)(n_maze_image.GetLocalMousePosition()));
+        }
 
         //Expand UI
         Vector2 start_position = new Vector2(tab_container.Size.X, 0);
@@ -88,7 +86,7 @@ public partial class Main : CanvasLayer
         if (!maze_properties.HasSignal("GenerateMaze")) { GD.PrintErr("Can't Find GenerateMaze Signal!"); }
         if (!maze_properties.HasSignal("DrawToggled")) { GD.PrintErr("Can't Find DrawButtonToggled! "); }
 
-        Callable c_generate_maze = new Callable(this, "SetImage");
+        Callable c_generate_maze = new Callable(this, "UpdateImage");
         Callable c_draw_toggled = new Callable(this, "DrawButtonToggle");
 
         maze_properties.Connect("GenerateMaze", c_generate_maze);
@@ -107,28 +105,27 @@ public partial class Main : CanvasLayer
     //-------------------------------------------
 
     //Connections--------------------------------
-    private void SetImage(Image image)
+    private void DrawButtonToggle(bool toggled)
     {
-        maze_image = image;
-        n_maze_image.Texture = ImageTexture.CreateFromImage(maze_image);
+        is_draw_mode = toggled;
+        UpdateImage();
     }
 
-    private void DrawButtonToggle(bool toggle)
+    private void UpdateImage()
+    {  
+        if (!is_draw_mode) { 
+            SetImage(MazeImage.image);  
+        } else {
+            SetImage(MazeMask.image);
+        }
+    }
+
+    private void SetImage(Image image)
     {
-        Image new_image = null;
-
-        if (toggle)
-        {
-            is_draw_mode = true;
-            new_image = mask_image;
+        if (image != null) {
+            n_maze_image.Size = new Vector2(image.GetWidth(), image.GetHeight());
+            n_maze_image.Texture = ImageTexture.CreateFromImage(image);
         }
-        else
-        {
-            is_draw_mode = false;
-            new_image = maze_image;
-        }
-
-        SetImage(new_image);
     }
 
     //Export Properties
@@ -156,7 +153,7 @@ public partial class Main : CanvasLayer
             }
         }
 
-        maze_image.SavePng(save_path);
+        MazeImage.image.SavePng(save_path);
     }
     //-------------------------------------------
 }

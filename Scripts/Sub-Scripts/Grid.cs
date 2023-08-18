@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Godot;
+using MazeGeneratorGlobal;
 
 public class Grid {
-
-	public enum Direction { none, north, south, east, west } 
 
 	private int cell_size = 10;
 	private int wall_size = 10;
 	private int exterior_size = 0;
 	private int width = 10;
 	private int height = 10;
+	private List<Point> points = new List<Point>();
 
 	public Cell[,] cells;
 
@@ -24,6 +24,9 @@ public class Grid {
         cell_size = _cell_size;
         exterior_size = _exterior_size;
 
+		points.Add(new Point(EPoints.None));
+		points.Add(new Point(EPoints.None));
+
 		//Populate Grid
 		for (int x = 0; x < cells.GetLength(0); x++) {
 			for (int y = 0; y < cells.GetLength(1); y++) {
@@ -31,26 +34,35 @@ public class Grid {
 				cells[x, y].index = new Vector2I(x, y);
 			}
 		}
-
-		MazeMask.CreateNewMask(width, height, GetImageWidth(), GetImageHeight());
-
-		//Populate DeadCells
-		if (MazeMask.mask != null) {
-			Mask mask = MazeMask.mask;
-
-			for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
-			{
-				for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
-				{
-					cells[x, y].dead_cell = mask.dead_cells[x, y];
-				}
-			}
-		}
-
-
 	}
 
+
 	//Setters
+	public void SetMask(Mask mask)
+	{
+        //Populate DeadCells
+        if (MazeMask.mask != null)
+        {
+            for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
+            {
+                for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
+                {
+                    cells[x, y].dead_cell = mask.dead_cells[x, y];
+                }
+            }
+        }
+    }
+	
+	public void SetPointType(bool is_first, EPoints type)
+	{
+		if (is_first)
+		{
+			points[0].SetPointType(type);
+		} else {
+			points[1].SetPointType(type);
+		}
+	}
+
 	public void SetCellSize(int _cell_size)
 	{
 		cell_size = _cell_size;
@@ -63,6 +75,16 @@ public class Grid {
 	public void SetExteriorSize(int _exterior_size)
 	{
 		exterior_size = _exterior_size;
+	}
+
+	public void SetWidth(int _width)
+	{
+		width = _width;
+	}
+
+	public void SetHeight(int _height)
+	{
+		height = _height;
 	}
 
 	//Getters
@@ -203,22 +225,22 @@ public class Grid {
 		return temp_cell;
     }
 
-	public List<Direction> GetNeighbors(Vector2I index, bool north, bool south, bool east, bool west)
+	public List<ERectangleDirections> GetNeighbors(Vector2I index, bool north, bool south, bool east, bool west)
 	{
-		List<Direction> directions = new List<Direction>();
+		List<ERectangleDirections> directions = new List<ERectangleDirections>();
 
-        if (index.Y != 0 && north) { directions.Add(Direction.north); }
-        if (index.Y < GetHeight() - 1 && south) { directions.Add(Direction.south); }
-        if (index.X < GetWidth() - 1 && east) { directions.Add(Direction.east); }
-        if (index.X != 0 && west) { directions.Add(Direction.west); }
+        if (index.Y != 0 && north) { directions.Add(ERectangleDirections.North); }
+        if (index.Y < GetHeight() - 1 && south) { directions.Add(ERectangleDirections.South); }
+        if (index.X < GetWidth() - 1 && east) { directions.Add(ERectangleDirections.East); }
+        if (index.X != 0 && west) { directions.Add(ERectangleDirections.West); }
 
         return directions;
 	}
 
-    public List<Direction> GetValidNeighbors(Vector2I index)
+    public List<ERectangleDirections> GetValidNeighbors(Vector2I index)
     {
 		//Properties
-		List<Direction> directions = new List<Direction>();
+		List<ERectangleDirections> directions = new List<ERectangleDirections>();
 		Cell temp_cell = null;
         bool can_north = false;
         bool can_south = false;
@@ -238,7 +260,7 @@ public class Grid {
 
 			if (!temp_cell.dead_cell)
 			{
-				directions.Add(Direction.north);
+				directions.Add(ERectangleDirections.North);
 			}
 		}
 
@@ -248,7 +270,7 @@ public class Grid {
 
 			if (!temp_cell.dead_cell)
 			{
-				directions.Add(Direction.south);
+				directions.Add(ERectangleDirections.South);
 			}
         }
 
@@ -258,7 +280,7 @@ public class Grid {
 
 			if (!temp_cell.dead_cell)
 			{
-				directions.Add(Direction.east);
+				directions.Add(ERectangleDirections.East);
 			}
         }
 
@@ -268,17 +290,17 @@ public class Grid {
 
 			if (!temp_cell.dead_cell)
 			{
-				directions.Add(Direction.west);
+				directions.Add(ERectangleDirections.West);
 			}
 		}
 
 		return directions;
     }
 	
-	public List<Direction> GetValidUnvisitedNeighbors(Vector2I index)
+	public List<ERectangleDirections> GetValidUnvisitedNeighbors(Vector2I index)
 	{
         //Properties
-        List<Direction> directions = new List<Direction>();
+        List<ERectangleDirections> directions = new List<ERectangleDirections>();
 
         Cell temp_cell = null;
         bool can_north = false;
@@ -299,7 +321,7 @@ public class Grid {
 
             if (!temp_cell.dead_cell && !temp_cell.IsVisited())
             {
-                directions.Add(Direction.north);
+                directions.Add(ERectangleDirections.North);
             }
         }
 
@@ -309,7 +331,7 @@ public class Grid {
 
             if (!temp_cell.dead_cell && !temp_cell.IsVisited())
             {
-                directions.Add(Direction.south);
+                directions.Add(ERectangleDirections.South);
             }
         }
 
@@ -319,7 +341,7 @@ public class Grid {
 
             if (!temp_cell.dead_cell && !temp_cell.IsVisited())
             {
-                directions.Add(Direction.east);
+                directions.Add(ERectangleDirections.East);
             }
         }
 
@@ -329,33 +351,33 @@ public class Grid {
 
             if (!temp_cell.dead_cell && !temp_cell.IsVisited())
             {
-                directions.Add(Direction.west);
+                directions.Add(ERectangleDirections.West);
             }
         }
 
         return directions;
     }
 
-	public Cell GetCellInDirection(Vector2I index, Direction direction)
+	public Cell GetCellInDirection(Vector2I index, ERectangleDirections direction)
 	{
 		Cell cell = null;
 
         //Get Next Cell
         switch (direction)
         {
-            case Direction.north: //North
+            case ERectangleDirections.North: //North
                 cell = cells[index.X, index.Y - 1];
                 break;
 
-            case Direction.south: //South
+            case ERectangleDirections.South: //South
                 cell = cells[index.X, index.Y + 1];
                 break;
 
-            case Direction.east: //East
+            case ERectangleDirections.East: //East
 				cell = cells[index.X + 1, index.Y];
                 break;
 
-            case Direction.west: //West
+            case ERectangleDirections.West: //West
                 cell = cells[index.X - 1, index.Y];
                 break;
         }
@@ -364,9 +386,6 @@ public class Grid {
     }
 	//-------------------------------------------
 
-	//Grid Sections------------------------------
-
-	//-------------------------------------------
 
     //Total Grid Data----------------------------
     public List<Cell> GetAllValidEdgeDeadends()

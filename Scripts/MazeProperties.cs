@@ -1,23 +1,22 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using static System.Net.Mime.MediaTypeNames;
+using MazeGeneratorGlobal;
 
 public partial class MazeProperties : TabBar
 {
-	//Maze Signals
-	[Signal] public delegate void GenerateMazeEventHandler();
-	[Signal] public delegate void MazeTypeEventHandler();
-	[Signal] public delegate void CellsXEventHandler();
-	[Signal] public delegate void CellsYEventHandler();
-	[Signal] public delegate void CellSizeEventHandler();
-	[Signal] public delegate void WallSizeEventHandler();
-	[Signal] public delegate void ExteriorSizeEventHandler();
 
-	//Point Signals
-	[Signal] public delegate void StartPointTypeEventHandler();
-	[Signal] public delegate void EndPointTypeEventHandler();
-	[Signal] public delegate void NewStartPointEventHandler();
-	[Signal] public delegate void NewEndPointEventHandler();
-	[Signal] public delegate void DrawToggledEventHandler();
+    //Signals 
+    [Signal] public delegate void GenerateMazeEventHandler();
+    [Signal] public delegate void DrawToggledEventHandler();
+
+	//Properties
+
+	//Grid Info
+	Grid grid;
+    private EMazeType maze_type;
+    private bool is_draw_mode = false;
 
     //Nodes
     private Button generate_maze_button;
@@ -29,12 +28,18 @@ public partial class MazeProperties : TabBar
 	private Button new_start_point_button, new_end_point_button;
 	private CheckButton draw_button;
 
+	//Default Methods----------------------------
     public override void _Ready() {
 		SetupNodes();
 		SetupConnections();
-	}
+        //points = new Point();
 
-	//Setup Methods
+        maze_type = EMazeType.BinaryTree;
+        UpdateMaze();
+    }
+	//-------------------------------------------
+
+	//Setup Methods------------------------------
 	private void SetupNodes() {
 
 		string start_path = "ScrollContainer/HBoxContainer/VBoxContainer/";
@@ -61,8 +66,8 @@ public partial class MazeProperties : TabBar
 		//Maze Properties
 		generate_maze_button.Pressed += GenerateMazePressed;
 		maze_type_option_button.ItemSelected += MazeTypeSelected;
-		cells_x_spin_box.ValueChanged += CellsXChanged;
-		cells_y_spin_box.ValueChanged += CellsYChanged;
+		cells_x_spin_box.ValueChanged += GridWidthChanged;
+		cells_y_spin_box.ValueChanged += GridHeightChanged;
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
 		exterior_size_spin_box.ValueChanged += ExteriorSizeChanged;
@@ -74,66 +79,304 @@ public partial class MazeProperties : TabBar
 		new_start_point_button.Pressed += NewStartPressed;
 		new_end_point_button.Pressed += NewEndPressed;
     }
+    //-------------------------------------------
 
-	//Connections
+    //Update Methods-----------------------------
+    private void UpdateMaze()
+    {
+        //Create New Grid and Mask
+        //MazeMask.UpdateImage(ref grid, (Vector2I)maze_image.GetLocalMousePosition());
+        //MazeMask.CreateNewMask(ref grid);
+        //grid.SetMask(MazeMask.mask);
 
-	//Maze Properties
-	private void GenerateMazePressed() {
-		EmitSignal(SignalName.GenerateMaze);
+        if (grid != null)
+        {
+            grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize(), grid.GetExteriorSize());
+        } else {
+            grid = new Grid(10, 10, 10, 10, 0);
+        }
+        
+        //Generate Maze
+        switch (maze_type)
+        {
+            case EMazeType.BinaryTree:
+                MazeGenerator.BinaryTreeAlgorithm(ref grid);
+                break;
+
+            case EMazeType.Sidewinder:
+                MazeGenerator.SidewinderAlgorithm(ref grid);
+                break;
+
+            case EMazeType.Aldous_Broder:
+                MazeGenerator.AldousBroderAlgorithm(ref grid);
+                break;
+
+            case EMazeType.Wilsons:
+                MazeGenerator.WilsonsAlgorithm(ref grid);
+                break;
+
+            case EMazeType.HuntandKill:
+                MazeGenerator.HuntandKill(ref grid);
+                break;
+
+            case EMazeType.Recursive_Backtracker:
+                MazeGenerator.RecursiveBacktracker(ref grid);
+                break;
+
+            case EMazeType.Ellers:
+                MazeGenerator.Ellers(ref grid, false);
+                break;
+
+            case EMazeType.Ellers_Loop:
+                MazeGenerator.Ellers(ref grid, true);
+                break;
+
+            case EMazeType.GrowingTree_Random:
+                MazeGenerator.GrowingTree(ref grid, 0);
+                break;
+
+            case EMazeType.GrowingTree_Last:
+                MazeGenerator.GrowingTree(ref grid, 1);
+                break;
+
+            case EMazeType.GrowingTree_Mix:
+                MazeGenerator.GrowingTree(ref grid, 2);
+                break;
+
+            case EMazeType.Kruskals_Random:
+                MazeGenerator.Kruskals(ref grid);
+                break;
+
+            case EMazeType.Prims_Simple:
+                MazeGenerator.Prims_Simple(ref grid);
+                break;
+
+            case EMazeType.Prims_True:
+                MazeGenerator.Prims_True(ref grid);
+                break;
+
+            case EMazeType.GrowingForest:
+                MazeGenerator.GrowingForest(ref grid);
+                break;
+
+            case EMazeType.Recursive_Division:
+                MazeGenerator.Recursive_Division(ref grid);
+                break;
+        }
+
+        UpdateImage();
+    }
+
+    private void UpdateImage()
+    {
+        //Update Image
+        MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport());
+
+        if (!is_draw_mode)
+        {
+            EmitSignal(SignalName.GenerateMaze, MazeImage.image);
+        }
+    }
+
+    //-------------------------------------------
+
+    //Connections
+
+    //Maze Properties
+    private void GenerateMazePressed() {
+        UpdateMaze();
 	}
 	
 	private void MazeTypeSelected(long index) {
-		EmitSignal(SignalName.MazeType, index);
-	}
+        switch (index)
+        {
+            case ((long)EMazeType.BinaryTree):
+                maze_type = EMazeType.BinaryTree;
+                break;
 
-	private void CellsXChanged(double value)
-	{
-		EmitSignal(SignalName.CellsX, value);
-	}
+            case ((long)EMazeType.Sidewinder):
+                maze_type = EMazeType.Sidewinder;
+                break;
 
-	private void CellsYChanged(double value)
+            case ((long)EMazeType.Aldous_Broder):
+                maze_type = EMazeType.Aldous_Broder;
+                break;
+
+            case ((long)EMazeType.Wilsons):
+                maze_type = EMazeType.Wilsons;
+                break;
+
+            case ((long)EMazeType.HuntandKill):
+                maze_type = EMazeType.HuntandKill;
+                break;
+
+            case ((long)EMazeType.Recursive_Backtracker):
+                maze_type = EMazeType.Recursive_Backtracker;
+                break;
+
+            case ((long)EMazeType.Ellers):
+                maze_type = EMazeType.Ellers;
+                break;
+
+            case ((long)EMazeType.Ellers_Loop):
+                maze_type = EMazeType.Ellers_Loop;
+                break;
+
+            case ((long)EMazeType.GrowingTree_Random):
+                maze_type = EMazeType.GrowingTree_Random;
+                break;
+
+            case ((long)EMazeType.GrowingTree_Last):
+                maze_type = EMazeType.GrowingTree_Last;
+                break;
+
+            case ((long)EMazeType.GrowingTree_Mix):
+                maze_type = EMazeType.GrowingTree_Mix;
+                break;
+
+            case ((long)EMazeType.Kruskals_Random):
+                maze_type = EMazeType.Kruskals_Random;
+                break;
+
+            case ((long)EMazeType.Prims_Simple):
+                maze_type = EMazeType.Prims_Simple;
+                break;
+
+            case ((long)EMazeType.Prims_True):
+                maze_type = EMazeType.Prims_True;
+                break;
+
+            case ((long)EMazeType.GrowingForest):
+                maze_type = EMazeType.GrowingForest;
+                break;
+
+            case ((long)EMazeType.Recursive_Division):
+                maze_type = EMazeType.Recursive_Division;
+                break;
+        }
+    }
+
+	private void GridWidthChanged(double value)
 	{
-		EmitSignal(SignalName.CellsY, value);
-	}
+		grid.SetWidth((int)value);
+        UpdateMaze();
+    }
+
+	private void GridHeightChanged(double value)
+	{
+		grid.SetHeight((int)value);
+        UpdateMaze();
+    }
 
 	private void CellSizeChanged(double value)
 	{
-		EmitSignal(SignalName.CellSize, value);
-	}
+		grid.SetCellSize((int)value);
+        UpdateImage();
+    }
 
 	private void WallSizeChanged(double value)
 	{
-		EmitSignal(SignalName.WallSize, value);
-	}
+		grid.SetWallSize((int)value);
+        UpdateImage();
+    }
 
 	private void ExteriorSizeChanged(double value)
 	{
-		EmitSignal(SignalName.ExteriorSize, value);
-	}
+        grid.SetExteriorSize((int)value);
+        UpdateImage();
+    }
 
     //Point Properties
     private void StartPointTypeChanged(long index)
     {
-		EmitSignal(SignalName.StartPointType, index);
+        /*
+        switch (index)
+        {
+            case 0: //None
+                first_point_type = EPointType.None;
+                break;
+
+            case 1: //Open
+                first_point_type = EPointType.Open;
+                break;
+        }
+
+        //Set Points
+        //points.ResetPoints();
+        NewStartPressed();
+        NewEndPressed();
+
+
+        UpdateImage();
+        */
     }
 
     private void EndPointTypeChanged(long index)
     {
-		EmitSignal(SignalName.EndPointType, index);
+        /*
+        switch (index)
+        {
+            case 0: //None
+                second_point_type = EPointType.None;
+                break;
+
+            case 1: //Open
+                second_point_type = EPointType.Open;
+                break;
+        }
+
+        UpdateImage();*/
     }
 
 	private void NewStartPressed()
 	{
-		EmitSignal(SignalName.NewStartPoint);
-	}
+        /*GD.Randomize();
+
+        points.FillInCell(ref start_point, true);
+
+        switch (first_point_type)
+        {
+            case EPointType.None:
+                break;
+
+            case EPointType.Open:
+                start_point = points.CreateOpenCell(ref start_point_dir, ref grid);
+                break;
+        }
+        */
+        //UpdateImage();
+    }
 
 	private void NewEndPressed()
 	{
-		EmitSignal(SignalName.NewEndPoint);
-	}
+        /*GD.Randomize();
+
+        points.FillInCell(ref end_point, false);
+
+        switch (second_point_type)
+        {
+            case EPointType.None:
+                break;
+
+            case EPointType.Open:
+                end_point = points.CreateOpenCell(ref end_point_dir, ref grid);
+                break;
+        }*/
+
+        //UpdateImage();
+    }
 
 	private void DrawButtonToggled(bool toggle)
 	{
-		EmitSignal(SignalName.DrawToggled, toggle);
-	}
+        EmitSignal(SignalName.DrawToggled, toggle);
+    }
+
+    //Point Methods
+
+    private bool HasMaskSupport()
+    {
+        return (maze_type == EMazeType.BinaryTree || maze_type == EMazeType.Sidewinder || maze_type == EMazeType.Ellers || maze_type == EMazeType.Ellers_Loop);
+    }
+
+
 }

@@ -30,9 +30,27 @@ public static class MazeMask
     public static Mask mask;
     public static Vector2I size;
 
-    public static void UpdateImage(ref Grid grid, Vector2I local_mouse_position, bool pressed)
+    public static void CreateNewMask(ref Grid grid)
     {
-        if (grid != null) {
+        /*
+        //Create Image
+        image = Image.Create(image_width, image_height, false, Image.Format.Rgba8);
+        image.Fill(Colors.SlateGray);   //Fill Image
+
+        if (width != size.X || height != size.Y)
+        {
+            mask = new Mask(width, height); //New Mask
+        }
+
+        size = new Vector2I(width, height);*/
+    }
+
+    public static void UpdateImage(ref Grid grid, Vector2I local_mouse_position)
+    {
+        bool pressed = Input.IsActionJustPressed("right_click");
+
+        if (grid != null)
+        {
             //Grid Lines
             for (int x = 0; x < grid.GetWidth(); x++)
             {
@@ -66,23 +84,9 @@ public static class MazeMask
         }
     }
 
-    public static void CreateNewMask(int width, int height, int image_width, int image_height)
-    {
-        //Grid Changed Draw New Mask
-        if (image == null || width != size.X || height != size.Y)
-        {
-            image = Image.Create(image_width, image_height, false, Image.Format.Rgba8);
-            image.Fill(Colors.SlateGray);   //Fill Image
-            mask = new Mask(width, height); //New Mask
-        }
-
-        size = new Vector2I(width, height);
-    }
-
     public static void UpdateNewMask(ref Grid grid, Vector2I local_mouse_position, bool pressed)
     {
         if (pressed) {
-            
             //Get Cell Index
             Vector2I index = grid.GetCellIndexAtImagePosition(local_mouse_position);
             Rect2I rect = grid.GetInsideCellSizePx(index.X, index.Y);
@@ -96,22 +100,5 @@ public static class MazeMask
                 image.FillRect(rect, Colors.SlateGray);
             }
         }
-
-        /*//Change Cell Color
-        for (int x = 0; x < grid.GetWidth(); x++)
-        {
-            Rect2I rect = grid.GetHorizontalWallFull(x, 0, false);
-            image.FillRect(rect, Colors.DarkSlateGray);
-
-            if (x == grid.GetWidth() - 1) { image.FillRect(grid.GetHorizontalWallFull(x, 0, true), Colors.DarkSlateGray); }
-        }
-
-        for (int y = 0; y < grid.GetHeight(); y++)
-        {
-            Rect2I rect = grid.GetVerticalWallFull(0, y, false);
-            image.FillRect(rect, Colors.DarkSlateGray);
-
-            if (y == grid.GetHeight() - 1) { image.FillRect(grid.GetVerticalWallFull(0, y, true), Colors.DarkSlateGray); }
-        }*/
     }
 }

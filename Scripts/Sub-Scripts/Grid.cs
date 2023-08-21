@@ -9,23 +9,19 @@ public class Grid {
 
 	private int cell_size = 10;
 	private int wall_size = 10;
-	private int exterior_size = 0;
 	private int width = 10;
 	private int height = 10;
-	private List<Point> points = new List<Point>();
+	private Points points;
 
 	public Cell[,] cells;
 
-	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1, int _exterior_size = 0) {
+	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1, EPoints point_type = EPoints.None) {
 		width = _width;
 		height = _height;
 		cells = new Cell[width, height];
         wall_size = _thickness;
         cell_size = _cell_size;
-        exterior_size = _exterior_size;
-
-		points.Add(new Point(EPoints.None));
-		points.Add(new Point(EPoints.None));
+		//points.SetPointType(point_type);
 
 		//Populate Grid
 		for (int x = 0; x < cells.GetLength(0); x++) {
@@ -58,9 +54,9 @@ public class Grid {
 	{
 		if (is_first)
 		{
-			points[0].SetPointType(type);
+			//points[0].SetPointType(type);
 		} else {
-			points[1].SetPointType(type);
+			//points[1].SetPointType(type);
 		}
 	}
 
@@ -71,11 +67,6 @@ public class Grid {
 
 	public void SetWallSize(int _wall_size) {
 		wall_size = _wall_size;
-	}
-
-	public void SetExteriorSize(int _exterior_size)
-	{
-		exterior_size = _exterior_size;
 	}
 
 	public void SetWidth(int _width)
@@ -110,11 +101,6 @@ public class Grid {
 	public int GetWallSize() {
 		return wall_size;
 	}
-
-	public int GetExteriorSize()
-	{
-		return exterior_size;
-	}
     //-------------------------------------------
 
 	//Image Drawing Methods ---------------------
@@ -122,14 +108,14 @@ public class Grid {
 	{
 		int wall_width = (GetWidth() * wall_size) + wall_size;
 		int cell_width = GetWidth() * GetCellSize();
-		return wall_width + cell_width + (exterior_size * 2);
+		return wall_width + cell_width;
 	}
 
 	public int GetImageHeight()
 	{
 		int wall_height = (GetHeight() * wall_size) + wall_size;
 		int cell_height = GetHeight() * GetCellSize();
-        return wall_height + cell_height + (exterior_size * 2);
+        return wall_height + cell_height;
     }
 
     //Image Size of Walls------------------------
@@ -224,6 +210,65 @@ public class Grid {
 		} while (temp_cell.dead_cell);
 
 		return temp_cell;
+    }
+
+	public List <Cell> GetValidNeighborCells(Vector2I index)
+	{
+        //Properties
+        List<Cell> neighbor_cells = new List<Cell>();
+        bool can_north = false;
+        bool can_south = false;
+        bool can_east = false;
+        bool can_west = false;
+
+        //Boundary
+        if (index.X != 0) { can_west = true; }
+        if (index.Y != 0) { can_north = true; }
+        if (index.X < GetWidth() - 1) { can_east = true; }
+        if (index.Y < GetHeight() - 1) { can_south = true; }
+
+        //Valid Cell: North, South, East, West
+        if (can_north)
+        {
+			Cell temp_cell = cells[index.X, index.Y - 1];
+
+            if (!temp_cell.dead_cell)
+            {
+                neighbor_cells.Add(temp_cell);
+            }
+        }
+
+        if (can_south)
+        {
+            Cell temp_cell = cells[index.X, index.Y + 1];
+
+            if (!temp_cell.dead_cell)
+            {
+				neighbor_cells.Add(temp_cell);
+            }
+        }
+
+        if (can_east)
+        {
+            Cell temp_cell = cells[index.X + 1, index.Y];
+
+            if (!temp_cell.dead_cell)
+            {
+				neighbor_cells.Add(temp_cell);
+            }
+        }
+
+        if (can_west)
+        {
+            Cell temp_cell = cells[index.X - 1, index.Y];
+
+            if (!temp_cell.dead_cell)
+            {
+				neighbor_cells.Add(temp_cell);
+            }
+        }
+
+        return neighbor_cells;
     }
 
 	public List<ERectangleDirections> GetNeighbors(Vector2I index, bool north, bool south, bool east, bool west)

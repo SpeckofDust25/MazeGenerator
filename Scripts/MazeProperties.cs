@@ -15,6 +15,7 @@ public partial class MazeProperties : TabBar
 	//Grid Info
 	Grid grid;
     private EMazeType maze_type;
+    private EPoints point_type;
     private bool is_draw_mode = false;
     private Vector2I local_mouse_position;
 
@@ -23,9 +24,6 @@ public partial class MazeProperties : TabBar
     private OptionButton maze_type_option_button;
     private SpinBox cells_x_spin_box, cells_y_spin_box;
     private SpinBox cell_size_spin_box, wall_size_spin_box;
-	private SpinBox exterior_size_spin_box;
-	private OptionButton start_option_button, end_option_button;
-	private Button new_start_point_button, new_end_point_button;
 	private CheckButton draw_button;
 
 	//Default Methods----------------------------
@@ -33,7 +31,6 @@ public partial class MazeProperties : TabBar
         local_mouse_position = new Vector2I(-1, -1);
 		SetupNodes();
 		SetupConnections();
-        //points = new Point();
 
         maze_type = EMazeType.BinaryTree;
         UpdateMaze();
@@ -63,14 +60,7 @@ public partial class MazeProperties : TabBar
 		cells_y_spin_box = GetNode<SpinBox>(start_path + "HeightHBoxContainer/CellsYSpinBox");
 		cell_size_spin_box = GetNode<SpinBox>(start_path + "CellSizeHBoxContainer/CellSizeSpinBox");
 		wall_size_spin_box = GetNode<SpinBox>(start_path + "WallSizeHBoxContainer/WallSizeSpinBox");
-		exterior_size_spin_box = GetNode<SpinBox>(start_path + "ExteriorSizeHBoxContainer/ExteriorSizeSpinBox");
 		draw_button = GetNode<CheckButton>(start_path + "DrawHBoxContainer/CheckButton");
-
-		//Point Properties
-		start_option_button = GetNode<OptionButton>(start_path + "StartPointHBoxContainer/OptionButton");
-        end_option_button = GetNode<OptionButton>(start_path + "EndPointHBoxContainer/OptionButton");
-		new_start_point_button = GetNode<Button>(start_path + "NewPointHBoxContainer/NewStartPointButton");
-		new_end_point_button = GetNode<Button>(start_path + "NewPointHBoxContainer/NewEndPointButton");
     }
 	
 	private void SetupConnections() {
@@ -82,14 +72,7 @@ public partial class MazeProperties : TabBar
 		cells_y_spin_box.ValueChanged += GridHeightChanged;
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
-		exterior_size_spin_box.ValueChanged += ExteriorSizeChanged;
 		draw_button.Toggled += DrawButtonToggled;
-
-		//Point Properties
-		start_option_button.ItemSelected += StartPointTypeChanged;
-		end_option_button.ItemSelected += EndPointTypeChanged;
-		new_start_point_button.Pressed += NewStartPressed;
-		new_end_point_button.Pressed += NewEndPressed;
     }
     //-------------------------------------------
 
@@ -97,83 +80,18 @@ public partial class MazeProperties : TabBar
     private void UpdateMaze()
     {
         if (grid != null) {
-            grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize(), grid.GetExteriorSize());
+            grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize(), point_type);
         } else {
-            grid = new Grid(10, 10, 10, 10, 0);
+            grid = new Grid(10, 10, 10, 10);
         }
 
         MazeMask.Update(ref grid, Vector2I.Zero);
         grid.SetMask(MazeMask.mask);
+        bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type);
 
-        //Generate Maze
-        switch (maze_type)
-        {
-            case EMazeType.BinaryTree:
-                MazeGenerator.BinaryTreeAlgorithm(ref grid);
-                break;
-
-            case EMazeType.Sidewinder:
-                MazeGenerator.SidewinderAlgorithm(ref grid);
-                break;
-
-            case EMazeType.Aldous_Broder:
-                MazeGenerator.AldousBroderAlgorithm(ref grid);
-                break;
-
-            case EMazeType.Wilsons:
-                MazeGenerator.WilsonsAlgorithm(ref grid);
-                break;
-
-            case EMazeType.HuntandKill:
-                MazeGenerator.HuntandKill(ref grid);
-                break;
-
-            case EMazeType.Recursive_Backtracker:
-                MazeGenerator.RecursiveBacktracker(ref grid);
-                break;
-
-            case EMazeType.Ellers:
-                MazeGenerator.Ellers(ref grid, false);
-                break;
-
-            case EMazeType.Ellers_Loop:
-                MazeGenerator.Ellers(ref grid, true);
-                break;
-
-            case EMazeType.GrowingTree_Random:
-                MazeGenerator.GrowingTree(ref grid, 0);
-                break;
-
-            case EMazeType.GrowingTree_Last:
-                MazeGenerator.GrowingTree(ref grid, 1);
-                break;
-
-            case EMazeType.GrowingTree_Mix:
-                MazeGenerator.GrowingTree(ref grid, 2);
-                break;
-
-            case EMazeType.Kruskals_Random:
-                MazeGenerator.Kruskals(ref grid);
-                break;
-
-            case EMazeType.Prims_Simple:
-                MazeGenerator.Prims_Simple(ref grid);
-                break;
-
-            case EMazeType.Prims_True:
-                MazeGenerator.Prims_True(ref grid);
-                break;
-
-            case EMazeType.GrowingForest:
-                MazeGenerator.GrowingForest(ref grid);
-                break;
-
-            case EMazeType.Recursive_Division:
-                MazeGenerator.Recursive_Division(ref grid);
-                break;
+        if (successful) {
+            UpdateImage();
         }
-
-        UpdateImage();
     }
 
     private void UpdateImage()
@@ -182,7 +100,6 @@ public partial class MazeProperties : TabBar
         MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport());
         EmitSignal(SignalName.GenerateMaze);
     }
-
     //-------------------------------------------
 
 
@@ -292,92 +209,7 @@ public partial class MazeProperties : TabBar
         UpdateImage();
     }
 
-	private void ExteriorSizeChanged(double value)
-	{
-        grid.SetExteriorSize((int)value);
-        UpdateImage();
-    }
-
-    //Point Properties
-    private void StartPointTypeChanged(long index)
-    {
-        /*
-        switch (index)
-        {
-            case 0: //None
-                first_point_type = EPointType.None;
-                break;
-
-            case 1: //Open
-                first_point_type = EPointType.Open;
-                break;
-        }
-
-        //Set Points
-        //points.ResetPoints();
-        NewStartPressed();
-        NewEndPressed();
-
-
-        UpdateImage();
-        */
-    }
-
-    private void EndPointTypeChanged(long index)
-    {
-        /*
-        switch (index)
-        {
-            case 0: //None
-                second_point_type = EPointType.None;
-                break;
-
-            case 1: //Open
-                second_point_type = EPointType.Open;
-                break;
-        }
-
-        UpdateImage();*/
-    }
-
-	private void NewStartPressed()
-	{
-        /*GD.Randomize();
-
-        points.FillInCell(ref start_point, true);
-
-        switch (first_point_type)
-        {
-            case EPointType.None:
-                break;
-
-            case EPointType.Open:
-                start_point = points.CreateOpenCell(ref start_point_dir, ref grid);
-                break;
-        }
-        */
-        //UpdateImage();
-    }
-
-	private void NewEndPressed()
-	{
-        /*GD.Randomize();
-
-        points.FillInCell(ref end_point, false);
-
-        switch (second_point_type)
-        {
-            case EPointType.None:
-                break;
-
-            case EPointType.Open:
-                end_point = points.CreateOpenCell(ref end_point_dir, ref grid);
-                break;
-        }*/
-
-        //UpdateImage();
-    }
-
+    //Maze Modifications
 	private void DrawButtonToggled(bool toggle)
 	{
         is_draw_mode = toggle;

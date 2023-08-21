@@ -1,13 +1,170 @@
 ﻿using Godot;
-using Godot.NativeInterop;
 using MazeGeneratorGlobal;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters;
 
 public static class MazeGenerator
 {
+    public static bool GenerateMaze(ref Grid grid, EMazeType type)
+    {
+        bool successful = false;
+        int section_count = GetSectionCount(ref grid);
+
+        if (section_count <= 1) {
+            successful = true;
+
+            //Conditions
+            if (grid.GetTotalDeadCells() == grid.GetTotalCells())
+            {
+                MazeMask.ClearMask(ref grid);
+                grid.SetMask(MazeMask.mask);
+            }
+
+            //Generate Maze
+            switch (type)
+            {
+                case EMazeType.BinaryTree:
+                    BinaryTreeAlgorithm(ref grid);
+                    break;
+
+                case EMazeType.Sidewinder:
+                    SidewinderAlgorithm(ref grid);
+                    break;
+
+                case EMazeType.Aldous_Broder:
+                    AldousBroderAlgorithm(ref grid);
+                    break;
+
+                case EMazeType.Wilsons:
+                    WilsonsAlgorithm(ref grid);
+                    break;
+
+                case EMazeType.HuntandKill:
+                    HuntandKill(ref grid);
+                    break;
+
+                case EMazeType.Recursive_Backtracker:
+                    RecursiveBacktracker(ref grid);
+                    break;
+
+                case EMazeType.Ellers:
+                    Ellers(ref grid, false);
+                    break;
+
+                case EMazeType.Ellers_Loop:
+                    Ellers(ref grid, true);
+                    break;
+
+                case EMazeType.GrowingTree_Random:
+                    GrowingTree(ref grid, 0);
+                    break;
+
+                case EMazeType.GrowingTree_Last:
+                    GrowingTree(ref grid, 1);
+                    break;
+
+                case EMazeType.GrowingTree_Mix:
+                    GrowingTree(ref grid, 2);
+                    break;
+
+                case EMazeType.Kruskals_Random:
+                    Kruskals(ref grid);
+                    break;
+
+                case EMazeType.Prims_Simple:
+                    Prims_Simple(ref grid);
+                    break;
+
+                case EMazeType.Prims_True:
+                    Prims_True(ref grid);
+                    break;
+
+                case EMazeType.GrowingForest:
+                    GrowingForest(ref grid);
+                    break;
+
+                case EMazeType.Recursive_Division:
+                    Recursive_Division(ref grid);
+                    break;
+            }
+        }
+
+        return successful;
+    }
+
+    public static int GetSectionCount(ref Grid grid)
+    {
+        //No Dead Cells
+        if (grid.GetTotalDeadCells() == 0) {
+            return 1;
+        } 
+
+        //Get Sections
+        List<List<Cell>> sections = new List<List<Cell>>();
+
+        //Get Sections
+        for (int x = 0; x < grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
+                if (!grid.cells[x, y].dead_cell) {
+
+                    //Start
+                    if (sections.Count == 0) {
+                        sections.Add(new List<Cell>());
+                    }
+
+                    List<int> index_added = new List<int>();    //Section index's that Contain the same cell
+                    List<Cell> neighbors = grid.GetValidNeighborCells(new Vector2I(x, y));
+
+                    //Add Cell To Existing List
+                    for(int l = 0; l < sections.Count; l++)
+                    {
+                        for (int i = 0; i < neighbors.Count; i++)
+                        {
+                            if (sections[l].Contains(neighbors[i]))
+                            {
+                                sections[l].Add(grid.cells[x, y]);
+                                index_added.Add(l);
+                                break;
+                            }
+                        }
+                    }
+
+                    //Create a New List
+                    if (index_added.Count == 0)
+                    {
+                        sections.Add(new List<Cell>());
+                        sections[sections.Count - 1].Add(grid.cells[x, y]);
+
+                    } else if (index_added.Count > 1) { //Merge
+                        
+                        //Merge
+                        for (int i = 1; i < index_added.Count; i++) //Get Section Index
+                        {
+                            for (int l = 0; l < sections[index_added[i]].Count; l++) //Add To index 0: No Duplicates
+                            {
+                                if (!sections[0].Contains(sections[index_added[i]][l]))
+                                {
+                                    sections[0].Add(sections[index_added[i]][l]);
+                                }
+                            }
+                        }
+
+                        //Remove
+                        for (int i = index_added.Count - 1; i > 0; i--)
+                        {
+                            sections.RemoveAt(index_added[i]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return sections.Count;
+    }
+
 
     //Move North or East on each cell: No Mask Support
     public static Grid BinaryTreeAlgorithm(ref Grid grid)
@@ -23,19 +180,27 @@ public static class MazeGenerator
                 List<ERectangleDirections> directions = grid.GetNeighbors(new Vector2I(x, y), true, false, true, false);
 
                 //Remove Possible Walls
-                if (directions.Count > 1) {
+                if (directions.Count > 1)
+                {
                     int rand = (int)(GD.Randi() % 2);
 
-                    if (rand == 0) { 
+                    if (rand == 0)
+                    {
                         dir = ERectangleDirections.North;
-                    } else {
+                    }
+                    else
+                    {
                         dir = ERectangleDirections.East;
                     }
 
-                } else if (directions.Contains(ERectangleDirections.North)) {
+                }
+                else if (directions.Contains(ERectangleDirections.North))
+                {
                     dir = ERectangleDirections.North;
 
-                } else if (directions.Contains(ERectangleDirections.East)) {
+                }
+                else if (directions.Contains(ERectangleDirections.East))
+                {
                     dir = ERectangleDirections.East;
                 }
 
@@ -60,27 +225,34 @@ public static class MazeGenerator
             {
                 List<ERectangleDirections> directions = grid.GetNeighbors(new Vector2I(x, y), true, false, true, false);
                 bool is_north = false;
-                
+
                 //Choose Direction
-                if (directions.Count > 1) {
+                if (directions.Count > 1)
+                {
                     int num = (int)(GD.Randi() % 2);
-                    
-                    if (num == 0) {
+
+                    if (num == 0)
+                    {
                         is_north = true;
                     }
 
-                } else if (directions.Contains(ERectangleDirections.North)) {
+                }
+                else if (directions.Contains(ERectangleDirections.North))
+                {
                     is_north = true;
                 }
 
                 //Carve Path
-                if (is_north) {
+                if (is_north)
+                {
                     int rand = 0;
                     if (east_count > 0) { rand = (int)(GD.Randi() % east_count); }
                     CarvePathIndex(ref grid, x - rand, y, ERectangleDirections.North);
                     east_count = 0;
 
-                } else if (directions.Contains(ERectangleDirections.East)) {
+                }
+                else if (directions.Contains(ERectangleDirections.East))
+                {
                     east_count += 1;
                     CarvePathIndex(ref grid, x, y, ERectangleDirections.East);
                 }
@@ -107,7 +279,8 @@ public static class MazeGenerator
             //Get Valid Cell
             if (cell.dead_cell)
             {
-                do {
+                do
+                {
                     cell = grid.GetRandomCell();
                 } while (cell.dead_cell);
             }
@@ -130,18 +303,22 @@ public static class MazeGenerator
             }
 
             //Carve path
-            if (directions.Count > 0 && !cell.dead_cell) {
-                if (!next_cell.IsVisited()) {
+            if (directions.Count > 0 && !cell.dead_cell)
+            {
+                if (!next_cell.IsVisited())
+                {
                     CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
                     visited_count += 1;
                 }
 
                 cell = next_cell;
-            } else {
+            }
+            else
+            {
                 cell = grid.GetRandomCell();
             }
         }
-       
+
         return grid;
     }
 
@@ -207,14 +384,16 @@ public static class MazeGenerator
             {
                 next_cell = grid.GetCellInDirection(cell.index, move_dir);
 
-                if (next_cell.IsVisited() || next_cell.IsSameCell(v_end_cell)) 
+                if (next_cell.IsVisited() || next_cell.IsSameCell(v_end_cell))
                 {
                     l_cell_index.Add(next_cell);
                     CarvePathLoop(ref grid, ref l_cell_index);
                     visited_count += l_cell_index.Count() - 1;
                     has_new_path = false;
 
-                } else {    //Check For Loop
+                }
+                else
+                {    //Check For Loop
                     CheckForLoop(ref l_cell_index, next_cell);
                     l_cell_index.Add(next_cell);
                 }
@@ -238,8 +417,10 @@ public static class MazeGenerator
         while (!(visited_count >= (grid.GetWidth() * grid.GetHeight())))
         {
             //Get Valid Cell
-            if (cell.dead_cell) {
-                do {
+            if (cell.dead_cell)
+            {
+                do
+                {
                     cell = grid.GetRandomCell();
                 } while (cell.dead_cell);
             }
@@ -249,36 +430,44 @@ public static class MazeGenerator
             List<ERectangleDirections> directions = grid.GetValidUnvisitedNeighbors(cell.index);
 
             //Get Direction
-            if (directions.Count > 0) { //Move
+            if (directions.Count > 0)
+            { //Move
                 int num = (int)(GD.Randi() % directions.Count);
                 move_dir = directions[num];
                 next_cell = grid.GetCellInDirection(cell.index, move_dir);
 
-                if (!next_cell.IsVisited()) {
+                if (!next_cell.IsVisited())
+                {
                     CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
                     visited_count += 1;
                     cell = next_cell;
                 }
 
-            } else {
+            }
+            else
+            {
                 cell = Hunt(ref grid, cell);
                 visited_count += 1;
             }
         }
-        
+
         return grid;
     }
 
-    public static Grid RecursiveBacktracker(ref Grid grid) {
-        
+    public static Grid RecursiveBacktracker(ref Grid grid)
+    {
+
         GD.Randomize();
         int visited_count = 1;
         Cell cell = grid.GetValidRandomCell();
         Stack<Cell> s_cells = new Stack<Cell>();
+
+        s_cells.Push(cell);
         visited_count += grid.GetTotalDeadCells();
 
         while (!(visited_count >= (grid.GetWidth() * grid.GetHeight())))
         {
+
             Cell next_cell = cell;
             ERectangleDirections move_dir = ERectangleDirections.None;
             s_cells.Push(cell);
@@ -295,16 +484,19 @@ public static class MazeGenerator
             //Carve path
             if (move_dir != ERectangleDirections.None)
             {
-                if (!next_cell.IsVisited()) {   //Not Visited
+                if (!next_cell.IsVisited())
+                {   //Not Visited
                     CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
                     visited_count += 1;
                     cell = next_cell;
                 }
-            } else {
+            }
+            else
+            {
                 cell = Backtrack(ref grid, s_cells);
             }
         }
-        
+
         return grid;
     }
 
@@ -318,7 +510,8 @@ public static class MazeGenerator
         List<List<Identifier>> cell_set_table = new List<List<Identifier>>();
 
         //Set Cell Table
-        for (int y = 0; y < grid.GetHeight(); y++) {
+        for (int y = 0; y < grid.GetHeight(); y++)
+        {
             cell_set_table.Add(new List<Identifier>());
 
             for (int x = 0; x < grid.GetWidth(); x++)
@@ -329,11 +522,12 @@ public static class MazeGenerator
         }
 
         //Loop
-        while (y_index < grid.GetHeight()) {
+        while (y_index < grid.GetHeight())
+        {
 
             //Link, Go South and Merge Sets
             if (y_index < grid.GetHeight() - 1)
-            { 
+            {
                 Link(ref grid, ref cell_set_table, y_index, is_loop);    //Link Row
                 RandomSouth(ref grid, ref cell_set_table, y_index, is_loop);    //Get South
             }
@@ -344,7 +538,7 @@ public static class MazeGenerator
 
             y_index += 1;
         }
-        
+
         return grid;
     }
 
@@ -355,13 +549,14 @@ public static class MazeGenerator
 
         Cell temp_cell = null;
 
-        do {
+        do
+        {
             temp_cell = grid.GetRandomCell();
         } while (temp_cell.dead_cell);
 
         active_list.Add(temp_cell);
 
-        while(active_list.Count > 0)
+        while (active_list.Count > 0)
         {
             int index = (int)(GD.Randi() % active_list.Count);  //Get a Active Cell
             Cell cell = active_list[index];
@@ -378,7 +573,8 @@ public static class MazeGenerator
             }
 
             //Last
-            if (type == 1) {    
+            if (type == 1)
+            {
                 index = active_list.Count - 1;
                 cell = active_list[index];
 
@@ -392,8 +588,10 @@ public static class MazeGenerator
             }
 
             //Mixed
-            if (type == 2) { 
-                if ((int)(GD.Randi() % 2) == 0) {
+            if (type == 2)
+            {
+                if ((int)(GD.Randi() % 2) == 0)
+                {
                     index = active_list.Count - 1;
                     cell = active_list[index];
 
@@ -415,7 +613,9 @@ public static class MazeGenerator
                 {
                     active_list.Add(new_cell);
                 }
-            } else { //Remove path
+            }
+            else
+            { //Remove path
                 active_list.RemoveAt(index);
             }
         }
@@ -429,15 +629,19 @@ public static class MazeGenerator
         List<List<int>> set = new List<List<int>>();
 
         //Populate sets
-        for (int y = 0; y < grid.GetHeight(); y++) {
+        for (int y = 0; y < grid.GetHeight(); y++)
+        {
             set.Add(new List<int>());
 
             for (int x = 0; x < grid.GetWidth(); x++)
             {
-                if (!grid.cells[x, y].dead_cell) {
+                if (!grid.cells[x, y].dead_cell)
+                {
                     set[y].Add(iteration);
                     iteration += 1;
-                } else {
+                }
+                else
+                {
                     set[y].Add(-1);
                 }
             }
@@ -482,7 +686,8 @@ public static class MazeGenerator
                     break;
             }
 
-            if (first != second) {
+            if (first != second)
+            {
                 MergeSetManual(ref set, first, second);
                 CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
             }
@@ -491,23 +696,26 @@ public static class MazeGenerator
         return grid;
     }
 
-    public static Grid Prims_Simple(ref Grid grid) {
-        
+    public static Grid Prims_Simple(ref Grid grid)
+    {
         List<Cell> active = new List<Cell>();
         active.Add(grid.GetValidRandomCell());
 
-        while(active.Count > 0)
+        while (active.Count > 0)
         {
             int index = (int)(GD.Randi() % active.Count);
             Cell cell = active[index];
             List<ERectangleDirections> directions = grid.GetValidUnvisitedNeighbors(cell.index);
             ERectangleDirections move_dir = ERectangleDirections.None;
 
-            if (directions.Count > 0) {
+            if (directions.Count > 0)
+            {
                 move_dir = directions[(int)(GD.Randi() % directions.Count)];
                 active.Add(grid.GetCellInDirection(cell.index, move_dir));
                 CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
-            } else {
+            }
+            else
+            {
                 active.RemoveAt(index);
             }
         }
@@ -528,7 +736,8 @@ public static class MazeGenerator
         {
             cell_cost.Add(new List<int>());
 
-            for (int y = 0; y < grid.GetHeight(); y++) {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
                 cell_cost[x].Add((int)(GD.Randi() % 100));
             }
         }
@@ -563,7 +772,7 @@ public static class MazeGenerator
             if (directions.Contains(ERectangleDirections.North))  //North
             {
                 temp = grid.GetCellInDirection(lowest_cost_cell.index, ERectangleDirections.North);
-                
+
                 if (cell_cost[temp.index.X][temp.index.Y] < lowest)
                 {
                     move_dir = ERectangleDirections.North;
@@ -604,14 +813,17 @@ public static class MazeGenerator
                 }
             }
 
-            if (move_dir != ERectangleDirections.None) {
+            if (move_dir != ERectangleDirections.None)
+            {
                 active.Add(neighbor);
                 CarvePathIndex(ref grid, lowest_cost_cell.index.X, lowest_cost_cell.index.Y, move_dir);
-            } else {
+            }
+            else
+            {
                 active.RemoveAt(index);
             }
         }
-        
+
         return grid;
     }
 
@@ -712,10 +924,11 @@ public static class MazeGenerator
         for (int i = 0; i < row_list.Count - 1; i++)
         {
             int no_wall = (int)(GD.Randi() % 2);
-            
+
             if (no_wall == 0)
             {
-                if (is_loop || list[y_index][i].uid != list[y_index][i + 1].uid) {
+                if (is_loop || list[y_index][i].uid != list[y_index][i + 1].uid)
+                {
                     MergeSets(ref list, list[y_index][i].uid, list[y_index][i + 1].uid);
                     CarvePathIndex(ref _grid, i, y_index, ERectangleDirections.East);
                 }
@@ -736,7 +949,7 @@ public static class MazeGenerator
             }
         }
     }
-  
+
     private static void RandomSouth(ref Grid _grid, ref List<List<Identifier>> list, int y_index, bool is_loop)
     {
         int count = 0;
@@ -769,13 +982,15 @@ public static class MazeGenerator
                         south_count += 1;
                     }
                 }
-            } 
+            }
 
             //Carve South: Loop and No Loop
-            if (i < list[y_index].Count - 1) {  //Not At End
+            if (i < list[y_index].Count - 1)
+            {  //Not At End
                 if (list[y_index][i + 1].uid != number)
                 {
-                    if (is_loop) {
+                    if (is_loop)
+                    {
                         south_count = 0;
                         bool carved = false;
 
@@ -788,7 +1003,7 @@ public static class MazeGenerator
                                 Cell middle = _grid.cells[i - l, y_index];
                                 Cell right = _grid.cells[i - l + 1, y_index];
                                 Cell left = middle;
-                                
+
                                 if (middle.index.X != 0)
                                 {
                                     left = _grid.cells[i - l - 1, y_index];
@@ -818,23 +1033,29 @@ public static class MazeGenerator
                             }
                         }
 
-                    } else {    //No Loop
+                    }
+                    else
+                    {    //No Loop
 
-                        while (south_count > 0) {
+                        while (south_count > 0)
+                        {
                             num = (int)(GD.Randi() % count);
 
-                            if (!_grid.cells[i - num, y_index].south) { //Go South
+                            if (!_grid.cells[i - num, y_index].south)
+                            { //Go South
                                 MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
                                 CarvePathIndex(ref _grid, i - num, y_index, ERectangleDirections.South);
                                 south_count -= 1;
                             }
                         }
                     }
-                    
+
                     number = list[y_index][i + 1].uid;
                     count = 0;
                 }
-            } else { //At End of Row
+            }
+            else
+            { //At End of Row
                 MergeSets(ref list, number, list[y_index + 1][i - num].uid, true);
                 CarvePathIndex(ref _grid, i - num, y_index, ERectangleDirections.South);
             }
@@ -848,7 +1069,8 @@ public static class MazeGenerator
         {
             for (int x = 0; x < set[y].Count; x++)
             {
-                if (set[y][x] == second) {
+                if (set[y][x] == second)
+                {
                     set[y][x] = first;
                 }
             }
@@ -868,8 +1090,9 @@ public static class MazeGenerator
             }
         }
     }
-    
-    private static bool SetComplete(List<List<int>> set) {
+
+    private static bool SetComplete(List<List<int>> set)
+    {
         bool complete = true;
         int number = -1;
 
@@ -877,10 +1100,14 @@ public static class MazeGenerator
         {
             for (int x = 0; x < set[y].Count; x++)
             {
-                if (set[y][x] >= 0) { //Skip -1
-                    if (number == -1) {
+                if (set[y][x] >= 0)
+                { //Skip -1
+                    if (number == -1)
+                    {
                         number = set[y][x];
-                    } else if (number != set[y][x]) {
+                    }
+                    else if (number != set[y][x])
+                    {
                         complete = false;
                         break;
                     }
@@ -951,7 +1178,8 @@ public static class MazeGenerator
         }
 
         //Pick Random Cell
-        if (neighbors.Count > 0) {
+        if (neighbors.Count > 0)
+        {
             int new_dir = (int)(GD.Randi() % (int)neighbors.Count);
             CarvePathIndex(ref grid, new_cell.index.X, new_cell.index.Y, neighbors[new_dir]);
         }
@@ -962,10 +1190,11 @@ public static class MazeGenerator
     private static Cell Backtrack(ref Grid grid, Stack<Cell> cells)
     {
         Cell target = null;
-        
+
         for (int i = 0; i < cells.Count; i++)
         {
-            if (cells.TryPop(out target)) {
+            if (cells.TryPop(out target))
+            {
 
                 List<ERectangleDirections> neighbors = grid.GetValidUnvisitedNeighbors(target.index);
 
@@ -974,14 +1203,16 @@ public static class MazeGenerator
                     break;
                 }
 
-            } else {
+            }
+            else
+            {
                 break;
             }
         }
 
         return target;
     }
-    
+
     //Used for the Wilson's Algorithm: Checks For a Loop 
     private static void CheckForLoop(ref List<Cell> cells, Cell current_cell)
     {
@@ -1005,3 +1236,76 @@ public static class MazeGenerator
         }
     }
 }
+
+
+//May Use: Determines sections and sets them up into their own grid: INCOMPLETE
+//List<Grid> list = new List<Grid>();
+//list.Add(grid)
+//Create Grid using it's ranging index from min to max in both x and y coordinates
+/*List<Vector2I> min_values = new List<Vector2I>();
+List<Vector2I> max_values = new List<Vector2I>();
+
+//Get Min, Max values for x and y
+for (int i = 0; i < sections.Count; i++)
+{
+    min_values.Add(new Vector2I());
+    max_values.Add(new Vector2I());
+
+    for (int l = 0; l < sections[i].Count; l++)
+    {
+        Vector2I index = sections[i][l].index;
+
+        if (l == 0) //Start Index
+        {
+            min_values[i] = index;
+            max_values[i] = index;
+        } else {
+            //X and Y; Min Max values
+            min_values[i] = new Vector2I(Mathf.Min(min_values[i].X, index.X), Mathf.Min(min_values[i].Y, index.Y));
+            max_values[i] = new Vector2I(Mathf.Max(max_values[i].X, index.X), Mathf.Max(max_values[i].Y, index.Y));
+        }
+    }
+}
+
+List<Grid> grids = new List<Grid>();
+
+//Create Grid 
+for (int i = 0; i < min_values.Count; i++)
+{
+    int width = max_values[i].X - min_values[i].X;
+    int height = max_values[i].Y - min_values[i].Y;
+    grids.Add(new Grid(width, height, 1, 1));
+}
+
+//Set All Cells to Dead Cells
+for (int i = 0; i < grids.Count; i++)
+{
+    for (int x = 0; x < grids[i].GetWidth(); x++)
+    {
+        for (int y = 0; y < grids[i].GetHeight(); y++)
+        {
+            grids[i].cells[x, y].dead_cell = true;
+        }
+    }
+}
+
+//Assign Corresponding Cells
+for (int i = 0; i < grids.Count; i++)
+{
+    for (int l = 0; l < sections[i].Count; l++)
+    {
+        Cell assigned_cell = sections[i][l];
+        //grids[i].cells[]
+
+        grids[i].cells[l];
+        //sections[i][l].index;
+    }
+}
+
+
+//TODO: May need to make an entirely new cell
+
+
+
+//Finish Setting up Sections
+GD.Print("Sections: " + sections.Count.ToString());*/

@@ -49,15 +49,38 @@ public static class MazeMask
     public static Image image;
     public static Mask mask;
     public static Vector2I size;
+    private static bool draw_open;
 
     //Returns If Updated
     public static bool Update(ref Grid grid, Vector2I local_mouse_position)
     {
         bool did_update = false;
-        bool pressed = Input.IsActionJustPressed("right_click");
+        bool just_pressed = Input.IsActionJustPressed("right_click");
+        bool pressed = Input.IsActionPressed("right_click");
+
+        //Input
+        if (Input.IsActionJustReleased("right_click"))
+        {
+            draw_open = false;
+        }
+
 
         NewMask(grid.GetWidth(), grid.GetHeight());
         did_update = NewImage(ref grid);
+
+        //Set Draw Type
+        if (just_pressed)
+        {
+            Vector2I index = grid.GetCellIndexAtImagePosition(local_mouse_position);
+            bool is_dead_cell = mask.dead_cells[index.X, index.Y];
+
+            if (is_dead_cell)
+            {
+                draw_open = false;
+            } else {
+                draw_open = true;
+            }
+        }
 
         //Update Cell Center
         if (pressed)
@@ -65,9 +88,8 @@ public static class MazeMask
             //Get Cell Index
             Vector2I index = grid.GetCellIndexAtImagePosition(local_mouse_position);
             Rect2I rect = grid.GetInsideCellSizePx(index.X, index.Y);
-            bool is_dead_cell = mask.dead_cells[index.X, index.Y];
 
-            if (!is_dead_cell)
+            if (draw_open)
             {
                 mask.dead_cells[index.X, index.Y] = true;
                 image.FillRect(rect, Colors.Red);
@@ -113,19 +135,6 @@ public static class MazeMask
 
             if (update_image)
             {
-                //Create Image and Fill 
-                for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
-                {
-                    for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
-                    {
-                        if (mask.dead_cells[x, y] == true)
-                        {
-                            Rect2I rect = grid.GetInsideCellSizePx(x, y);
-                            image.FillRect(rect, Colors.Red);
-                        }
-                    }
-                }
-
                 image = Image.Create(grid.GetImageWidth(), grid.GetImageHeight(), false, Image.Format.Rgba8);
                 image.Fill(Colors.SlateGray);
 
@@ -157,9 +166,35 @@ public static class MazeMask
                         image.FillRect(grid.GetVerticalWallFull(0, y, true), Colors.DarkSlateGray);
                     }
                 }
+
+                //Create Image and Fill 
+                for (int x = 0; x < mask.dead_cells.GetLength(0); x++)
+                {
+                    for (int y = 0; y < mask.dead_cells.GetLength(1); y++)
+                    {
+                        if (mask.dead_cells[x, y] == true)
+                        {
+                            Rect2I rect = grid.GetInsideCellSizePx(x, y);
+                            image.FillRect(rect, Colors.Red);
+                        }
+                    }
+                }
             }
         }
 
         return update_image;
+    }
+
+    public static void ClearMask(ref Grid grid)
+    {
+        mask = new Mask(size.X, size.Y);
+
+        for (int x = 0; x < size.X; x++) {
+            for (int y = 0; y < size.Y; y++) {
+                Rect2I rect = grid.GetInsideCellSizePx(x, y);
+                mask.dead_cells[x, y] = false;
+                image.FillRect(rect, Colors.SlateGray);
+            }
+        }
     }
 }

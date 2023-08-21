@@ -8,24 +8,21 @@ using System.Threading.Tasks;
 
 using MazeGeneratorGlobal;
 
-public class Point
+public class Points
 {
-    Cell cell;
+    public Cell start_cell;
+    public Cell end_cell;
+
     EPoints point_type;
     ERectangleDirections direction;
 
-    public Point(EPoints _type) {
+    public Points(EPoints _type) {
         point_type = _type;
     }
 
     public void SetPointType(EPoints _type)
     {
         point_type = _type;
-    }
-
-    public Cell GetCell()
-    {
-        return cell;
     }
 
     //Creates An Open Cell
@@ -192,7 +189,8 @@ public class Point
 
     public void ResetPoint()
     {
-        cell = null;
+        start_cell = null;
+        end_cell = null;
         direction = ERectangleDirections.None;
     }
 }

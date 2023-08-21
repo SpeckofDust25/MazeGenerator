@@ -78,9 +78,9 @@ size_flags_horizontal = 10
 item_count = 16
 selected = 0
 fit_to_longest_item = false
-popup/item_0/text = "Binary Tree"
+popup/item_0/text = "Binary Tree (no mask)"
 popup/item_0/id = 0
-popup/item_1/text = "Sidewinder"
+popup/item_1/text = "Sidewinder (no mask)"
 popup/item_1/id = 1
 popup/item_2/text = "Aldous-Broder"
 popup/item_2/id = 2
@@ -90,9 +90,9 @@ popup/item_4/text = "Hunt-and-Kill"
 popup/item_4/id = 4
 popup/item_5/text = "Recursive Backtracker"
 popup/item_5/id = 5
-popup/item_6/text = "Eller's"
+popup/item_6/text = "Eller's (no mask)"
 popup/item_6/id = 6
-popup/item_7/text = "Eller's (loop)"
+popup/item_7/text = "Eller's (loop) (no mask)"
 popup/item_7/id = 7
 popup/item_8/text = "Growing Tree (random)"
 popup/item_8/id = 8
@@ -111,7 +111,53 @@ popup/item_14/id = 14
 popup/item_15/text = "Recursive Division"
 popup/item_15/id = 15
 
+[node name="PathfindingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Pathfinding"
+
+[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
+clip_contents = true
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+item_count = 14
+selected = 0
+fit_to_longest_item = false
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "Dijkstra's"
+popup/item_1/id = 1
+popup/item_2/text = "Wall Follower"
+popup/item_2/id = 2
+popup/item_3/text = "Pledge"
+popup/item_3/id = 3
+popup/item_4/text = "Chain"
+popup/item_4/id = 4
+popup/item_5/text = "Recursive Backtracker"
+popup/item_5/id = 5
+popup/item_6/text = "Tremaux's"
+popup/item_6/id = 6
+popup/item_7/text = "Dead end Filler"
+popup/item_7/id = 7
+popup/item_8/text = "Cul-de-sac Filler"
+popup/item_8/id = 8
+popup/item_9/text = "Blind Alley Filler"
+popup/item_9/id = 9
+popup/item_10/text = "Blind Alley Sealer"
+popup/item_10/id = 10
+popup/item_11/text = "Shortest Path Finder"
+popup/item_11/id = 11
+popup/item_12/text = "Collision Solver"
+popup/item_12/id = 12
+popup/item_13/text = "Random Mouse"
+popup/item_13/id = 13
+
 [node name="ShapeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/ShapeHBoxContainer"]
@@ -214,34 +260,6 @@ value = 10.0
 alignment = 1
 update_on_text_changed = true
 
-[node name="ExteriorSizeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="ExteriorSizeLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/ExteriorSizeHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 2
-text = "Exterior Size"
-vertical_alignment = 1
-
-[node name="ExteriorSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/ExteriorSizeHBoxContainer"]
-custom_minimum_size = Vector2(225, 0)
-layout_mode = 2
-size_flags_horizontal = 10
-alignment = 1
-update_on_text_changed = true
-
-[node name="DrawHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="DrawLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 2
-text = "Draw Mode"
-
-[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-
 [node name="GenerateMazeButton" type="Button" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Generate Maze"
@@ -250,63 +268,73 @@ text = "Generate Maze"
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="PointsSectionLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="MazeModificationsSectionLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "Points"
+text = "Maze Modifications"
 
-[node name="StartPointHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="DrawHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="StartPointLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/StartPointHBoxContainer"]
+[node name="DrawLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
 layout_mode = 2
-text = "Start"
+size_flags_horizontal = 2
+text = "Draw Mask"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/StartPointHBoxContainer"]
-custom_minimum_size = Vector2(225, 0)
+[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
-item_count = 2
-selected = 0
-popup/item_0/text = "None"
-popup/item_0/id = 0
-popup/item_1/text = "Open"
-popup/item_1/id = 1
 
-[node name="EndPointHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="BiasHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="StartPointLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/EndPointHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
 layout_mode = 2
-text = "End"
+size_flags_horizontal = 2
+text = "Bias"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/EndPointHBoxContainer"]
-custom_minimum_size = Vector2(225, 0)
+[node name="HLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
-item_count = 2
+text = "H"
+
+[node name="HorizontalSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+layout_mode = 2
+
+[node name="VLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "V"
+
+[node name="VerticalSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+layout_mode = 2
+
+[node name="RoutingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/RoutingHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Routing"
+
+[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/RoutingHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+item_count = 5
 selected = 0
-popup/item_0/text = "None"
+popup/item_0/text = "Perfect"
 popup/item_0/id = 0
-popup/item_1/text = "Open"
+popup/item_1/text = "Braid"
 popup/item_1/id = 1
+popup/item_2/text = "Unicursal"
+popup/item_2/id = 2
+popup/item_3/text = "Partial Braid"
+popup/item_3/id = 3
+popup/item_4/text = "Rooms"
+popup/item_4/id = 4
 
-[node name="NewPointHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="HSeparator3" type="HSeparator" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
-
-[node name="NewStartPointButton" type="Button" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/NewPointHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "New Start Point"
-
-[node name="NewEndPointButton" type="Button" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/NewPointHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "New End Point"
-
-[node name="Pathfinding" type="TabBar" parent="Interface/TabContainer"]
-visible = false
-layout_mode = 2
-tabs_rearrange_group = 2
 
 [node name="Animations" type="TabBar" parent="Interface/TabContainer"]
 visible = false

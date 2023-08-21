@@ -45,14 +45,12 @@ public static class MazeImage
         
                 //Create Walls For Cell
                 if (!is_dead_cell) {
-                    int exterior_offset = grid.GetExteriorSize();
                     Cell cell = grid.cells[x, y];
 
                     //Wall Drawing
                     if (!cell.north)
                     { // North
                         Rect2I north_wall = grid.GetVerticalWall(x, y, false);
-                        north_wall.Position += new Vector2I(exterior_offset, exterior_offset);
 
                         image.FillRect(north_wall, wall_color);
                     }
@@ -60,7 +58,6 @@ public static class MazeImage
                     if (!cell.south)
                     {  //South
                         Rect2I south_wall = grid.GetVerticalWall(x, y, true);
-                        south_wall.Position += new Vector2I(exterior_offset, exterior_offset);
 
                         image.FillRect(south_wall, wall_color);
                     }
@@ -68,7 +65,6 @@ public static class MazeImage
                     if (!cell.east)
                     {   //East
                         Rect2I east_wall = grid.GetHorizontalWall(x, y, true);
-                        east_wall.Position += new Vector2I(exterior_offset, exterior_offset);
 
                         image.FillRect(east_wall, wall_color);
                     }
@@ -76,7 +72,6 @@ public static class MazeImage
                     if (!cell.west)
                     { //West
                         Rect2I west_wall = grid.GetHorizontalWall(x, y, false);
-                        west_wall.Position += new Vector2I(exterior_offset, exterior_offset);
 
                         image.FillRect(west_wall, wall_color);
                     }
@@ -94,9 +89,7 @@ public static class MazeImage
                 if (grid.cells[x, y].dead_cell)
                 {
                     Rect2I inside_cell = grid.GetCellSizePx(x, y);
-                    inside_cell.Position += new Vector2I(grid.GetExteriorSize(), grid.GetExteriorSize());
 
-                    int exterior_offset = grid.GetExteriorSize();
                     Cell cell = grid.cells[x, y];
                     image.FillRect(inside_cell, fill_color);
                 }

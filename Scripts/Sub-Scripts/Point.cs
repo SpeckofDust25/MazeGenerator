@@ -10,6 +10,7 @@ using MazeGeneratorGlobal;
 
 public class Points
 {
+    /*
     public Cell start_cell;
     public Cell end_cell;
 
@@ -146,7 +147,7 @@ public class Points
                     assign_direction = MazeGenerator.Direction.west;
                     break;
             }
-        }*/
+        }
 
         return open_cell;
     }
@@ -193,4 +194,5 @@ public class Points
         end_cell = null;
         direction = ERectangleDirections.None;
     }
+*/
 }

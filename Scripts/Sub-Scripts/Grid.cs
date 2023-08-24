@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 using Godot;
 using MazeGeneratorGlobal;
 
@@ -15,13 +16,12 @@ public class Grid {
 
 	public Cell[,] cells;
 
-	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1, EPoints point_type = EPoints.None) {
+	public Grid(int _width = 1, int _height = 1, int _thickness = 1, int _cell_size = 1) {
 		width = _width;
 		height = _height;
 		cells = new Cell[width, height];
         wall_size = _thickness;
         cell_size = _cell_size;
-		//points.SetPointType(point_type);
 
 		//Populate Grid
 		for (int x = 0; x < cells.GetLength(0); x++) {
@@ -30,6 +30,109 @@ public class Grid {
 				cells[x, y].index = new Vector2I(x, y);
 			}
 		}
+	}
+
+	//Routing - TODO: Check if any neighbors are dead ends if they are then go in that direction
+	public void Braid()	{ //Remove All Dead Ends
+	
+		List<Cell> deadends = GetAllValidDeadends();
+        
+        for (int i = deadends.Count - 1; i >= 0; i--) {
+            Cell current_cell = deadends[i];
+            List<ERectangleDirections> dir = GetValidNeighbors(current_cell.index);
+
+            //Only Get Valid Directions
+            for (int l = dir.Count - 1; l > -1; l--)
+            {
+                switch (dir[l])
+                {
+                    case ERectangleDirections.North:
+                        if (current_cell.north)
+                        {
+                            dir.RemoveAt(l);
+                        }
+                        break;
+
+                    case ERectangleDirections.South:
+                        if (current_cell.south)
+                        {
+                            dir.RemoveAt(l);
+                        }
+                        break;
+
+                    case ERectangleDirections.East:
+                        if (current_cell.east)
+                        {
+                            dir.RemoveAt(l);
+                        }
+                        break;
+
+                    case ERectangleDirections.West:
+                        if (current_cell.west)
+                        {
+                            dir.RemoveAt(l);
+                        }
+                        break;
+                }
+
+                //Carve Random Path
+                if (dir.Count > 0) {
+
+                    ERectangleDirections chosen_direction = dir[(int)(GD.Randi() % dir.Count)];
+
+                    //Prioritize going to another dead end
+                    for (int g = 0; g < dir.Count; g++)
+                    {
+                        if (deadends.Contains(GetCellInDirection(current_cell.index, dir[g]))) {
+                            chosen_direction = dir[g];
+                        }
+                    }
+
+                    Cell neighbor_cell = GetCellInDirection(current_cell.index, chosen_direction);
+
+                    switch(chosen_direction)
+                    {
+                        case ERectangleDirections.North:
+                            current_cell.north = true;
+                            neighbor_cell.south = true;
+                            break;
+
+                        case ERectangleDirections.South:
+                            current_cell.south = true;
+                            neighbor_cell.north = true;
+                            break;
+
+                        case ERectangleDirections.East:
+                            current_cell.east = true;
+                            neighbor_cell.west = true;
+                            break;
+
+                        case ERectangleDirections.West:
+                            current_cell.west = true;
+                            neighbor_cell.east = true;
+                            break;
+                    }
+                }
+            }
+
+            deadends.Clear();
+            deadends = GetAllValidDeadends();
+        }
+    }
+
+	public void Unicursal()
+	{
+
+	}
+
+	public void PartialBraid()	//Remove Some Dead Ends
+	{
+
+	}
+
+	public void Rooms()
+	{
+
 	}
 
 	//Setters
@@ -50,7 +153,7 @@ public class Grid {
         }
     }
 	
-	public void SetPointType(bool is_first, EPoints type)
+	public void SetPointType(bool is_first)
 	{
 		if (is_first)
 		{
@@ -287,7 +390,6 @@ public class Grid {
     {
 		//Properties
 		List<ERectangleDirections> directions = new List<ERectangleDirections>();
-		Cell temp_cell = null;
         bool can_north = false;
         bool can_south = false;
         bool can_east = false;
@@ -302,7 +404,7 @@ public class Grid {
 		//Valid Cell: North, South, East, West
 		if (can_north)
 		{
-			temp_cell = cells[index.X, index.Y - 1];
+			Cell temp_cell = cells[index.X, index.Y - 1];
 
 			if (!temp_cell.dead_cell)
 			{
@@ -312,7 +414,7 @@ public class Grid {
 
 		if (can_south)
 		{
-            temp_cell = cells[index.X, index.Y + 1];
+            Cell temp_cell = cells[index.X, index.Y + 1];
 
 			if (!temp_cell.dead_cell)
 			{
@@ -322,7 +424,7 @@ public class Grid {
 
         if (can_east)
         {
-            temp_cell = cells[index.X + 1, index.Y];
+            Cell temp_cell = cells[index.X + 1, index.Y];
 
 			if (!temp_cell.dead_cell)
 			{
@@ -332,7 +434,7 @@ public class Grid {
 
         if (can_west)
 		{
-			temp_cell = cells[index.X - 1, index.Y];
+			Cell temp_cell = cells[index.X - 1, index.Y];
 
 			if (!temp_cell.dead_cell)
 			{
@@ -434,7 +536,7 @@ public class Grid {
 
 
     //Total Grid Data----------------------------
-    public List<Cell> GetAllValidEdgeDeadends()
+    public List<Cell> GetAllValidDeadends()
 	{
 		List<Cell> deadends = new List<Cell>();
 
@@ -442,22 +544,19 @@ public class Grid {
 		{
 			for (int y = 0; y < cells.GetLength(1); y++)
 			{
-                if (x == 0 || y == 0 || x >= GetWidth() - 1 || y >= GetHeight() - 1)
-                {
-					if (!cells[x, y].dead_cell) {
-						int count = 0;
+				if (!cells[x, y].dead_cell) {
+					int count = 0;
 
-						//Count Walls
-						if (!cells[x, y].north) { count += 1; }
-						if (!cells[x, y].south) { count += 1; }
-						if (!cells[x, y].east) { count += 1; }
-						if (!cells[x, y].west) { count += 1; }
+					//Count Walls
+					if (!cells[x, y].north) { count += 1; }
+					if (!cells[x, y].south) { count += 1; }
+					if (!cells[x, y].east) { count += 1; }
+					if (!cells[x, y].west) { count += 1; }
 
-						//Add to List
-						if (count >= 3)
-						{
-							deadends.Add(cells[x, y]);
-						}
+					//Add to List
+					if (count == 3)
+					{
+						deadends.Add(cells[x, y]);
 					}
 				}
 			}

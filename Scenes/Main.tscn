@@ -316,7 +316,7 @@ layout_mode = 2
 size_flags_horizontal = 2
 text = "Routing"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/RoutingHBoxContainer"]
+[node name="RoutingOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/RoutingHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
 item_count = 5

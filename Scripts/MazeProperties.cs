@@ -15,7 +15,7 @@ public partial class MazeProperties : TabBar
 	//Grid Info
 	Grid grid;
     private EMazeType maze_type;
-    private EPoints point_type;
+    private ERouting routing_type;
     private bool is_draw_mode = false;
     private Vector2I local_mouse_position;
 
@@ -25,6 +25,8 @@ public partial class MazeProperties : TabBar
     private SpinBox cells_x_spin_box, cells_y_spin_box;
     private SpinBox cell_size_spin_box, wall_size_spin_box;
 	private CheckButton draw_button;
+
+    private OptionButton routing_type_option_button;
 
 	//Default Methods----------------------------
     public override void _Ready() {
@@ -61,6 +63,9 @@ public partial class MazeProperties : TabBar
 		cell_size_spin_box = GetNode<SpinBox>(start_path + "CellSizeHBoxContainer/CellSizeSpinBox");
 		wall_size_spin_box = GetNode<SpinBox>(start_path + "WallSizeHBoxContainer/WallSizeSpinBox");
 		draw_button = GetNode<CheckButton>(start_path + "DrawHBoxContainer/CheckButton");
+
+        //Maze Modifications
+        routing_type_option_button = GetNode<OptionButton>(start_path + "RoutingHBoxContainer/RoutingOptionButton");
     }
 	
 	private void SetupConnections() {
@@ -73,6 +78,9 @@ public partial class MazeProperties : TabBar
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
 		draw_button.Toggled += DrawButtonToggled;
+
+        //Maze Modifications
+        routing_type_option_button.ItemSelected += MazeRoutingChanged;
     }
     //-------------------------------------------
 
@@ -80,17 +88,19 @@ public partial class MazeProperties : TabBar
     private void UpdateMaze()
     {
         if (grid != null) {
-            grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize(), point_type);
+            grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize());
         } else {
             grid = new Grid(10, 10, 10, 10);
         }
 
         MazeMask.Update(ref grid, Vector2I.Zero);
         grid.SetMask(MazeMask.mask);
-        bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type);
+        bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type);  //Generate Maze
 
         if (successful) {
-            UpdateImage();
+
+            GenerateRouting(); //Routing
+            UpdateImage();  //Update Image
         }
     }
 
@@ -115,8 +125,32 @@ public partial class MazeProperties : TabBar
     private void GenerateMazePressed() {
         UpdateMaze();
 	}
-	
-	private void MazeTypeSelected(long index) {
+
+    private void GenerateRouting()
+    {
+        switch(routing_type)
+        {
+            case ERouting.Perfect:
+                break;
+
+            case ERouting.Braid:
+                GD.Print("Braid");
+                grid.Braid();
+                GD.Print("Valid Dead Ends: " + grid.GetAllValidDeadends().Count.ToString());
+                break;
+
+            case ERouting.Unicursal:
+                break;
+
+            case ERouting.PartialBraid:
+                break;
+
+            case ERouting.Rooms:
+                break;
+        }
+    }
+
+    private void MazeTypeSelected(long index) {
         switch (index)
         {
             case ((long)EMazeType.BinaryTree):
@@ -185,6 +219,8 @@ public partial class MazeProperties : TabBar
         }
     }
 
+
+
 	private void GridWidthChanged(double value)
 	{
 		grid.SetWidth((int)value);
@@ -223,6 +259,33 @@ public partial class MazeProperties : TabBar
             EmitSignal(SignalName.DrawToggled, toggle);
         }
     }
+
+    private void MazeRoutingChanged(long index)
+    {
+        switch(index)
+        {
+            case (long)ERouting.Perfect:
+                routing_type = ERouting.Perfect;
+                break;
+
+            case (long)ERouting.Braid:
+                routing_type = ERouting.Braid;
+                break;
+
+            case (long)ERouting.Unicursal:
+                routing_type = ERouting.Unicursal;
+                break;
+
+            case (long)ERouting.PartialBraid:
+                routing_type = ERouting.PartialBraid;
+                break;
+
+            case (long)ERouting.Rooms:
+                routing_type = ERouting.Rooms;
+                break;
+        }
+    }
+
 
     //Point Methods
 

@@ -108,54 +108,68 @@ public static class MazeGenerator
         {
             for (int y = 0; y < grid.GetHeight(); y++)
             {
-                if (!grid.cells[x, y].dead_cell) {
+                if (!grid.cells[x, y].dead_cell) {  //No Dead Cells
 
-                    //Start
-                    if (sections.Count == 0) {
-                        sections.Add(new List<Cell>());
-                    }
+                    int count = 0;
+                    bool is_dead_end = false;
+                    Cell temp_cell = grid.cells[x, y];
 
-                    List<int> index_added = new List<int>();    //Section index's that Contain the same cell
-                    List<Cell> neighbors = grid.GetValidNeighborCells(new Vector2I(x, y));
+                    if (!temp_cell.north) { count += 1; }
+                    if (!temp_cell.south) { count += 1; }
+                    if (!temp_cell.east) { count += 1; }
+                    if (!temp_cell.west) { count += 1; }
 
-                    //Add Cell To Existing List
-                    for(int l = 0; l < sections.Count; l++)
-                    {
-                        for (int i = 0; i < neighbors.Count; i++)
-                        {
-                            if (sections[l].Contains(neighbors[i]))
-                            {
-                                sections[l].Add(grid.cells[x, y]);
-                                index_added.Add(l);
-                                break;
-                            }
+                    if (count >= 3) { is_dead_end = true; }
+
+                    if (is_dead_end) {  //Only Dead Ends
+
+                        //Start
+                        if (sections.Count == 0) {
+                            sections.Add(new List<Cell>());
                         }
-                    }
 
-                    //Create a New List
-                    if (index_added.Count == 0)
-                    {
-                        sections.Add(new List<Cell>());
-                        sections[sections.Count - 1].Add(grid.cells[x, y]);
+                        List<int> index_added = new List<int>();    //Section index's that Contain the same cell
+                        List<Cell> neighbors = grid.GetValidNeighborCells(new Vector2I(x, y));
 
-                    } else if (index_added.Count > 1) { //Merge
-                        
-                        //Merge
-                        for (int i = 1; i < index_added.Count; i++) //Get Section Index
+                        //Add Cell To Existing List
+                        for(int l = 0; l < sections.Count; l++)
                         {
-                            for (int l = 0; l < sections[index_added[i]].Count; l++) //Add To index 0: No Duplicates
+                            for (int i = 0; i < neighbors.Count; i++)
                             {
-                                if (!sections[0].Contains(sections[index_added[i]][l]))
+                                if (sections[l].Contains(neighbors[i]))
                                 {
-                                    sections[0].Add(sections[index_added[i]][l]);
+                                    sections[l].Add(grid.cells[x, y]);
+                                    index_added.Add(l);
+                                    break;
                                 }
                             }
                         }
 
-                        //Remove
-                        for (int i = index_added.Count - 1; i > 0; i--)
+                        //Create a New List
+                        if (index_added.Count == 0)
                         {
-                            sections.RemoveAt(index_added[i]);
+                            sections.Add(new List<Cell>());
+                            sections[sections.Count - 1].Add(grid.cells[x, y]);
+
+                        } else if (index_added.Count > 0) { //Merge
+                        
+                            //Merge
+                            for (int i = 1; i < index_added.Count; i++) //Get Section Index
+                            {
+                                for (int l = 0; l < sections[index_added[i]].Count; l++) //Add To index 0: No Duplicates
+                                {
+                                    if (!sections[0].Contains(sections[index_added[i]][l]))
+                                    {
+                                        sections[0].Add(sections[index_added[i]][l]);
+                                    }
+                                }
+                            }
+
+                            //Remove
+                            for (int i = index_added.Count - 1; i > 0; i--)
+                            {
+                                sections.RemoveAt(index_added[i]);
+                            }
                         }
                     }
                 }

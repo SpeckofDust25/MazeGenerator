@@ -15,9 +15,13 @@ public partial class MazeProperties : TabBar
 	//Grid Info
 	Grid grid;
     private EMazeType maze_type;
-    private ERouting routing_type;
     private bool is_draw_mode = false;
     private Vector2I local_mouse_position;
+
+    //Routing
+    private float horizontal_bias = 0.5f;
+    private float braid_value;
+    private bool is_unicursal;
 
     //Nodes
     private Button generate_maze_button;
@@ -26,7 +30,9 @@ public partial class MazeProperties : TabBar
     private SpinBox cell_size_spin_box, wall_size_spin_box;
 	private CheckButton draw_button;
 
-    private OptionButton routing_type_option_button;
+    private HSlider braid_slider, h_bias_slider;
+    private Label braid_value_label, h_bias_value_label;
+    private CheckButton unicursal_button;
 
 	//Default Methods----------------------------
     public override void _Ready() {
@@ -47,7 +53,6 @@ public partial class MazeProperties : TabBar
             EmitSignal(SignalName.GenerateMaze);
         }
     }
-
     //-------------------------------------------
 
     //Setup Methods------------------------------
@@ -65,7 +70,11 @@ public partial class MazeProperties : TabBar
 		draw_button = GetNode<CheckButton>(start_path + "DrawHBoxContainer/CheckButton");
 
         //Maze Modifications
-        routing_type_option_button = GetNode<OptionButton>(start_path + "RoutingHBoxContainer/RoutingOptionButton");
+        h_bias_slider = GetNode<HSlider>(start_path + "BiasHBoxContainer/HorizontalBiasHSlider");
+        h_bias_value_label = GetNode<Label>(start_path + "BiasHBoxContainer/HorizontalBiasValueLabel");
+        braid_slider = GetNode<HSlider>(start_path + "BraidHBoxContainer/BraidHSlider");
+        braid_value_label = GetNode<Label>(start_path + "BraidHBoxContainer/BraidValueLabel");
+        unicursal_button = GetNode<CheckButton>(start_path + "UnicursalHBoxContainer/UnicursalCheckButton");
     }
 	
 	private void SetupConnections() {
@@ -80,7 +89,9 @@ public partial class MazeProperties : TabBar
 		draw_button.Toggled += DrawButtonToggled;
 
         //Maze Modifications
-        routing_type_option_button.ItemSelected += MazeRoutingChanged;
+        h_bias_slider.ValueChanged += HBiasChanged;
+        braid_slider.ValueChanged += BraidSliderChanged;
+        unicursal_button.Toggled += UnicursalChanged;
     }
     //-------------------------------------------
 
@@ -95,11 +106,10 @@ public partial class MazeProperties : TabBar
 
         MazeMask.Update(ref grid, Vector2I.Zero);
         grid.SetMask(MazeMask.mask);
-        bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type);  //Generate Maze
+        bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type, horizontal_bias);  //Generate Maze
 
         if (successful) {
-
-            GenerateRouting(); //Routing
+            ApplyMazeModifications();
             UpdateImage();  //Update Image
         }
     }
@@ -126,28 +136,9 @@ public partial class MazeProperties : TabBar
         UpdateMaze();
 	}
 
-    private void GenerateRouting()
+    private void ApplyMazeModifications()
     {
-        switch(routing_type)
-        {
-            case ERouting.Perfect:
-                break;
-
-            case ERouting.Braid:
-                GD.Print("Braid");
-                grid.Braid();
-                GD.Print("Valid Dead Ends: " + grid.GetAllValidDeadends().Count.ToString());
-                break;
-
-            case ERouting.Unicursal:
-                break;
-
-            case ERouting.PartialBraid:
-                break;
-
-            case ERouting.Rooms:
-                break;
-        }
+        grid.Braid(braid_value);
     }
 
     private void MazeTypeSelected(long index) {
@@ -246,6 +237,12 @@ public partial class MazeProperties : TabBar
     }
 
     //Maze Modifications
+    private void HBiasChanged(double value)
+    {
+        horizontal_bias = (float)value;
+        h_bias_value_label.Text = value.ToString("0.00");
+    }
+
 	private void DrawButtonToggled(bool toggle)
 	{
         is_draw_mode = toggle;
@@ -260,30 +257,16 @@ public partial class MazeProperties : TabBar
         }
     }
 
-    private void MazeRoutingChanged(long index)
+    private void BraidSliderChanged(double value)
     {
-        switch(index)
-        {
-            case (long)ERouting.Perfect:
-                routing_type = ERouting.Perfect;
-                break;
+        braid_value = (float)value;
+        braid_value_label.Text = value.ToString("0.00");
+    }
 
-            case (long)ERouting.Braid:
-                routing_type = ERouting.Braid;
-                break;
-
-            case (long)ERouting.Unicursal:
-                routing_type = ERouting.Unicursal;
-                break;
-
-            case (long)ERouting.PartialBraid:
-                routing_type = ERouting.PartialBraid;
-                break;
-
-            case (long)ERouting.Rooms:
-                routing_type = ERouting.Rooms;
-                break;
-        }
+    private void UnicursalChanged(bool is_on)
+    {
+        is_unicursal = is_on;
+        braid_slider.Editable = !is_on;
     }
 
 

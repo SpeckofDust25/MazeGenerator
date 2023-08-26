@@ -289,48 +289,54 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 0
+text = "H Bias"
+
+[node name="HorizontalBiasHSlider" type="HSlider" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="HorizontalBiasValueLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "0.50
+"
+horizontal_alignment = 1
+
+[node name="BraidHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
+layout_mode = 2
+text = "Braid"
+
+[node name="BraidHSlider" type="HSlider" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+
+[node name="BraidValueLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "0.00
+"
+horizontal_alignment = 1
+
+[node name="UnicursalHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnicursalHBoxContainer"]
+layout_mode = 2
 size_flags_horizontal = 2
-text = "Bias"
+text = "Unicursal
+"
 
-[node name="HLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+[node name="UnicursalCheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnicursalHBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 10
-text = "H"
-
-[node name="HorizontalSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
-layout_mode = 2
-
-[node name="VLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-text = "V"
-
-[node name="VerticalSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
-layout_mode = 2
-
-[node name="RoutingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/RoutingHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 2
-text = "Routing"
-
-[node name="RoutingOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/RoutingHBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 10
-item_count = 5
-selected = 0
-popup/item_0/text = "Perfect"
-popup/item_0/id = 0
-popup/item_1/text = "Braid"
-popup/item_1/id = 1
-popup/item_2/text = "Unicursal"
-popup/item_2/id = 2
-popup/item_3/text = "Partial Braid"
-popup/item_3/id = 3
-popup/item_4/text = "Rooms"
-popup/item_4/id = 4
 
 [node name="HSeparator3" type="HSeparator" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 5)

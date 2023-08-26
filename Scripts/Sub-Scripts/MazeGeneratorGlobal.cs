@@ -10,7 +10,7 @@ namespace MazeGeneratorGlobal
     }
 
     //Points
-    public enum ERouting { Perfect, Braid, Unicursal, PartialBraid, Rooms }
+    public enum EBias { None, Horizontal, Vertical}
 
     //Directions
     public enum ERectangleDirections { None, North, South, East, West } 

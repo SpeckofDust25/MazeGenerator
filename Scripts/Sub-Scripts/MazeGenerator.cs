@@ -6,7 +6,7 @@ using System.Runtime.Serialization.Formatters;
 
 public static class MazeGenerator
 {
-    public static bool GenerateMaze(ref Grid grid, EMazeType type)
+    public static bool GenerateMaze(ref Grid grid, EMazeType type, float horizontal_bias)
     {
         bool successful = false;
         int section_count = GetSectionCount(ref grid);
@@ -25,67 +25,67 @@ public static class MazeGenerator
             switch (type)
             {
                 case EMazeType.BinaryTree:
-                    BinaryTreeAlgorithm(ref grid);
+                    BinaryTreeAlgorithm(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Sidewinder:
-                    SidewinderAlgorithm(ref grid);
+                    SidewinderAlgorithm(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Aldous_Broder:
-                    AldousBroderAlgorithm(ref grid);
+                    AldousBroderAlgorithm(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Wilsons:
-                    WilsonsAlgorithm(ref grid);
+                    WilsonsAlgorithm(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.HuntandKill:
-                    HuntandKill(ref grid);
+                    HuntandKill(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Recursive_Backtracker:
-                    RecursiveBacktracker(ref grid);
+                    RecursiveBacktracker(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Ellers:
-                    Ellers(ref grid, false);
+                    Ellers(ref grid, false, horizontal_bias);
                     break;
 
                 case EMazeType.Ellers_Loop:
-                    Ellers(ref grid, true);
+                    Ellers(ref grid, true, horizontal_bias);
                     break;
 
                 case EMazeType.GrowingTree_Random:
-                    GrowingTree(ref grid, 0);
+                    GrowingTree(ref grid, 0, horizontal_bias);
                     break;
 
                 case EMazeType.GrowingTree_Last:
-                    GrowingTree(ref grid, 1);
+                    GrowingTree(ref grid, 1, horizontal_bias);
                     break;
 
                 case EMazeType.GrowingTree_Mix:
-                    GrowingTree(ref grid, 2);
+                    GrowingTree(ref grid, 2, horizontal_bias);
                     break;
 
                 case EMazeType.Kruskals_Random:
-                    Kruskals(ref grid);
+                    Kruskals(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Prims_Simple:
-                    Prims_Simple(ref grid);
+                    Prims_Simple(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Prims_True:
-                    Prims_True(ref grid);
+                    Prims_True(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.GrowingForest:
-                    GrowingForest(ref grid);
+                    GrowingForest(ref grid, horizontal_bias);
                     break;
 
                 case EMazeType.Recursive_Division:
-                    Recursive_Division(ref grid);
+                    Recursive_Division(ref grid, horizontal_bias);
                     break;
             }
         }
@@ -110,66 +110,47 @@ public static class MazeGenerator
             {
                 if (!grid.cells[x, y].dead_cell) {  //No Dead Cells
 
-                    int count = 0;
-                    bool is_dead_end = false;
-                    Cell temp_cell = grid.cells[x, y];
+                    List<int> index_added = new List<int>();    //Section index's that Contain the same cell
+                    List<Cell> neighbors = grid.GetValidNeighborCells(new Vector2I(x, y));
 
-                    if (!temp_cell.north) { count += 1; }
-                    if (!temp_cell.south) { count += 1; }
-                    if (!temp_cell.east) { count += 1; }
-                    if (!temp_cell.west) { count += 1; }
-
-                    if (count >= 3) { is_dead_end = true; }
-
-                    if (is_dead_end) {  //Only Dead Ends
-
-                        //Start
-                        if (sections.Count == 0) {
-                            sections.Add(new List<Cell>());
-                        }
-
-                        List<int> index_added = new List<int>();    //Section index's that Contain the same cell
-                        List<Cell> neighbors = grid.GetValidNeighborCells(new Vector2I(x, y));
-
-                        //Add Cell To Existing List
-                        for(int l = 0; l < sections.Count; l++)
+                    //Add Cell To Existing List
+                    for(int l = 0; l < sections.Count; l++)
+                    {
+                        for (int i = 0; i < neighbors.Count; i++)
                         {
-                            for (int i = 0; i < neighbors.Count; i++)
+                            if (sections[l].Contains(neighbors[i]))
                             {
-                                if (sections[l].Contains(neighbors[i]))
+                                sections[l].Add(grid.cells[x, y]);
+                                index_added.Add(l);
+                                break;
+                            }
+                        }
+                    }
+
+                    //Create a New List
+                    if (index_added.Count == 0)
+                    {
+                        sections.Add(new List<Cell>());
+                        sections[sections.Count - 1].Add(grid.cells[x, y]);
+
+                    } else if (index_added.Count > 0) { //Merge
+                    
+                        //Merge
+                        for (int i = 1; i < index_added.Count; i++) //Get Section Index
+                        {
+                            for (int l = 0; l < sections[index_added[i]].Count; l++) //Add To index 0: No Duplicates
+                            {
+                                if (!sections[0].Contains(sections[index_added[i]][l]))
                                 {
-                                    sections[l].Add(grid.cells[x, y]);
-                                    index_added.Add(l);
-                                    break;
+                                    sections[0].Add(sections[index_added[i]][l]);
                                 }
                             }
                         }
 
-                        //Create a New List
-                        if (index_added.Count == 0)
+                        //Remove
+                        for (int i = index_added.Count - 1; i > 0; i--)
                         {
-                            sections.Add(new List<Cell>());
-                            sections[sections.Count - 1].Add(grid.cells[x, y]);
-
-                        } else if (index_added.Count > 0) { //Merge
-                        
-                            //Merge
-                            for (int i = 1; i < index_added.Count; i++) //Get Section Index
-                            {
-                                for (int l = 0; l < sections[index_added[i]].Count; l++) //Add To index 0: No Duplicates
-                                {
-                                    if (!sections[0].Contains(sections[index_added[i]][l]))
-                                    {
-                                        sections[0].Add(sections[index_added[i]][l]);
-                                    }
-                                }
-                            }
-
-                            //Remove
-                            for (int i = index_added.Count - 1; i > 0; i--)
-                            {
-                                sections.RemoveAt(index_added[i]);
-                            }
+                            sections.RemoveAt(index_added[i]);
                         }
                     }
                 }
@@ -181,7 +162,7 @@ public static class MazeGenerator
 
 
     //Move North or East on each cell: No Mask Support
-    public static Grid BinaryTreeAlgorithm(ref Grid grid)
+    public static Grid BinaryTreeAlgorithm(ref Grid grid, float horizontal_bias)
     {
         GD.Randomize();
 
@@ -196,17 +177,14 @@ public static class MazeGenerator
                 //Remove Possible Walls
                 if (directions.Count > 1)
                 {
-                    int rand = (int)(GD.Randi() % 2);
+                    EBias bias_direction = grid.GetBias(horizontal_bias);
 
-                    if (rand == 0)
-                    {
-                        dir = ERectangleDirections.North;
-                    }
-                    else
+                    if (bias_direction == EBias.Horizontal)
                     {
                         dir = ERectangleDirections.East;
+                    } else {
+                        dir = ERectangleDirections.North;
                     }
-
                 }
                 else if (directions.Contains(ERectangleDirections.North))
                 {
@@ -226,7 +204,7 @@ public static class MazeGenerator
     }
 
     //East-North: Count Previous East Moves, When North Pick Randomly: No Mask Support
-    public static Grid SidewinderAlgorithm(ref Grid grid)
+    public static Grid SidewinderAlgorithm(ref Grid grid, float horizontal_bias)
     {
         GD.Randomize();
 
@@ -277,7 +255,7 @@ public static class MazeGenerator
     }
 
     //Pick a Random point and goes in any random direction till all are visited
-    public static Grid AldousBroderAlgorithm(ref Grid grid)
+    public static Grid AldousBroderAlgorithm(ref Grid grid, float horizontal_bias)
     {
         GD.Randomize();
         int visited_count = 1;
@@ -337,7 +315,7 @@ public static class MazeGenerator
     }
 
     //Pick a Random point and go in any random direction till all are visited reset when a loop occurs
-    public static Grid WilsonsAlgorithm(ref Grid grid)
+    public static Grid WilsonsAlgorithm(ref Grid grid, float horizontal_bias)
     {
         GD.Randomize();
 
@@ -420,7 +398,7 @@ public static class MazeGenerator
     }
 
     //Random Walk, when closed in get a cell with at least 1 visited cell
-    public static Grid HuntandKill(ref Grid grid)
+    public static Grid HuntandKill(ref Grid grid, float horizontal_bias)
     {
         GD.Randomize();
         int visited_count = 1;
@@ -468,7 +446,7 @@ public static class MazeGenerator
         return grid;
     }
 
-    public static Grid RecursiveBacktracker(ref Grid grid)
+    public static Grid RecursiveBacktracker(ref Grid grid, float horizontal_bias)
     {
 
         GD.Randomize();
@@ -515,7 +493,7 @@ public static class MazeGenerator
     }
 
     //No Mask Support
-    public static Grid Ellers(ref Grid grid, bool is_loop)
+    public static Grid Ellers(ref Grid grid, bool is_loop, float horizontal_bias)
     {
         GD.Randomize();
         int iteration = 1;
@@ -557,7 +535,7 @@ public static class MazeGenerator
     }
 
     // 0 - Prim's (Random), 1 - Recursive Backtracker (Last), 2 - Mix
-    public static Grid GrowingTree(ref Grid grid, int type = 0)
+    public static Grid GrowingTree(ref Grid grid, int type, float horizontal_bias)
     {
         List<Cell> active_list = new List<Cell>();
 
@@ -637,7 +615,7 @@ public static class MazeGenerator
         return grid;
     }
 
-    public static Grid Kruskals(ref Grid grid)
+    public static Grid Kruskals(ref Grid grid, float horizontal_bias)
     {
         int iteration = 1;
         List<List<int>> set = new List<List<int>>();
@@ -710,7 +688,7 @@ public static class MazeGenerator
         return grid;
     }
 
-    public static Grid Prims_Simple(ref Grid grid)
+    public static Grid Prims_Simple(ref Grid grid, float horizontal_bias)
     {
         List<Cell> active = new List<Cell>();
         active.Add(grid.GetValidRandomCell());
@@ -737,7 +715,7 @@ public static class MazeGenerator
         return grid;
     }
 
-    public static Grid Prims_True(ref Grid grid)
+    public static Grid Prims_True(ref Grid grid, float horizontal_bias)
     {
         List<List<int>> cell_cost = new List<List<int>>();
         List<Cell> active = new List<Cell>();
@@ -841,17 +819,15 @@ public static class MazeGenerator
         return grid;
     }
 
-    public static Grid GrowingForest(ref Grid _grid)
+    public static Grid GrowingForest(ref Grid _grid, float horizontal_bias)
     {
         return _grid;
     }
 
-    public static Grid Recursive_Division(ref Grid _grid)
+    public static Grid Recursive_Division(ref Grid _grid, float horizontal_bias)
     {
-
         return _grid;
     }
-
 
 
     //Carve Path Methods
@@ -1251,75 +1227,3 @@ public static class MazeGenerator
     }
 }
 
-
-//May Use: Determines sections and sets them up into their own grid: INCOMPLETE
-//List<Grid> list = new List<Grid>();
-//list.Add(grid)
-//Create Grid using it's ranging index from min to max in both x and y coordinates
-/*List<Vector2I> min_values = new List<Vector2I>();
-List<Vector2I> max_values = new List<Vector2I>();
-
-//Get Min, Max values for x and y
-for (int i = 0; i < sections.Count; i++)
-{
-    min_values.Add(new Vector2I());
-    max_values.Add(new Vector2I());
-
-    for (int l = 0; l < sections[i].Count; l++)
-    {
-        Vector2I index = sections[i][l].index;
-
-        if (l == 0) //Start Index
-        {
-            min_values[i] = index;
-            max_values[i] = index;
-        } else {
-            //X and Y; Min Max values
-            min_values[i] = new Vector2I(Mathf.Min(min_values[i].X, index.X), Mathf.Min(min_values[i].Y, index.Y));
-            max_values[i] = new Vector2I(Mathf.Max(max_values[i].X, index.X), Mathf.Max(max_values[i].Y, index.Y));
-        }
-    }
-}
-
-List<Grid> grids = new List<Grid>();
-
-//Create Grid 
-for (int i = 0; i < min_values.Count; i++)
-{
-    int width = max_values[i].X - min_values[i].X;
-    int height = max_values[i].Y - min_values[i].Y;
-    grids.Add(new Grid(width, height, 1, 1));
-}
-
-//Set All Cells to Dead Cells
-for (int i = 0; i < grids.Count; i++)
-{
-    for (int x = 0; x < grids[i].GetWidth(); x++)
-    {
-        for (int y = 0; y < grids[i].GetHeight(); y++)
-        {
-            grids[i].cells[x, y].dead_cell = true;
-        }
-    }
-}
-
-//Assign Corresponding Cells
-for (int i = 0; i < grids.Count; i++)
-{
-    for (int l = 0; l < sections[i].Count; l++)
-    {
-        Cell assigned_cell = sections[i][l];
-        //grids[i].cells[]
-
-        grids[i].cells[l];
-        //sections[i][l].index;
-    }
-}
-
-
-//TODO: May need to make an entirely new cell
-
-
-
-//Finish Setting up Sections
-GD.Print("Sections: " + sections.Count.ToString());*/

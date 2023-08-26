@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Threading;
 using Godot;
 using MazeGeneratorGlobal;
 
@@ -32,17 +33,28 @@ public class Grid {
 		}
 	}
 
-	//Routing - TODO: Check if any neighbors are dead ends if they are then go in that direction
-	public void Braid()	{ //Remove All Dead Ends
+	public void Braid(float chance)	{ //Remove All Dead Ends
 	
 		List<Cell> deadends = GetAllValidDeadends();
         
-        for (int i = deadends.Count - 1; i >= 0; i--) {
+        for (int i = deadends.Count - 1; i >= 0; i--) { //Iterate Through Deadends
+            
+            if (GD.Randf() > chance) { continue; } //Deadend Removal Chance
+
             Cell current_cell = deadends[i];
             List<ERectangleDirections> dir = GetValidNeighbors(current_cell.index);
 
+            int count = 0;
+
+            if (!current_cell.north) { count += 1; }
+            if (!current_cell.south) { count += 1; }
+            if (!current_cell.east) { count += 1; }
+            if (!current_cell.west) { count += 1; }
+
+            if (count < 3) { continue; }
+
             //Only Get Valid Directions
-            for (int l = dir.Count - 1; l > -1; l--)
+            for (int l = dir.Count - 1; l >= 0; l--)
             {
                 switch (dir[l])
                 {
@@ -74,49 +86,48 @@ public class Grid {
                         }
                         break;
                 }
+            }
 
-                //Carve Random Path
-                if (dir.Count > 0) {
+            //Carve Random Path
+            if (dir.Count > 0) {
 
-                    ERectangleDirections chosen_direction = dir[(int)(GD.Randi() % dir.Count)];
+                ERectangleDirections chosen_direction = dir[(int)(GD.Randi() % dir.Count)];
 
-                    //Prioritize going to another dead end
-                    for (int g = 0; g < dir.Count; g++)
-                    {
-                        if (deadends.Contains(GetCellInDirection(current_cell.index, dir[g]))) {
-                            chosen_direction = dir[g];
-                        }
+                //Prioritize going to another dead end
+                for (int g = 0; g < dir.Count; g++)
+                {
+                    if (deadends.Contains(GetCellInDirection(current_cell.index, dir[g]))) {
+                        chosen_direction = dir[g];
                     }
+                }
 
-                    Cell neighbor_cell = GetCellInDirection(current_cell.index, chosen_direction);
+                Cell neighbor_cell = GetCellInDirection(current_cell.index, chosen_direction);
 
-                    switch(chosen_direction)
-                    {
-                        case ERectangleDirections.North:
-                            current_cell.north = true;
-                            neighbor_cell.south = true;
-                            break;
+                switch(chosen_direction)
+                {
+                    case ERectangleDirections.North:
+                        current_cell.north = true;
+                        neighbor_cell.south = true;
+                        break;
 
-                        case ERectangleDirections.South:
-                            current_cell.south = true;
-                            neighbor_cell.north = true;
-                            break;
+                    case ERectangleDirections.South:
+                        current_cell.south = true;
+                        neighbor_cell.north = true;
+                        break;
 
-                        case ERectangleDirections.East:
-                            current_cell.east = true;
-                            neighbor_cell.west = true;
-                            break;
+                    case ERectangleDirections.East:
+                        current_cell.east = true;
+                        neighbor_cell.west = true;
+                        break;
 
-                        case ERectangleDirections.West:
-                            current_cell.west = true;
-                            neighbor_cell.east = true;
-                            break;
-                    }
+                    case ERectangleDirections.West:
+                        current_cell.west = true;
+                        neighbor_cell.east = true;
+                        break;
                 }
             }
 
-            deadends.Clear();
-            deadends = GetAllValidDeadends();
+            deadends.RemoveAt(i);
         }
     }
 
@@ -600,6 +611,24 @@ public class Grid {
 	}
 	//-------------------------------------------
 
-	
+	//Routing Getters----------------------------
+    public EBias GetBias(float horizontal_bias)
+    {
+        EBias bias_direction = EBias.None;
+
+        if (horizontal_bias == 0) { return EBias.Vertical; }
+
+        float rand_value = GD.Randf();
+
+        if (rand_value <= horizontal_bias)
+        {
+            bias_direction = EBias.Horizontal;
+        } else {
+            bias_direction = EBias.Vertical;
+        }
+
+        return bias_direction;
+    }
+    //-------------------------------------------
 
 }

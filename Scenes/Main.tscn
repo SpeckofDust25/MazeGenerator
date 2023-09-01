@@ -119,7 +119,19 @@ layout_mode = 2
 size_flags_horizontal = 2
 text = "Pathfinding"
 
-[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
+[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
+layout_mode = 2
+
+[node name="UnusedPathfindingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnusedPathfindingHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Pathfinding"
+
+[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnusedPathfindingHBoxContainer"]
 clip_contents = true
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2

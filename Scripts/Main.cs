@@ -31,7 +31,7 @@ public partial class Main : CanvasLayer
     public override void _Process(double delta)
     {
         //Set Local Mouse 
-        MazeProperties s_maze_properties = (MazeProperties)maze_properties;
+        MazeProperties s_maze_properties = (MazeProperties) maze_properties;
 
         if (s_maze_properties != null )
         {

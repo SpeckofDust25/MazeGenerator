@@ -160,7 +160,6 @@ public static class MazeGenerator
         return sections.Count;
     }
 
-
     //Move North or East on each cell: No Mask Support
     public static Grid BinaryTreeAlgorithm(ref Grid grid, float horizontal_bias)
     {
@@ -221,9 +220,9 @@ public static class MazeGenerator
                 //Choose Direction
                 if (directions.Count > 1)
                 {
-                    int num = (int)(GD.Randi() % 2);
+                    EBias bias_direction = grid.GetBias(horizontal_bias);
 
-                    if (num == 0)
+                    if (bias_direction == EBias.Vertical)
                     {
                         is_north = true;
                     }
@@ -257,6 +256,18 @@ public static class MazeGenerator
     //Pick a Random point and goes in any random direction till all are visited
     public static Grid AldousBroderAlgorithm(ref Grid grid, float horizontal_bias)
     {
+        //Horizontal-Vertical Bias cannot be 1 or 0: Fixing this within the algorithm would cause 
+        //unnecessary Bias that Aldous Broder's is not meant to create nor works properly with
+        if (horizontal_bias <= 0)
+        {
+            horizontal_bias = 0.1f;
+        }
+
+        if (horizontal_bias >= 1)
+        {
+            horizontal_bias = 0.9f;
+        }
+
         GD.Randomize();
         int visited_count = 1;
 
@@ -266,11 +277,10 @@ public static class MazeGenerator
         visited_count += grid.GetTotalDeadCells();
 
         //Carve Path
-        while (!(visited_count >= (grid.GetWidth() * grid.GetHeight())))
+        while (!(visited_count >= grid.GetTotalCells()))
         {
             //Get Valid Cell
-            if (cell.dead_cell)
-            {
+            if (cell.dead_cell) {
                 do
                 {
                     cell = grid.GetRandomCell();
@@ -282,8 +292,23 @@ public static class MazeGenerator
             List<ERectangleDirections> directions = grid.GetValidNeighbors(cell.index);
 
             //Get Direction
-            if (directions.Count > 0)
+            if (directions.Count >= 3)
             {
+                EBias bias_direction = grid.GetBias(horizontal_bias);
+
+                if (bias_direction == EBias.Horizontal)
+                {
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
+                } else {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
+                }
+
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+
+            } else if (directions.Count > 0) {
                 int num = (int)(GD.Randi() % directions.Count);
                 move_dir = directions[num];
             }
@@ -297,17 +322,13 @@ public static class MazeGenerator
             //Carve path
             if (directions.Count > 0 && !cell.dead_cell)
             {
-                if (!next_cell.IsVisited())
+                if (!next_cell.IsVisited() || !cell.IsVisited())
                 {
                     CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
                     visited_count += 1;
                 }
 
                 cell = next_cell;
-            }
-            else
-            {
-                cell = grid.GetRandomCell();
             }
         }
 
@@ -317,6 +338,19 @@ public static class MazeGenerator
     //Pick a Random point and go in any random direction till all are visited reset when a loop occurs
     public static Grid WilsonsAlgorithm(ref Grid grid, float horizontal_bias)
     {
+        //Horizontal/Vertical Bias cannot be 1 or 0: Fixing this within the algorithm would cause 
+        //unnecessary Bias that Wilson's is not meant to create nor works properly with
+
+        if (horizontal_bias <= 0)
+        {
+            horizontal_bias = 0.1f;
+        }
+
+        if (horizontal_bias >= 1)
+        {
+            horizontal_bias = 0.9f;
+        }
+
         GD.Randomize();
 
         int visited_count = 1;
@@ -365,7 +399,26 @@ public static class MazeGenerator
             List<ERectangleDirections> directions = grid.GetValidNeighbors(cell.index);
 
             //Get Direction
-            if (directions.Count > 0)
+            if (directions.Count == 4)
+            {
+                EBias bias_direction = grid.GetBias(horizontal_bias);
+
+                if (bias_direction == EBias.Horizontal)
+                {
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
+                }
+                else
+                {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
+                }
+
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+
+            }
+            else if (directions.Count > 0)
             {
                 int num = (int)(GD.Randi() % directions.Count);
                 move_dir = directions[num];
@@ -422,24 +475,36 @@ public static class MazeGenerator
             List<ERectangleDirections> directions = grid.GetValidUnvisitedNeighbors(cell.index);
 
             //Get Direction
-            if (directions.Count > 0)
-            { //Move
-                int num = (int)(GD.Randi() % directions.Count);
-                move_dir = directions[num];
-                next_cell = grid.GetCellInDirection(cell.index, move_dir);
+            if (directions.Count >= 3)
+            {
+                EBias bias_direction = grid.GetBias(horizontal_bias);
 
-                if (!next_cell.IsVisited())
+                if (bias_direction == EBias.Horizontal)
                 {
-                    CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
-                    visited_count += 1;
-                    cell = next_cell;
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
+                } else {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
                 }
 
-            }
-            else
-            {
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+
+            } else if (directions.Count > 0) {
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+            } 
+
+            if (directions.Count == 0) {    //Only Hunt when we have nowhere to go
                 cell = Hunt(ref grid, cell);
                 visited_count += 1;
+
+            } else {    //Carve Path
+                next_cell = grid.GetCellInDirection(cell.index, move_dir);
+                CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
+                visited_count += 1;
+                cell = next_cell;
             }
         }
 
@@ -467,24 +532,36 @@ public static class MazeGenerator
             //Check For Valid Adjacent Cells
             List<ERectangleDirections> directions = grid.GetValidUnvisitedNeighbors(cell.index);
 
-            if (directions.Count > 0)
+            if (directions.Count >= 3)
             {
-                move_dir = directions[(int)(GD.Randi() % directions.Count)];
-                next_cell = grid.GetCellInDirection(cell.index, move_dir);
+                EBias bias_direction = grid.GetBias(horizontal_bias);
+
+                if (bias_direction == EBias.Horizontal)
+                {
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
+                }
+                else
+                {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
+                }
+
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+            } else if (directions.Count > 0) {
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
             }
 
             //Carve path
             if (move_dir != ERectangleDirections.None)
             {
-                if (!next_cell.IsVisited())
-                {   //Not Visited
-                    CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
-                    visited_count += 1;
-                    cell = next_cell;
-                }
-            }
-            else
-            {
+                next_cell = grid.GetCellInDirection(cell.index, move_dir);
+                CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
+                visited_count += 1;
+                cell = next_cell;
+            } else {
                 cell = Backtrack(ref grid, s_cells);
             }
         }
@@ -555,14 +632,7 @@ public static class MazeGenerator
             List<ERectangleDirections> directions = grid.GetValidUnvisitedNeighbors(cell.index);
             ERectangleDirections move_dir = ERectangleDirections.None;
 
-            //Random
-            if (type == 0)
-            {
-                if (directions.Count > 0)
-                {
-                    move_dir = move_dir = directions[(int)(GD.Randi() % directions.Count)];
-                }
-            }
+            //Random: Do Nothing
 
             //Last
             if (type == 1)
@@ -571,12 +641,6 @@ public static class MazeGenerator
                 cell = active_list[index];
 
                 directions = grid.GetValidUnvisitedNeighbors(cell.index);
-
-                if (directions.Count > 0)
-                {
-                    move_dir = directions[(int)(GD.Randi() % directions.Count)];
-                }
-
             }
 
             //Mixed
@@ -589,11 +653,32 @@ public static class MazeGenerator
 
                     directions = grid.GetValidUnvisitedNeighbors(cell.index);
                 }
+            }
 
-                if (directions.Count > 0)
+            //Get Direction
+            if (directions.Count >= 3)
+            {
+                EBias bias_direction = grid.GetBias(horizontal_bias);
+
+                if (bias_direction == EBias.Horizontal)
                 {
-                    move_dir = directions[(int)(GD.Randi() % directions.Count)];
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
                 }
+                else
+                {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
+                }
+
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+
+            }
+            else if (directions.Count > 0)
+            {
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
             }
 
             //Carve path
@@ -646,9 +731,30 @@ public static class MazeGenerator
 
             ERectangleDirections move_dir = ERectangleDirections.None;
 
-            if (directions.Count > 0)
+            //Get Direction
+            if (directions.Count == 4)
             {
-                move_dir = directions[(int)(GD.Randi() % directions.Count)];
+                EBias bias_direction = grid.GetBias(horizontal_bias);
+
+                if (bias_direction == EBias.Horizontal)
+                {
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
+                }
+                else
+                {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
+                }
+
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+
+            }
+            else if (directions.Count > 0)
+            {
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
             }
 
             int first = set[cell.index.Y][cell.index.X];
@@ -700,9 +806,35 @@ public static class MazeGenerator
             List<ERectangleDirections> directions = grid.GetValidUnvisitedNeighbors(cell.index);
             ERectangleDirections move_dir = ERectangleDirections.None;
 
+            //Get Direction
+            if (directions.Count >= 3)
+            {
+                EBias bias_direction = grid.GetBias(horizontal_bias);
+
+                if (bias_direction == EBias.Horizontal)
+                {
+                    directions.Remove(ERectangleDirections.North);
+                    directions.Remove(ERectangleDirections.South);
+                }
+                else
+                {
+                    directions.Remove(ERectangleDirections.East);
+                    directions.Remove(ERectangleDirections.West);
+                }
+
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+
+            }
+            else if (directions.Count > 0)
+            {
+                int num = (int)(GD.Randi() % directions.Count);
+                move_dir = directions[num];
+            }
+
+
             if (directions.Count > 0)
             {
-                move_dir = directions[(int)(GD.Randi() % directions.Count)];
                 active.Add(grid.GetCellInDirection(cell.index, move_dir));
                 CarvePathIndex(ref grid, cell.index.X, cell.index.Y, move_dir);
             }

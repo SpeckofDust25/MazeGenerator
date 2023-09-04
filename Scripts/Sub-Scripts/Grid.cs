@@ -517,6 +517,66 @@ public class Grid {
         return directions;
     }
 
+    public List<ERectangleDirections> GetValidNeighborsNoWalls(Vector2I index)
+    {
+        //Properties
+        List<ERectangleDirections> directions = new List<ERectangleDirections>();
+        Cell c_cell = cells[index.X, index.Y];
+        bool can_north = false;
+        bool can_south = false;
+        bool can_east = false;
+        bool can_west = false;
+
+        //Boundary
+        if (index.X != 0) { can_west = true; }
+        if (index.Y != 0) { can_north = true; }
+        if (index.X < GetWidth() - 1) { can_east = true; }
+        if (index.Y < GetHeight() - 1) { can_south = true; }
+
+        //Valid Cell: North, South, East, West
+        if (can_north && c_cell.north)
+        {
+            Cell temp_cell = cells[index.X, index.Y - 1];
+
+            if (!temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.North);
+            }
+        }
+
+        if (can_south && c_cell.south)
+        {
+            Cell temp_cell = cells[index.X, index.Y + 1];
+
+            if (!temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.South);
+            }
+        }
+
+        if (can_east && c_cell.east)
+        {
+            Cell temp_cell = cells[index.X + 1, index.Y];
+
+            if (!temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.East);
+            }
+        }
+
+        if (can_west && c_cell.west)
+        {
+            Cell temp_cell = cells[index.X - 1, index.Y];
+
+            if (!temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.West);
+            }
+        }
+
+        return directions;
+    }
+
 	public Cell GetCellInDirection(Vector2I index, ERectangleDirections direction)
 	{
 		Cell cell = null;

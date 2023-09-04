@@ -110,7 +110,14 @@ public partial class MazeProperties : TabBar
 
         if (successful) {
             ApplyMazeModifications();
-            UpdateImage();  //Update Image
+            List<Vector2I> path = PathFinding.AStar(ref grid, grid.cells[0, 0], grid.cells[9, 9]);
+            
+            for (int i = 0; i < path.Count; i++)
+            {
+                GD.Print(path[i].ToString());
+            }
+
+            UpdateImage();  //Update Image            
         }
     }
 

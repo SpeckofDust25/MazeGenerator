@@ -176,6 +176,7 @@ public static class PathFinding
 
         //Get Path: Via Cells
         List<Vector2I> path = new List<Vector2I>();
+        path.Add(end.index);
         Vector2I current_index = pGrid.pCells[end.index.X, end.index.Y].GetCreatorIndex();
         path.Add(current_index);
 

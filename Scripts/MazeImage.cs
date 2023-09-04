@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 public static class MazeImage
@@ -7,7 +8,7 @@ public static class MazeImage
     public static Image image;
 
     //Main Shape Methods-------------------------
-    public static void DrawRectangle(ref Grid grid, Color dead_cell_color, bool draw_dead_cells)
+    public static void DrawRectangle(ref Grid grid, Color dead_cell_color, bool draw_dead_cells, List<Vector2I> path)
     {
         SetupImage(grid.GetImageWidth(), grid.GetImageHeight());
 
@@ -15,8 +16,10 @@ public static class MazeImage
         if (!draw_dead_cells) {
             DrawDeadCells(ref grid, ref image, dead_cell_color);
             DrawSolidCells(ref grid, ref image, Colors.Black, false);
+            DrawPath(ref grid, ref image, path, Colors.Red);
         } else {
             DrawSolidCells(ref grid, ref image, Colors.Black, true);
+            DrawPath(ref grid, ref image, path, Colors.Red);
         }
     }
     //-------------------------------------------
@@ -30,6 +33,7 @@ public static class MazeImage
 
     private static void DrawSolidCells(ref Grid grid, ref Image image, Color wall_color, bool draw_dead_cell)
     {
+
         for (int x = 0; x < grid.GetWidth(); x++)
         {
             for (int y = 0; y < grid.GetHeight(); y++)
@@ -95,8 +99,19 @@ public static class MazeImage
                 }
             }
         }
-
     }
     
+    private static void DrawPath(ref Grid grid, ref Image image, List<Vector2I> path, Color path_color) 
+    {
+        if (path == null) { return; }
+
+        for (int i = 0; i < path.Count; i++)
+        {
+            Rect2I inside_cell = grid.GetInsideCellSizePx(path[i].X, path[i].Y);
+
+            image.FillRect(inside_cell, path_color);
+        }
+    }
+
     //-------------------------------------------
 }

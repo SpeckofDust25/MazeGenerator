@@ -22,6 +22,7 @@ public partial class MazeProperties : TabBar
     private float horizontal_bias = 0.5f;
     private float braid_value;
     private bool is_unicursal;
+    private List<Vector2I> path;
 
     //Nodes
     private Button generate_maze_button;
@@ -110,13 +111,7 @@ public partial class MazeProperties : TabBar
 
         if (successful) {
             ApplyMazeModifications();
-            List<Vector2I> path = PathFinding.AStar(ref grid, grid.cells[0, 0], grid.cells[9, 9]);
-            
-            for (int i = 0; i < path.Count; i++)
-            {
-                GD.Print(path[i].ToString());
-            }
-
+            path = PathFinding.AStar(ref grid, grid.cells[0, 0], grid.cells[9, 9]);
             UpdateImage();  //Update Image            
         }
     }
@@ -124,7 +119,7 @@ public partial class MazeProperties : TabBar
     private void UpdateImage()
     {
         //Update Image
-        MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport());
+        MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport(), path);
         EmitSignal(SignalName.GenerateMaze);
     }
     //-------------------------------------------

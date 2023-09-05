@@ -10,21 +10,25 @@ using System.Collections.Generic;
 public class PCell
 {
     private int g_cost;
+    private int h_cost;
     private Vector2I index;
     private Vector2I creator_index;
 
     public PCell() { }
-    public PCell(int _g_cost, Vector2I _index, Vector2I _creator_index)
+    public PCell(int _g_cost, int _h_cost, Vector2I _index, Vector2I _creator_index)
     {
         g_cost = _g_cost;
+        h_cost = _h_cost;
+
         index = _index;
         creator_index = _creator_index;
     }
 
     //Setters
-    public void SetCost(int _g_cost)
+    public void SetCost(int _g_cost, int _h_cost)
     {
         g_cost = _g_cost;
+        h_cost = _h_cost;
     }
 
     public void SetIndex(Vector2I _index)
@@ -38,9 +42,19 @@ public class PCell
     }
 
     //Getters
+    public int GetFCost()
+    {
+        return g_cost + h_cost;
+    }
+
     public int GetGCost()
     {
         return g_cost;
+    }
+
+    public int GetHCost()
+    {
+        return h_cost;
     }
 
     public Vector2I GetIndex()
@@ -85,7 +99,6 @@ public class PGrid
                 pCells[x, y].SetIndex(new Vector2I(x, y));
             }
         }
-
     }
 
     //Setters
@@ -109,13 +122,17 @@ public class PGrid
     {
         PCell lowest_cost_cell = null;
 
-        for (int i = 0; i < opened_cells.Count; i++)
-        {
-            if (i == 0)
+        if (opened_cells.Count > 0) {
+            lowest_cost_cell = opened_cells[0];
+
+            for (int i = 0; i < opened_cells.Count; i++)
             {
-                lowest_cost_cell = opened_cells[i];
-            } else {
-                if (opened_cells[i].GetGCost() < lowest_cost_cell.GetGCost())
+                bool is_equal = (opened_cells[i].GetFCost() == lowest_cost_cell.GetFCost());
+
+                if (is_equal && opened_cells[i].GetHCost() < lowest_cost_cell.GetHCost())
+                {
+                    lowest_cost_cell = opened_cells[i];
+                } else if (opened_cells[i].GetFCost() < lowest_cost_cell.GetFCost())
                 {
                     lowest_cost_cell = opened_cells[i];
                 }
@@ -140,12 +157,17 @@ public static class PathFinding
         PGrid pGrid = new PGrid(grid.GetWidth(), grid.GetHeight(), start, end);
 
         //Set Start Cell
-        int g_cost = Mathf.Abs(start.index.X - end.index.X) + Mathf.Abs(start.index.Y - end.index.Y);
-        pGrid.pCells[start.index.X, start.index.Y].SetCost(g_cost);
+        int x_distance = Mathf.Abs(start.index.X - end.index.X);
+        int y_distance = Mathf.Abs(start.index.Y - end.index.Y);
+
+        int g_cost = 0;
+        int h_cost = x_distance + y_distance;
+        
+        pGrid.pCells[start.index.X, start.index.Y].SetCost(g_cost, h_cost);
         pGrid.OpenCell(pGrid.pCells[start.index.X, start.index.Y], start.index);
 
         //Set Costs until finish is found
-        while(!found_solution) {
+        while (!found_solution) {
 
             PCell lowest_cost_cell = pGrid.GetLowestCostCell();
 
@@ -156,12 +178,17 @@ public static class PathFinding
                 
                 //Get Open Cell Details
                 Cell dir_cell = grid.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
-                int dir_g_cost = Mathf.Abs(dir_cell.index.X - end.index.X) + Mathf.Abs(dir_cell.index.Y - end.index.Y); ;
+
+                int g_dir_cost = lowest_cost_cell.GetGCost() + 1;
+                int h_dir_cost = Mathf.Abs(dir_cell.index.X - end.index.X) + Mathf.Abs(dir_cell.index.Y - end.index.Y);
 
                 //Set Pathfinding Cell Cost
                 PCell p_cell = pGrid.pCells[dir_cell.index.X, dir_cell.index.Y];
-                p_cell.SetCost(dir_g_cost);
+
+                p_cell.SetCost(g_dir_cost, h_dir_cost);
                 pGrid.OpenCell(p_cell, lowest_cost_cell.GetIndex());
+
+                GD.Print("H: " + h_dir_cost.ToString() + " G: " + g_dir_cost.ToString() + " F:" + lowest_cost_cell.GetFCost().ToString());
 
                 //Check Finish Condition
                 if (p_cell.GetIndex() == end.index)
@@ -187,11 +214,22 @@ public static class PathFinding
             path.Add(current_index);
         }
 
+        GD.Print("Closed Cells: " + pGrid.closed_cells.Count.ToString());
+        GD.Print("Open Cells: " + pGrid.opened_cells.Count.ToString());
+
+        List<Vector2I> test_path = new List<Vector2I>();
+        for(int i = 0; i < pGrid.closed_cells.Count; i++)
+        {
+            test_path.Add(pGrid.closed_cells[i].GetIndex());
+        }
+
+        for (int i = 0; i < pGrid.opened_cells.Count; i++)
+        {
+            test_path.Add(pGrid.opened_cells[i].GetIndex());
+        }
+
         return path;
     }
-
-
-
 
     private static List<ERectangleDirections> MoveDirFromPoint(ref Grid grid, Cell cell)
     {

@@ -10,6 +10,9 @@ namespace MazeGeneratorGlobal
     }
 
     //Points
+    public enum EPoints { None, Random, Furthest, Easy, Medium, Hard } 
+
+    //Maze Modifications
     public enum EBias { None, Horizontal, Vertical}
 
     //Directions

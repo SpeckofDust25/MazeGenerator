@@ -13,7 +13,7 @@ public class Grid {
 	private int wall_size = 10;
 	private int width = 10;
 	private int height = 10;
-	private Points points;
+	private Points start_end_points;
 
 	public Cell[,] cells;
 
@@ -164,14 +164,44 @@ public class Grid {
         }
     }
 	
-	public void SetPointType(bool is_first)
+	public void UpdatePoints(EPoints point_type)
 	{
-		if (is_first)
-		{
-			//points[0].SetPointType(type);
-		} else {
-			//points[1].SetPointType(type);
-		}
+        switch(point_type)
+        {
+            case EPoints.None:
+                break;
+
+            case EPoints.Random:
+                List<Cell> points = GetAllPossiblePoints();
+
+                Cell first = null;
+                Cell second = null;
+
+                if (points.Count > 0) {
+                    first = points[(int)(GD.Randi() % points.Count)];
+                }
+
+                points.Remove(first);
+
+                if (points.Count > 0) {
+                    second = points[(int)(GD.Randi() % points.Count)];
+                }
+
+                start_end_points = new Points(ref first, ref second, GetInvalidNeighbors(first.index), GetInvalidNeighbors(second.index));
+                break;
+
+            case EPoints.Furthest:
+                break;
+
+            case EPoints.Easy:
+                break;
+
+            case EPoints.Medium:
+                break;
+
+            case EPoints.Hard:
+                break;
+        }
 	}
 
 	public void SetCellSize(int _cell_size)
@@ -215,6 +245,35 @@ public class Grid {
 	public int GetWallSize() {
 		return wall_size;
 	}
+
+    public Vector2I GetStartPoint()
+    {
+        Vector2I result = Vector2I.Zero;
+
+        if (start_end_points != null) {
+            if (start_end_points.start != null)
+            {
+                result = start_end_points.start.index;
+            }
+        }
+
+        return result;
+    }
+
+    public Vector2I GetEndPoint()
+    {
+        Vector2I result = Vector2I.Zero;
+
+        if (start_end_points != null) {
+            if (start_end_points.end != null)
+            {
+                result = start_end_points.end.index;
+            }
+        }
+
+        return result;
+    }
+
     //-------------------------------------------
 
 	//Image Drawing Methods ---------------------
@@ -387,6 +446,7 @@ public class Grid {
 
 	public List<ERectangleDirections> GetNeighbors(Vector2I index, bool north, bool south, bool east, bool west)
 	{
+        //Get Neighbor Directions Within Bounds
 		List<ERectangleDirections> directions = new List<ERectangleDirections>();
 
         if (index.Y != 0 && north) { directions.Add(ERectangleDirections.North); }
@@ -577,6 +637,73 @@ public class Grid {
         return directions;
     }
 
+    public List<ERectangleDirections> GetInvalidNeighbors(Vector2I index)
+    {
+        //Properties
+        List<ERectangleDirections> directions = new List<ERectangleDirections>();
+        bool can_north = false;
+        bool can_south = false;
+        bool can_east = false;
+        bool can_west = false;
+
+        //Boundary
+        if (index.X != 0) { can_west = true; }
+        if (index.Y != 0) { can_north = true; }
+        if (index.X < GetWidth() - 1) { can_east = true; }
+        if (index.Y < GetHeight() - 1) { can_south = true; }
+
+        //Invalid Directions: North, South, East, West
+        if (can_north)
+        {
+            Cell temp_cell = cells[index.X, index.Y - 1];
+
+            if (temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.North);
+            }
+        } else {
+            directions.Add(ERectangleDirections.North);
+        }
+
+        if (can_south)
+        {
+            Cell temp_cell = cells[index.X, index.Y + 1];
+
+            if (temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.South);
+            }
+        } else {
+            directions.Add(ERectangleDirections.South);
+        }
+
+        if (can_east)
+        {
+            Cell temp_cell = cells[index.X + 1, index.Y];
+
+            if (temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.East);
+            }
+        } else {
+            directions.Add(ERectangleDirections.East);
+        }
+
+        if (can_west)
+        {
+            Cell temp_cell = cells[index.X - 1, index.Y];
+
+            if (temp_cell.dead_cell)
+            {
+                directions.Add(ERectangleDirections.West);
+            }
+        } else {
+            directions.Add(ERectangleDirections.West);
+        }
+
+        return directions;
+    }
+
 	public Cell GetCellInDirection(Vector2I index, ERectangleDirections direction)
 	{
 		Cell cell = null;
@@ -669,6 +796,41 @@ public class Grid {
 
 		return count;
 	}
+
+    public List<Cell> GetAllPossiblePoints()
+    {
+        List<Cell> points = new List<Cell>();
+
+        for (int x = 0; x < GetWidth(); x++)
+        {
+            for (int y = 0; y < GetHeight(); y++)
+            {
+                //Outside Bounds
+                if (x == 0 || x >= (GetWidth() - 1) || y == 0 || y >= (GetHeight() - 1))
+                {
+                    if (!cells[x, y].dead_cell)
+                    {
+                        points.Add(cells[x, y]);
+                    }
+
+                } else {
+                    bool can_add = false;
+
+                    if (!cells[x, y].dead_cell) {
+                        if (cells[x - 1, y].dead_cell) { can_add = true; }
+                        if (cells[x + 1, y].dead_cell) { can_add = true; }
+                        if (cells[x, y - 1].dead_cell) { can_add = true; }
+                        if (cells[x, y + 1].dead_cell) { can_add = true; }
+                    }
+
+                    if (can_add) { points.Add(cells[x, y]); }
+                }
+            }
+        }
+
+        return points;
+    }
+
 	//-------------------------------------------
 
 	//Routing Getters----------------------------

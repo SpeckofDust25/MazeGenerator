@@ -7,192 +7,70 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MazeGeneratorGlobal;
+using System.Globalization;
 
 public class Points
 {
-    /*
-    public Cell start_cell;
-    public Cell end_cell;
+    public Cell start;
+    public Cell end;
 
-    EPoints point_type;
-    ERectangleDirections direction;
+    private ERectangleDirections start_direction;
+    private ERectangleDirections end_direction;
 
-    public Points(EPoints _type) {
-        point_type = _type;
-    }
-
-    public void SetPointType(EPoints _type)
+    public Points(ref Cell _start, ref Cell _end, List<ERectangleDirections> start_dirs, List<ERectangleDirections> end_dirs)
     {
-        point_type = _type;
+        start = _start;
+        end = _end;
+
+        //Choose Randomly
+        if (start_dirs.Count > 0) {
+            start_direction = start_dirs[(int)(GD.Randi() % start_dirs.Count)];
+        }
+
+        if (end_dirs.Count > 0) {
+            end_direction = end_dirs[(int)(GD.Randi() % end_dirs.Count)];
+        }
+
+        //Remove Cell Wall in that direction
+        Vector2I s_index = start.index;
+        Vector2I e_index = end.index;
+
+        switch (start_direction)
+        {
+            case ERectangleDirections.North:
+                start.north = true;
+                break;
+
+            case ERectangleDirections.South:
+                start.south = true;
+                break;
+
+            case ERectangleDirections.East:
+                start.east = true;
+                break;
+
+            case ERectangleDirections.West:
+                start.west = true;
+                break;
+        }
+
+        switch (end_direction)
+        {
+            case ERectangleDirections.North:
+                end.north = true;
+                break;
+
+            case ERectangleDirections.South:
+                end.south = true;
+                break;
+
+            case ERectangleDirections.East:
+                end.east = true;
+                break;
+
+            case ERectangleDirections.West:
+                end.west = true;
+                break;
+        }
     }
-
-    //Creates An Open Cell
-    
-    public Cell CreateOpenCell(ref ERectangleDirections assign_direction, ref Grid grid)   //Creates an Open Cell
-    {
-        Cell open_cell = null;
-        /*bool same_cell = false;
-        Cell open_cell = null;
-
-        List<Cell> deadend_cells = new List<Cell>();
-        List<Cell> edge_cells = new List<Cell>();
-        List<Cell> current_list = new List<Cell>();
-
-        //Get Possible Cells
-        deadend_cells = grid.GetAllValidEdgeDeadends();
-        edge_cells = grid.GetAllEdgeCells();
-
-        //List Conditions
-        if (deadend_cells.Count > 0)
-        {
-            current_list = deadend_cells;
-        }
-        else
-        {
-            current_list = edge_cells;
-        }
-
-        //Get Random Cell
-        if (current_list.Count > 0)
-        {
-            int rand = (int)(GD.Randi() % current_list.Count);
-            open_cell = current_list[rand];
-        }
-
-        //Same Cell
-        if (open_cell.IsSameCell(start_cell) || open_cell.IsSameCell(end_cell))
-        {
-            same_cell = true;
-        }
-
-        //Open Wall
-        if (open_cell != null)
-        {
-            List<MazeGenerator.Direction> directions = new List<MazeGenerator.Direction>();
-            Vector2I index = open_cell.index;
-
-            //Add Possible Directions
-            if (index.X == 0)   //West
-            {
-                if (!same_cell)
-                {
-                    directions.Add(MazeGenerator.Direction.west);
-
-                }
-                else if (!open_cell.north && !open_cell.south && !open_cell.west)
-                {
-                    directions.Add(MazeGenerator.Direction.west);
-                }
-            }
-
-            if (index.Y == 0)   //North
-            {
-                if (!same_cell)
-                {
-                    directions.Add(MazeGenerator.Direction.north);
-
-                }
-                else if (!open_cell.west && !open_cell.east && !open_cell.north)
-                {
-                    directions.Add(MazeGenerator.Direction.north);
-                }
-            }
-
-            if (index.X == grid.GetWidth() - 1) //East
-            {
-                if (!same_cell)
-                {
-                    directions.Add(MazeGenerator.Direction.east);
-
-                }
-                else if (!open_cell.north && !open_cell.south && !open_cell.east)
-                {
-                    directions.Add(MazeGenerator.Direction.east);
-                }
-            }
-
-            if (index.Y == grid.GetHeight() - 1) //South
-            {
-
-                if (!same_cell)
-                {
-                    directions.Add(MazeGenerator.Direction.south);
-
-                }
-                else if (!open_cell.east && !open_cell.west && !open_cell.south)
-                {
-                    directions.Add(MazeGenerator.Direction.south);
-                }
-
-            }
-
-            Grid.Direction dir = directions[(int)(GD.Randi() % directions.Count)];
-
-            switch (dir)
-            {
-                case Grid.Direction.north:
-                    open_cell.north = true;
-                    assign_direction = Grid.Direction.north;
-                    break;
-                case Grid.Direction.south:
-                    open_cell.south = true;
-                    assign_direction = Grid.Direction.south;
-                    break;
-                case MazeGeneGridrator.Direction.east:
-                    open_cell.east = true;
-                    assign_direction = Grid.Direction.east;
-                    break;
-                case MazeGenerator.Direction.west:
-                    open_cell.west = true;
-                    assign_direction = MazeGenerator.Direction.west;
-                    break;
-            }
-        }
-
-        return open_cell;
-    }
-
-    public void FillInCell(ref Cell open_cell)
-    {
-        ERectangleDirections dir = ERectangleDirections.None;
-
-        //Fill in Cell
-        if (open_cell != null)
-        {
-            Vector2I index = open_cell.index;
-
-            dir = direction;
-            direction = ERectangleDirections.None;
-
-            //Fill in
-            switch (dir)
-            {
-                case ERectangleDirections.North:
-                    open_cell.north = false;
-                    break;
-
-                case ERectangleDirections.South:
-                    open_cell.south = false;
-                    break;
-
-                case ERectangleDirections.East:
-                    open_cell.east = false;
-                    break;
-
-                case ERectangleDirections.West:
-                    open_cell.west = false;
-                    break;
-            }
-        }
-
-        open_cell = null;
-    }
-
-    public void ResetPoint()
-    {
-        start_cell = null;
-        end_cell = null;
-        direction = ERectangleDirections.None;
-    }
-*/
 }

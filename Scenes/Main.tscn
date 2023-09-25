@@ -280,6 +280,36 @@ text = "Generate Maze"
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
+[node name="PointsHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PointsHBoxContainer"]
+layout_mode = 2
+text = "Points"
+
+[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PointsHBoxContainer"]
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+item_count = 6
+selected = 0
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "Random"
+popup/item_1/id = 1
+popup/item_2/text = "Furthest"
+popup/item_2/id = 2
+popup/item_3/text = "Easy"
+popup/item_3/id = 3
+popup/item_4/text = "Medium"
+popup/item_4/id = 4
+popup/item_5/text = "Hard"
+popup/item_5/id = 5
+
+[node name="HSeparator4" type="HSeparator" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
 [node name="MazeModificationsSectionLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Maze Modifications"

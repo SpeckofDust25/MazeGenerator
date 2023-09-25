@@ -18,6 +18,9 @@ public partial class MazeProperties : TabBar
     private bool is_draw_mode = false;
     private Vector2I local_mouse_position;
 
+    //Points
+    private EPoints point_type = EPoints.None;
+
     //Routing
     private float horizontal_bias = 0.5f;
     private float braid_value;
@@ -31,6 +34,7 @@ public partial class MazeProperties : TabBar
     private SpinBox cell_size_spin_box, wall_size_spin_box;
 	private CheckButton draw_button;
 
+    private OptionButton points_option_button;
     private HSlider braid_slider, h_bias_slider;
     private Label braid_value_label, h_bias_value_label;
     private CheckButton unicursal_button;
@@ -70,6 +74,9 @@ public partial class MazeProperties : TabBar
 		wall_size_spin_box = GetNode<SpinBox>(start_path + "WallSizeHBoxContainer/WallSizeSpinBox");
 		draw_button = GetNode<CheckButton>(start_path + "DrawHBoxContainer/CheckButton");
 
+        //Points
+        points_option_button = GetNode<OptionButton>(start_path + "PointsHBoxContainer/OptionButton");
+        
         //Maze Modifications
         h_bias_slider = GetNode<HSlider>(start_path + "BiasHBoxContainer/HorizontalBiasHSlider");
         h_bias_value_label = GetNode<Label>(start_path + "BiasHBoxContainer/HorizontalBiasValueLabel");
@@ -89,6 +96,9 @@ public partial class MazeProperties : TabBar
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
 		draw_button.Toggled += DrawButtonToggled;
 
+        //Points
+        points_option_button.ItemSelected += PointsSelected;
+
         //Maze Modifications
         h_bias_slider.ValueChanged += HBiasChanged;
         braid_slider.ValueChanged += BraidSliderChanged;
@@ -107,11 +117,17 @@ public partial class MazeProperties : TabBar
 
         MazeMask.Update(ref grid, Vector2I.Zero);
         grid.SetMask(MazeMask.mask);
+
         bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type, horizontal_bias);  //Generate Maze
 
         if (successful) {
             ApplyMazeModifications();
-            path = PathFinding.AStar(ref grid, grid.cells[0, 0], grid.cells[9, 9]);
+            //path = PathFinding.AStar(ref grid, grid.cells[0, 0], grid.cells[9, 9]);
+            grid.UpdatePoints(point_type);
+
+            GD.Print(grid.GetStartPoint());
+            GD.Print(grid.GetEndPoint());
+
             UpdateImage();  //Update Image            
         }
     }
@@ -212,8 +228,6 @@ public partial class MazeProperties : TabBar
         }
     }
 
-
-
 	private void GridWidthChanged(double value)
 	{
 		grid.SetWidth((int)value);
@@ -236,6 +250,36 @@ public partial class MazeProperties : TabBar
 	{
 		grid.SetWallSize((int)value);
         UpdateImage();
+    }
+
+    //Points
+    private void PointsSelected(long index)
+    {
+        switch(index)
+        {
+            case (long)EPoints.None:
+                break;
+
+            case (long)EPoints.Random:
+                point_type = EPoints.Random;
+                break;
+
+            case (long)EPoints.Furthest:
+                point_type = EPoints.Furthest;
+                break;
+
+            case (long)EPoints.Easy:
+                point_type = EPoints.Easy;
+                break;
+
+            case (long)EPoints.Medium:
+                point_type = EPoints.Medium;
+                break;
+
+            case (long)EPoints.Hard:
+                point_type = EPoints.Hard;
+                break;
+        }
     }
 
     //Maze Modifications

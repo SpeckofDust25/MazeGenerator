@@ -1,4 +1,5 @@
 using Godot;
+using MazeGeneratorGlobal;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -20,6 +21,13 @@ public static class MazeImage
         } else {
             DrawSolidCells(ref grid, ref image, Colors.Black, true);
             DrawPath(ref grid, ref image, path, Colors.Red);
+        }
+
+        if (path == null && grid.GetStartCell() != null && grid.GetEndCell() != null)
+        {
+            //Fill in Start and End Points
+            FillInCellInDirection(ref grid, grid.GetStartCell(), Colors.White, grid.GetStartDirection());
+            FillInCellInDirection(ref grid, grid.GetEndCell(), Colors.White, grid.GetEndDirection());
         }
     }
     //-------------------------------------------
@@ -107,9 +115,82 @@ public static class MazeImage
 
         for (int i = 0; i < path.Count; i++)
         {
+            Cell path_cell = grid.cells[path[i].X, path[i].Y];
+            ERectangleDirections cell_direction = ERectangleDirections.None;
             Rect2I inside_cell = grid.GetInsideCellSizePx(path[i].X, path[i].Y);
 
+            //Fill Center
             image.FillRect(inside_cell, path_color);
+
+            //Fill In Between 
+            if (i != path.Count - 1) {
+                Cell next_cell = grid.cells[path[i + 1].X, path[i + 1].Y];
+                Vector2I difference = next_cell.index - path_cell.index;
+                
+                switch(difference.X)
+                {
+                    case -1:
+                        cell_direction = ERectangleDirections.West;
+                        break;
+
+                    case 1:
+                        cell_direction = ERectangleDirections.East;
+                        break;
+                }
+
+                switch(difference.Y)
+                {
+                    case 1:
+                        cell_direction = ERectangleDirections.South;
+                        break;
+
+                    case -1:
+                        cell_direction = ERectangleDirections.North;
+                        break;
+                }
+            }
+
+            //Get Direction of Next Cell
+            FillInCellInDirection(ref grid, path_cell, path_color, cell_direction);
+        }
+
+        //Fill in Start and End Points
+        FillInCellInDirection(ref grid, grid.GetStartCell(), path_color, grid.GetStartDirection());
+        FillInCellInDirection(ref grid, grid.GetEndCell(), path_color, grid.GetEndDirection());
+    }
+
+    //Used to Fill in Areas left Open where there is no wall
+    private static void FillInCellInDirection(ref Grid grid, Cell cell, Color path_color, ERectangleDirections direction)
+    {
+        int wall_size = grid.GetWallSize();
+        Rect2I inside_cell = grid.GetInsideCellSizePx(cell.index.X, cell.index.Y);
+
+        switch (direction)
+        {
+            case ERectangleDirections.North:
+                Vector2I north_position = new Vector2I(inside_cell.Position.X, inside_cell.Position.Y - wall_size);
+                Rect2I north_rect = new Rect2I(north_position, inside_cell.Size);
+                image.FillRect(north_rect, path_color);
+                break;
+
+            case ERectangleDirections.South:
+                Vector2I south_position = new Vector2I(inside_cell.Position.X, inside_cell.Position.Y + wall_size);
+                Rect2I south_rect = new Rect2I(south_position, inside_cell.Size);
+                image.FillRect(south_rect, path_color);
+                break;
+
+            case ERectangleDirections.East:
+                Vector2I east_position = new Vector2I(inside_cell.Position.X + wall_size, inside_cell.Position.Y);
+                Rect2I east_rect = new Rect2I(east_position, inside_cell.Size);
+                image.FillRect(east_rect, path_color);
+                break;
+
+
+            case ERectangleDirections.West:
+                Vector2I west_position = new Vector2I(inside_cell.Position.X - wall_size, inside_cell.Position.Y);
+                Rect2I west_rect = new Rect2I(west_position, inside_cell.Size);
+                image.FillRect(west_rect, path_color);
+                break;
         }
     }
 

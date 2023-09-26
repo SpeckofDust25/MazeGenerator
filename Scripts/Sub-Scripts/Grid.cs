@@ -246,38 +246,62 @@ public class Grid {
 		return wall_size;
 	}
 
-    public Vector2I GetStartPoint()
+    public Cell GetStartCell()
     {
-        Vector2I result = Vector2I.Zero;
+        Cell start = null;
 
         if (start_end_points != null) {
             if (start_end_points.start != null)
             {
-                result = start_end_points.start.index;
+                start = start_end_points.start;
             }
         }
 
-        return result;
+        return start;
     }
 
-    public Vector2I GetEndPoint()
+    public Cell GetEndCell()
     {
-        Vector2I result = Vector2I.Zero;
+        Cell end = null;
 
         if (start_end_points != null) {
             if (start_end_points.end != null)
             {
-                result = start_end_points.end.index;
+                end = start_end_points.end;
             }
         }
 
-        return result;
+        return end;
+    }
+
+    public ERectangleDirections GetStartDirection()
+    {
+        ERectangleDirections direction = ERectangleDirections.None;
+
+        if (start_end_points != null)
+        {
+            direction = start_end_points.start_direction;
+        }
+
+        return direction;
+    }
+
+    public ERectangleDirections GetEndDirection()
+    {
+        ERectangleDirections direction = ERectangleDirections.None;
+
+        if (start_end_points != null)
+        {
+            direction = start_end_points.end_direction;
+        }
+
+        return direction;
     }
 
     //-------------------------------------------
 
-	//Image Drawing Methods ---------------------
-	public int GetImageWidth()
+    //Image Drawing Methods ---------------------
+    public int GetImageWidth()
 	{
 		int wall_width = (GetWidth() * wall_size) + wall_size;
 		int cell_width = GetWidth() * GetCellSize();

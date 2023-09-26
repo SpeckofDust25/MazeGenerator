@@ -179,7 +179,7 @@ public static class PathFinding
                 //Get Open Cell Details
                 Cell dir_cell = grid.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
 
-                int g_dir_cost = lowest_cost_cell.GetGCost() + 1;
+                int g_dir_cost = lowest_cost_cell.GetGCost() + 2;
                 int h_dir_cost = Mathf.Abs(dir_cell.index.X - end.index.X) + Mathf.Abs(dir_cell.index.Y - end.index.Y);
 
                 //Set Pathfinding Cell Cost
@@ -188,7 +188,6 @@ public static class PathFinding
                 p_cell.SetCost(g_dir_cost, h_dir_cost);
                 pGrid.OpenCell(p_cell, lowest_cost_cell.GetIndex());
 
-                GD.Print("H: " + h_dir_cost.ToString() + " G: " + g_dir_cost.ToString() + " F:" + lowest_cost_cell.GetFCost().ToString());
 
                 //Check Finish Condition
                 if (p_cell.GetIndex() == end.index)
@@ -213,9 +212,6 @@ public static class PathFinding
 
             path.Add(current_index);
         }
-
-        GD.Print("Closed Cells: " + pGrid.closed_cells.Count.ToString());
-        GD.Print("Open Cells: " + pGrid.opened_cells.Count.ToString());
 
         List<Vector2I> test_path = new List<Vector2I>();
         for(int i = 0; i < pGrid.closed_cells.Count; i++)

@@ -14,8 +14,8 @@ public class Points
     public Cell start;
     public Cell end;
 
-    private ERectangleDirections start_direction;
-    private ERectangleDirections end_direction;
+    public ERectangleDirections start_direction;
+    public ERectangleDirections end_direction;
 
     public Points(ref Cell _start, ref Cell _end, List<ERectangleDirections> start_dirs, List<ERectangleDirections> end_dirs)
     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
 using MazeGeneratorGlobal;
+using System.Threading;
 
 public partial class MazeProperties : TabBar
 {
@@ -24,14 +25,17 @@ public partial class MazeProperties : TabBar
     //Routing
     private float horizontal_bias = 0.5f;
     private float braid_value;
+    private bool is_pathfinding = false;
     private bool is_unicursal;
     private List<Vector2I> path;
 
     //Nodes
     private Button generate_maze_button;
     private OptionButton maze_type_option_button;
+    private CheckButton pathfinding_button;
     private SpinBox cells_x_spin_box, cells_y_spin_box;
     private SpinBox cell_size_spin_box, wall_size_spin_box;
+
 	private CheckButton draw_button;
 
     private OptionButton points_option_button;
@@ -68,6 +72,7 @@ public partial class MazeProperties : TabBar
         //Maze Properties
         generate_maze_button = GetNode<Button>(start_path + "GenerateMazeButton");
 		maze_type_option_button = GetNode<OptionButton>(start_path + "TypeHBoxContainer/MazeTypeOptionButton");
+        pathfinding_button = GetNode<CheckButton>(start_path + "PathfindingHBoxContainer/CheckButton");
 		cells_x_spin_box = GetNode<SpinBox>(start_path + "WidthHBoxContainer/CellsXSpinBox");
 		cells_y_spin_box = GetNode<SpinBox>(start_path + "HeightHBoxContainer/CellsYSpinBox");
 		cell_size_spin_box = GetNode<SpinBox>(start_path + "CellSizeHBoxContainer/CellSizeSpinBox");
@@ -90,6 +95,7 @@ public partial class MazeProperties : TabBar
 		//Maze Properties
 		generate_maze_button.Pressed += GenerateMazePressed;
 		maze_type_option_button.ItemSelected += MazeTypeSelected;
+        pathfinding_button.Toggled += PathfindingChanged;
 		cells_x_spin_box.ValueChanged += GridWidthChanged;
 		cells_y_spin_box.ValueChanged += GridHeightChanged;
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
@@ -122,12 +128,15 @@ public partial class MazeProperties : TabBar
 
         if (successful) {
             ApplyMazeModifications();
-            //path = PathFinding.AStar(ref grid, grid.cells[0, 0], grid.cells[9, 9]);
             grid.UpdatePoints(point_type);
 
-            GD.Print(grid.GetStartPoint());
-            GD.Print(grid.GetEndPoint());
-
+            if (point_type != EPoints.None) {
+                Cell start = grid.GetStartCell();
+                Cell end = grid.GetEndCell();
+            
+                path = PathFinding.AStar(ref grid, grid.GetStartCell(), grid.GetEndCell());
+            }
+            
             UpdateImage();  //Update Image            
         }
     }
@@ -135,7 +144,12 @@ public partial class MazeProperties : TabBar
     private void UpdateImage()
     {
         //Update Image
-        MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport(), path);
+        if (is_pathfinding) {
+            MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport(), path);
+        } else {
+            MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport(), null);
+        }
+
         EmitSignal(SignalName.GenerateMaze);
     }
     //-------------------------------------------
@@ -226,6 +240,12 @@ public partial class MazeProperties : TabBar
                 maze_type = EMazeType.Recursive_Division;
                 break;
         }
+    }
+
+    private void PathfindingChanged(bool value)
+    {
+        is_pathfinding = value;
+        UpdateImage();
     }
 
 	private void GridWidthChanged(double value)

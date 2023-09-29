@@ -81,8 +81,9 @@ public partial class MazeProperties : TabBar
 
         //Points
         points_option_button = GetNode<OptionButton>(start_path + "PointsHBoxContainer/OptionButton");
-        
+
         //Maze Modifications
+        draw_button = GetNode<CheckButton>(start_path + "DrawHBoxContainer/CheckButton");
         h_bias_slider = GetNode<HSlider>(start_path + "BiasHBoxContainer/HorizontalBiasHSlider");
         h_bias_value_label = GetNode<Label>(start_path + "BiasHBoxContainer/HorizontalBiasValueLabel");
         braid_slider = GetNode<HSlider>(start_path + "BraidHBoxContainer/BraidHSlider");
@@ -100,12 +101,13 @@ public partial class MazeProperties : TabBar
 		cells_y_spin_box.ValueChanged += GridHeightChanged;
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
-		draw_button.Toggled += DrawButtonToggled;
+
 
         //Points
         points_option_button.ItemSelected += PointsSelected;
 
         //Maze Modifications
+        draw_button.Toggled += DrawButtonToggled;
         h_bias_slider.ValueChanged += HBiasChanged;
         braid_slider.ValueChanged += BraidSliderChanged;
         unicursal_button.Toggled += UnicursalChanged;
@@ -128,7 +130,7 @@ public partial class MazeProperties : TabBar
 
         if (successful) {
             ApplyMazeModifications();
-            grid.UpdatePoints(point_type);
+            UpdatePoints(point_type);
 
             if (point_type != EPoints.None) {
                 Cell start = grid.GetStartCell();
@@ -301,6 +303,63 @@ public partial class MazeProperties : TabBar
                 break;
         }
     }
+
+    public void UpdatePoints(EPoints point_type)
+    {
+        List<Vector2I> points = grid.GetAllPossiblePoints();
+        Cell first = null;
+        Cell second = null;
+
+        Vector2I first_index, second_index;
+
+        switch (point_type)
+        {
+            case EPoints.None:
+                break;
+
+            case EPoints.Random:
+                if (points.Count > 0)
+                {
+                    first_index = points[(int)(GD.Randi() % points.Count)];
+                    first = grid.cells[first_index.X, first_index.Y];
+                    points.Remove(first_index);
+                }
+
+                if (points.Count > 0)
+                {
+                    second_index = points[(int)(GD.Randi() % points.Count)];
+                    second = grid.cells[second_index.X, second_index.Y];
+                }
+
+                grid.start_end_points = new Points(ref first, ref second, grid.GetInvalidNeighbors(first.index), grid.GetInvalidNeighbors(second.index));
+                break;
+
+            case EPoints.Furthest:
+                if (points.Count > 0)
+                {
+                    first_index = points[(int)(GD.Randi() % points.Count)];
+                    first = grid.cells[first_index.X, first_index.Y];
+                    points.Remove(first_index);
+                }
+
+                PGrid furthest_grid = PathFinding.GetDistancesFromCell(ref grid, first);
+                Vector2I furthest_index = furthest_grid.GetFurthestIndex(first, grid.GetAllPossiblePoints());
+
+                second = grid.cells[furthest_index.X, furthest_index.Y];
+                grid.start_end_points = new Points(ref first, ref second, grid.GetInvalidNeighbors(first.index), grid.GetInvalidNeighbors(second.index));
+                break;
+
+            case EPoints.Easy:
+                break;
+
+            case EPoints.Medium:
+                break;
+
+            case EPoints.Hard:
+                break;
+        }
+    }
+
 
     //Maze Modifications
     private void HBiasChanged(double value)

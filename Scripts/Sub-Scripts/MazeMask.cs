@@ -64,7 +64,6 @@ public static class MazeMask
             draw_open = false;
         }
 
-
         NewMask(grid.GetWidth(), grid.GetHeight());
         did_update = NewImage(ref grid);
 

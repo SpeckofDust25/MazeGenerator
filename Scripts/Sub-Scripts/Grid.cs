@@ -13,7 +13,7 @@ public class Grid {
 	private int wall_size = 10;
 	private int width = 10;
 	private int height = 10;
-	private Points start_end_points;
+	public Points start_end_points;
 
 	public Cell[,] cells;
 
@@ -163,46 +163,6 @@ public class Grid {
 			}
         }
     }
-	
-	public void UpdatePoints(EPoints point_type)
-	{
-        switch(point_type)
-        {
-            case EPoints.None:
-                break;
-
-            case EPoints.Random:
-                List<Cell> points = GetAllPossiblePoints();
-
-                Cell first = null;
-                Cell second = null;
-
-                if (points.Count > 0) {
-                    first = points[(int)(GD.Randi() % points.Count)];
-                }
-
-                points.Remove(first);
-
-                if (points.Count > 0) {
-                    second = points[(int)(GD.Randi() % points.Count)];
-                }
-
-                start_end_points = new Points(ref first, ref second, GetInvalidNeighbors(first.index), GetInvalidNeighbors(second.index));
-                break;
-
-            case EPoints.Furthest:
-                break;
-
-            case EPoints.Easy:
-                break;
-
-            case EPoints.Medium:
-                break;
-
-            case EPoints.Hard:
-                break;
-        }
-	}
 
 	public void SetCellSize(int _cell_size)
 	{
@@ -758,6 +718,23 @@ public class Grid {
 
 
     //Total Grid Data----------------------------
+    public int GetValidCellCount()
+    {
+        int count = 0;
+        for (int x = 0; x < GetWidth(); x++)
+        {
+            for (int y = 0; y < GetHeight(); y++)
+            {
+                if (!cells[x, y].dead_cell)
+                {
+                    count += 1;
+                }
+            }
+        }
+
+        return count;
+    }
+
     public List<Cell> GetAllValidDeadends()
 	{
 		List<Cell> deadends = new List<Cell>();
@@ -821,9 +798,9 @@ public class Grid {
 		return count;
 	}
 
-    public List<Cell> GetAllPossiblePoints()
+    public List<Vector2I> GetAllPossiblePoints()
     {
-        List<Cell> points = new List<Cell>();
+        List<Vector2I> points = new List<Vector2I>();
 
         for (int x = 0; x < GetWidth(); x++)
         {
@@ -834,7 +811,7 @@ public class Grid {
                 {
                     if (!cells[x, y].dead_cell)
                     {
-                        points.Add(cells[x, y]);
+                        points.Add(cells[x, y].index);
                     }
 
                 } else {
@@ -847,7 +824,7 @@ public class Grid {
                         if (cells[x, y + 1].dead_cell) { can_add = true; }
                     }
 
-                    if (can_add) { points.Add(cells[x, y]); }
+                    if (can_add) { points.Add(cells[x, y].index); }
                 }
             }
         }

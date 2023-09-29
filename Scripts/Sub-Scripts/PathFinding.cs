@@ -236,11 +236,11 @@ public class PGrid
 
 public static class PathFinding
 {
-    public static List<Vector2I> AStar(ref Grid grid, Cell start, Cell end)
+    public static List<Vector2I> AStar(ref Maze maze, Cell start, Cell end)
     {
         //Setup Starting Variables
         bool found_solution = false;
-        PGrid pGrid = new PGrid(grid.GetWidth(), grid.GetHeight(), start, end);
+        PGrid pGrid = new PGrid(maze.GetWidth(), maze.GetHeight(), start, end);
 
         //Set Start Cell
         int x_distance = Mathf.Abs(start.index.X - end.index.X);
@@ -257,13 +257,13 @@ public static class PathFinding
 
             PCell lowest_cost_cell = pGrid.GetLowestCostCell();
 
-            List<ERectangleDirections> directions = grid.GetValidNeighborsNoWalls(lowest_cost_cell.GetIndex());
+            List<ERectangleDirections> directions = maze.GetValidNeighborsNoWalls(lowest_cost_cell.GetIndex());
 
             //Go Through Each Possible Direction and Open New Cells
             for (int d = 0; d < directions.Count; d++) {
                 
                 //Get Open Cell Details
-                Cell dir_cell = grid.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
+                Cell dir_cell = maze.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
 
                 int g_dir_cost = lowest_cost_cell.GetGCost() + 2;
                 int h_dir_cost = Mathf.Abs(dir_cell.index.X - end.index.X) + Mathf.Abs(dir_cell.index.Y - end.index.Y);
@@ -326,16 +326,16 @@ public static class PathFinding
         return moves;
     }
 
-    public static PGrid GetDistancesFromCell(ref Grid grid, Cell start)
+    public static PGrid GetDistancesFromCell(ref Maze maze, Cell start)
     {
         PGrid pGrid = null;
 
         if (start != null) {
 
-            int valid_cell_count = grid.GetValidCellCount();
+            int valid_cell_count = maze.GetValidCellCount();
 
             //Setup Starting Variables
-            pGrid = new PGrid(grid.GetWidth(), grid.GetHeight(), start);
+            pGrid = new PGrid(maze.GetWidth(), maze.GetHeight(), start);
 
             //Set Start Cell
             pGrid.pCells[start.index.X, start.index.Y].SetCost(0, 0);
@@ -345,13 +345,13 @@ public static class PathFinding
             while (pGrid.closed_cells.Count < (valid_cell_count))
             {
                 PCell lowest_cost_cell = pGrid.GetLowestCostCell();
-                List<ERectangleDirections> directions = grid.GetValidNeighborsNoWalls(lowest_cost_cell.GetIndex());
+                List<ERectangleDirections> directions = maze.GetValidNeighborsNoWalls(lowest_cost_cell.GetIndex());
 
                 //Go Through Each Possible Direction and Open New Cells
                 for (int d = 0; d < directions.Count; d++)
                 {
                     //Get Open Cell Details
-                    Cell dir_cell = grid.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
+                    Cell dir_cell = maze.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
                     int g_dir_cost = lowest_cost_cell.GetGCost() + 2;
 
                     //Set Pathfinding Cell Cost

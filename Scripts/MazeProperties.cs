@@ -14,7 +14,7 @@ public partial class MazeProperties : TabBar
 	//Properties
 
 	//Grid Info
-	Grid grid;
+    Maze maze;
     private EMazeType maze_type;
     private bool is_draw_mode = false;
     private Vector2I local_mouse_position;
@@ -55,7 +55,7 @@ public partial class MazeProperties : TabBar
 
     public override void _Process(double delta)
     {
-        bool did_update = MazeMask.Update(ref grid, local_mouse_position);
+        bool did_update = MazeMask.Update(ref maze, local_mouse_position);
 
         if (did_update)
         {
@@ -117,26 +117,26 @@ public partial class MazeProperties : TabBar
     //Update Methods-----------------------------
     private void UpdateMaze()
     {
-        if (grid != null) {
-            grid = new Grid(grid.GetWidth(), grid.GetHeight(), grid.GetWallSize(), grid.GetCellSize());
+        if (maze != null) {
+            maze = new Maze(maze.GetWidth(), maze.GetHeight(), maze.GetWallSize(), maze.GetCellSize());
         } else {
-            grid = new Grid(10, 10, 10, 10);
+            maze = new Maze(10, 10, 10, 10);
         }
 
-        MazeMask.Update(ref grid, Vector2I.Zero);
-        grid.SetMask(MazeMask.mask);
+        MazeMask.Update(ref maze, Vector2I.Zero);
+        maze.SetMask(MazeMask.mask);
 
-        bool successful = MazeGenerator.GenerateMaze(ref grid, maze_type, horizontal_bias);  //Generate Maze
+        bool successful = MazeGenerator.GenerateMaze(ref maze, maze_type, horizontal_bias);  //Generate Maze
 
         if (successful) {
             ApplyMazeModifications();
             UpdatePoints(point_type);
 
             if (point_type != EPoints.None) {
-                Cell start = grid.GetStartCell();
-                Cell end = grid.GetEndCell();
+                Cell start = maze.GetStartCell();
+                Cell end = maze.GetEndCell();
             
-                path = PathFinding.AStar(ref grid, grid.GetStartCell(), grid.GetEndCell());
+                path = PathFinding.AStar(ref maze, maze.GetStartCell(), maze.GetEndCell());
             }
             
             UpdateImage();  //Update Image            
@@ -147,9 +147,9 @@ public partial class MazeProperties : TabBar
     {
         //Update Image
         if (is_pathfinding) {
-            MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport(), path);
+            MazeImage.DrawRectangle(ref maze, Colors.Transparent, HasMaskSupport(), path);
         } else {
-            MazeImage.DrawRectangle(ref grid, Colors.Transparent, HasMaskSupport(), null);
+            MazeImage.DrawRectangle(ref maze, Colors.Transparent, HasMaskSupport(), null);
         }
 
         EmitSignal(SignalName.GenerateMaze);
@@ -172,7 +172,7 @@ public partial class MazeProperties : TabBar
 
     private void ApplyMazeModifications()
     {
-        grid.Braid(braid_value);
+        maze.Braid(braid_value);
     }
 
     private void MazeTypeSelected(long index) {
@@ -252,25 +252,25 @@ public partial class MazeProperties : TabBar
 
 	private void GridWidthChanged(double value)
 	{
-		grid.SetWidth((int)value);
+		maze.SetWidth((int)value);
         UpdateMaze();
     }
 
 	private void GridHeightChanged(double value)
 	{
-		grid.SetHeight((int)value);
+		maze.SetHeight((int)value);
         UpdateMaze();
     }
 
 	private void CellSizeChanged(double value)
 	{
-		grid.SetCellSize((int)value);
+		maze.SetCellSize((int)value);
         UpdateImage();
     }
 
 	private void WallSizeChanged(double value)
 	{
-		grid.SetWallSize((int)value);
+		maze.SetWallSize((int)value);
         UpdateImage();
     }
 
@@ -306,7 +306,7 @@ public partial class MazeProperties : TabBar
 
     public void UpdatePoints(EPoints point_type)
     {
-        List<Vector2I> points = grid.GetAllPossiblePoints();
+        List<Vector2I> points = maze.GetAllPossiblePoints();
         Cell first = null;
         Cell second = null;
 
@@ -321,32 +321,32 @@ public partial class MazeProperties : TabBar
                 if (points.Count > 0)
                 {
                     first_index = points[(int)(GD.Randi() % points.Count)];
-                    first = grid.cells[first_index.X, first_index.Y];
+                    first = maze.cells[first_index.X, first_index.Y];
                     points.Remove(first_index);
                 }
 
                 if (points.Count > 0)
                 {
                     second_index = points[(int)(GD.Randi() % points.Count)];
-                    second = grid.cells[second_index.X, second_index.Y];
+                    second = maze.cells[second_index.X, second_index.Y];
                 }
 
-                grid.start_end_points = new Points(ref first, ref second, grid.GetInvalidNeighbors(first.index), grid.GetInvalidNeighbors(second.index));
+                maze.start_end_points = new Points(ref first, ref second, maze.GetInvalidNeighbors(first.index), maze.GetInvalidNeighbors(second.index));
                 break;
 
             case EPoints.Furthest:
                 if (points.Count > 0)
                 {
                     first_index = points[(int)(GD.Randi() % points.Count)];
-                    first = grid.cells[first_index.X, first_index.Y];
+                    first = maze.cells[first_index.X, first_index.Y];
                     points.Remove(first_index);
                 }
 
-                PGrid furthest_grid = PathFinding.GetDistancesFromCell(ref grid, first);
-                Vector2I furthest_index = furthest_grid.GetFurthestIndex(first, grid.GetAllPossiblePoints());
+                PGrid furthest_grid = PathFinding.GetDistancesFromCell(ref maze, first);
+                Vector2I furthest_index = furthest_grid.GetFurthestIndex(first, maze.GetAllPossiblePoints());
 
-                second = grid.cells[furthest_index.X, furthest_index.Y];
-                grid.start_end_points = new Points(ref first, ref second, grid.GetInvalidNeighbors(first.index), grid.GetInvalidNeighbors(second.index));
+                second = maze.cells[furthest_index.X, furthest_index.Y];
+                maze.start_end_points = new Points(ref first, ref second, maze.GetInvalidNeighbors(first.index), maze.GetInvalidNeighbors(second.index));
                 break;
 
             case EPoints.Easy:

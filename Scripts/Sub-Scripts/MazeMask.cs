@@ -52,7 +52,7 @@ public static class MazeMask
     private static bool draw_open;
 
     //Returns If Updated
-    public static bool Update(ref Grid grid, Vector2I local_mouse_position)
+    public static bool Update(ref Maze maze, Vector2I local_mouse_position)
     {
         bool did_update = false;
         bool just_pressed = Input.IsActionJustPressed("right_click");
@@ -64,13 +64,13 @@ public static class MazeMask
             draw_open = false;
         }
 
-        NewMask(grid.GetWidth(), grid.GetHeight());
-        did_update = NewImage(ref grid);
+        NewMask(maze.GetWidth(), maze.GetHeight());
+        did_update = NewImage(ref maze);
 
         //Set Draw Type
         if (just_pressed)
         {
-            Vector2I index = grid.GetCellIndexAtImagePosition(local_mouse_position);
+            Vector2I index = maze.GetCellIndexAtImagePosition(local_mouse_position);
             bool is_dead_cell = mask.dead_cells[index.X, index.Y];
 
             if (is_dead_cell)
@@ -85,8 +85,8 @@ public static class MazeMask
         if (pressed)
         {
             //Get Cell Index
-            Vector2I index = grid.GetCellIndexAtImagePosition(local_mouse_position);
-            Rect2I rect = grid.GetInsideCellSizePx(index.X, index.Y);
+            Vector2I index = maze.GetCellIndexAtImagePosition(local_mouse_position);
+            Rect2I rect = maze.GetInsideCellSizePx(index.X, index.Y);
 
             if (draw_open)
             {
@@ -117,16 +117,16 @@ public static class MazeMask
         size = new Vector2I(width, height);
     }
 
-    private static bool NewImage(ref Grid grid)
+    private static bool NewImage(ref Maze maze)
     {
         bool update_image = true;
 
         //Create a New Image
-        if (grid != null) {
+        if (maze != null) {
 
             if (image != null)
             {
-                if (grid.GetImageWidth() == image.GetWidth() && grid.GetImageHeight() == image.GetHeight())
+                if (maze.GetImageWidth() == image.GetWidth() && maze.GetImageHeight() == image.GetHeight())
                 {
                     update_image = false;
                 }
@@ -134,35 +134,35 @@ public static class MazeMask
 
             if (update_image)
             {
-                image = Image.Create(grid.GetImageWidth(), grid.GetImageHeight(), false, Image.Format.Rgba8);
+                image = Image.Create(maze.GetImageWidth(), maze.GetImageHeight(), false, Image.Format.Rgba8);
                 image.Fill(Colors.SlateGray);
 
                 //Create Lines
-                for (int x = 0; x < grid.GetWidth(); x++)
+                for (int x = 0; x < maze.GetWidth(); x++)
                 {
-                    Rect2I rect = grid.GetHorizontalWall(x, 0, false);
-                    rect.Size = new Vector2I(rect.Size.X, rect.Size.Y * grid.GetHeight());
+                    Rect2I rect = maze.GetHorizontalWall(x, 0, false);
+                    rect.Size = new Vector2I(rect.Size.X, rect.Size.Y * maze.GetHeight());
                     image.FillRect(rect, Colors.DarkSlateGray);
 
-                    if (x == grid.GetWidth() - 1)
+                    if (x == maze.GetWidth() - 1)
                     {
-                        rect = grid.GetHorizontalWall(x, 0, true);
-                        rect.Size = new Vector2I(rect.Size.X, rect.Size.Y * grid.GetHeight());
+                        rect = maze.GetHorizontalWall(x, 0, true);
+                        rect.Size = new Vector2I(rect.Size.X, rect.Size.Y * maze.GetHeight());
                         image.FillRect(rect, Colors.DarkSlateGray);
                     }
                 }
 
-                for (int y = 0; y < grid.GetHeight(); y++)
+                for (int y = 0; y < maze.GetHeight(); y++)
                 {
-                    Rect2I rect = grid.GetVerticalWallFull(0, y, false);
-                    rect.Size = new Vector2I(rect.Size.X * grid.GetWidth(), rect.Size.Y);
+                    Rect2I rect = maze.GetVerticalWallFull(0, y, false);
+                    rect.Size = new Vector2I(rect.Size.X * maze.GetWidth(), rect.Size.Y);
                     image.FillRect(rect, Colors.DarkSlateGray);
 
-                    if (y == grid.GetHeight() - 1)
+                    if (y == maze.GetHeight() - 1)
                     {
-                        rect = grid.GetVerticalWall(0, y, true);
-                        rect.Size = new Vector2I(rect.Size.X * grid.GetWidth(), rect.Size.Y);
-                        image.FillRect(grid.GetVerticalWallFull(0, y, true), Colors.DarkSlateGray);
+                        rect = maze.GetVerticalWall(0, y, true);
+                        rect.Size = new Vector2I(rect.Size.X * maze.GetWidth(), rect.Size.Y);
+                        image.FillRect(maze.GetVerticalWallFull(0, y, true), Colors.DarkSlateGray);
                     }
                 }
 
@@ -173,7 +173,7 @@ public static class MazeMask
                     {
                         if (mask.dead_cells[x, y] == true)
                         {
-                            Rect2I rect = grid.GetInsideCellSizePx(x, y);
+                            Rect2I rect = maze.GetInsideCellSizePx(x, y);
                             image.FillRect(rect, Colors.Red);
                         }
                     }
@@ -184,13 +184,13 @@ public static class MazeMask
         return update_image;
     }
 
-    public static void ClearMask(ref Grid grid)
+    public static void ClearMask(ref Maze maze)
     {
         mask = new Mask(size.X, size.Y);
 
         for (int x = 0; x < size.X; x++) {
             for (int y = 0; y < size.Y; y++) {
-                Rect2I rect = grid.GetInsideCellSizePx(x, y);
+                Rect2I rect = maze.GetInsideCellSizePx(x, y);
                 mask.dead_cells[x, y] = false;
                 image.FillRect(rect, Colors.SlateGray);
             }

@@ -345,7 +345,7 @@ public class Grid {
 	
 	public Cell GetValidRandomCell()
 	{
-		Cell temp_cell = null;
+		Cell temp_cell;
 
 		do {
 			temp_cell = cells[(int)(GD.Randi() % GetWidth()), (int)(GD.Randi() % GetHeight())];
@@ -490,7 +490,7 @@ public class Grid {
         //Properties
         List<ERectangleDirections> directions = new List<ERectangleDirections>();
 
-        Cell temp_cell = null;
+        Cell temp_cell;
         bool can_north = false;
         bool can_south = false;
         bool can_east = false;

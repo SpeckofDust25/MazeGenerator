@@ -131,21 +131,6 @@ public class Grid {
         }
     }
 
-	public void Unicursal()
-	{
-
-	}
-
-	public void PartialBraid()	//Remove Some Dead Ends
-	{
-
-	}
-
-	public void Rooms()
-	{
-
-	}
-
 	//Setters
 	public void SetMask(Mask mask)
 	{

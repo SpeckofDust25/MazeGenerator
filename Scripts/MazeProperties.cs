@@ -133,6 +133,7 @@ public partial class MazeProperties : TabBar
 
         if (successful) {
             ApplyMazeModifications();
+
             UpdatePoints(point_type);
 
             if (point_type != EPoints.None) {
@@ -297,6 +298,7 @@ public partial class MazeProperties : TabBar
         switch(index)
         {
             case (long)EPoints.None:
+                point_type = EPoints.None;
                 break;
 
             case (long)EPoints.Random:

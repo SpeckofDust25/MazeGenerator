@@ -343,19 +343,56 @@ public partial class MazeProperties : TabBar
                 }
 
                 PGrid furthest_grid = PathFinding.GetDistancesFromCell(ref maze, first);
-                Vector2I furthest_index = furthest_grid.GetFurthestIndex(first, maze.GetAllPossiblePoints());
+                second_index = furthest_grid.GetFurthestIndex(maze.GetAllPossiblePoints());
 
-                second = maze.cells[furthest_index.X, furthest_index.Y];
+                second = maze.cells[second_index.X, second_index.Y];
                 maze.start_end_points = new Points(ref first, ref second, maze.GetInvalidNeighbors(first.index), maze.GetInvalidNeighbors(second.index));
                 break;
 
             case EPoints.Easy:
+                if (points.Count > 0)
+                {
+                    first_index = points[(int)(GD.Randi() % points.Count)];
+                    first = maze.cells[first_index.X, first_index.Y];
+                    points.Remove(first_index);
+
+                    PGrid easy_grid = PathFinding.GetDistancesFromCell(ref maze, first);
+                    second_index = easy_grid.GetEndIndex(0.3f, points);
+
+                    second = maze.cells[second_index.X, second_index.Y];
+
+                    maze.start_end_points = new Points(ref first, ref second, maze.GetInvalidNeighbors(first.index), maze.GetInvalidNeighbors(second.index));
+                }
                 break;
 
             case EPoints.Medium:
+                if (points.Count > 0)
+                {
+                    first_index = points[(int)(GD.Randi() % points.Count)];
+                    first = maze.cells[first_index.X, first_index.Y];
+                    points.Remove(first_index);
+
+                    PGrid easy_grid = PathFinding.GetDistancesFromCell(ref maze, first);
+                    second_index = easy_grid.GetEndIndex(0.6f, points);
+
+                    second = maze.cells[second_index.X, second_index.Y];
+                    maze.start_end_points = new Points(ref first, ref second, maze.GetInvalidNeighbors(first.index), maze.GetInvalidNeighbors(second.index));
+                }
                 break;
 
             case EPoints.Hard:
+                if (points.Count > 0)
+                {
+                    first_index = points[(int)(GD.Randi() % points.Count)];
+                    first = maze.cells[first_index.X, first_index.Y];
+                    points.Remove(first_index);
+
+                    PGrid easy_grid = PathFinding.GetDistancesFromCell(ref maze, first);
+                    second_index = easy_grid.GetEndIndex(0.8f, points);
+
+                    second = maze.cells[second_index.X, second_index.Y];
+                    maze.start_end_points = new Points(ref first, ref second, maze.GetInvalidNeighbors(first.index), maze.GetInvalidNeighbors(second.index));
+                }
                 break;
         }
     }

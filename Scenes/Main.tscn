@@ -287,28 +287,6 @@ popup/item_4/id = 4
 popup/item_5/text = "Hard"
 popup/item_5/id = 5
 
-[node name="PointPositionHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PointPositionHBoxContainer"]
-layout_mode = 2
-text = "Point Position"
-
-[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PointPositionHBoxContainer"]
-custom_minimum_size = Vector2(225, 0)
-layout_mode = 2
-size_flags_horizontal = 10
-item_count = 4
-selected = 0
-popup/item_0/text = "None"
-popup/item_0/id = 0
-popup/item_1/text = "Dead Ends"
-popup/item_1/id = 1
-popup/item_2/text = "Corridor"
-popup/item_2/id = 2
-popup/item_3/text = "Junction"
-popup/item_3/id = 3
-
 [node name="PathfindingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 

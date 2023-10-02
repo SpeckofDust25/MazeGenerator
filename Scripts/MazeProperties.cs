@@ -27,6 +27,7 @@ public partial class MazeProperties : TabBar
     private float braid_value;
     private bool is_pathfinding = false;
     private bool is_unicursal;
+    private bool can_set_mask = false;
     private List<Vector2I> path;
 
     //Nodes
@@ -123,8 +124,10 @@ public partial class MazeProperties : TabBar
             maze = new Maze(10, 10, 10, 10);
         }
 
-        MazeMask.Update(ref maze, Vector2I.Zero);
-        maze.SetMask(MazeMask.mask);
+        if (can_set_mask) {
+            MazeMask.Update(ref maze, Vector2I.Zero);
+            maze.SetMask(MazeMask.mask);
+        }
 
         bool successful = MazeGenerator.GenerateMaze(ref maze, maze_type, horizontal_bias);  //Generate Maze
 
@@ -180,58 +183,72 @@ public partial class MazeProperties : TabBar
         {
             case ((long)EMazeType.BinaryTree):
                 maze_type = EMazeType.BinaryTree;
+                can_set_mask = false;
                 break;
 
             case ((long)EMazeType.Sidewinder):
                 maze_type = EMazeType.Sidewinder;
+                can_set_mask = false;
                 break;
 
             case ((long)EMazeType.Aldous_Broder):
                 maze_type = EMazeType.Aldous_Broder;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.Wilsons):
                 maze_type = EMazeType.Wilsons;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.HuntandKill):
                 maze_type = EMazeType.HuntandKill;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.Recursive_Backtracker):
                 maze_type = EMazeType.Recursive_Backtracker;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.Ellers):
                 maze_type = EMazeType.Ellers;
+                can_set_mask = false;
                 break;
 
             case ((long)EMazeType.Ellers_Loop):
                 maze_type = EMazeType.Ellers_Loop;
+                can_set_mask = false;
                 break;
 
             case ((long)EMazeType.GrowingTree_Random):
                 maze_type = EMazeType.GrowingTree_Random;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.GrowingTree_Last):
                 maze_type = EMazeType.GrowingTree_Last;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.GrowingTree_Mix):
                 maze_type = EMazeType.GrowingTree_Mix;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.Kruskals_Random):
                 maze_type = EMazeType.Kruskals_Random;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.Prims_Simple):
                 maze_type = EMazeType.Prims_Simple;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.Prims_True):
                 maze_type = EMazeType.Prims_True;
+                can_set_mask = true;
                 break;
 
             case ((long)EMazeType.GrowingForest):

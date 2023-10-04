@@ -5,15 +5,16 @@ using static System.Net.Mime.MediaTypeNames;
 using MazeGeneratorGlobal;
 using System.Threading;
 
-public partial class MazeProperties : TabBar
+public partial class MazeProperties : PanelContainer
 {
-    //Signals 
+    //Signals
     [Signal] public delegate void GenerateMazeEventHandler();
     [Signal] public delegate void DrawToggledEventHandler();
+    [Signal] public delegate void SaveImageEventHandler();
 
-	//Properties
+    //Properties
 
-	//Grid Info
+    //Grid Info
     Maze maze;
     private EMazeType maze_type;
     private bool is_draw_mode = false;
@@ -44,7 +45,9 @@ public partial class MazeProperties : TabBar
     private Label braid_value_label, h_bias_value_label;
     private CheckButton unicursal_button;
 
-	//Default Methods----------------------------
+    private Button save_image_button;
+
+    //Default Methods----------------------------
     public override void _Ready() {
         local_mouse_position = new Vector2I(-1, -1);
 		SetupNodes();
@@ -90,6 +93,9 @@ public partial class MazeProperties : TabBar
         braid_slider = GetNode<HSlider>(start_path + "BraidHBoxContainer/BraidHSlider");
         braid_value_label = GetNode<Label>(start_path + "BraidHBoxContainer/BraidValueLabel");
         unicursal_button = GetNode<CheckButton>(start_path + "UnicursalHBoxContainer/UnicursalCheckButton");
+
+        //Export
+        save_image_button = GetNode<Button>(start_path + "SaveImageButton");
     }
 	
 	private void SetupConnections() {
@@ -103,7 +109,6 @@ public partial class MazeProperties : TabBar
 		cell_size_spin_box.ValueChanged += CellSizeChanged;
 		wall_size_spin_box.ValueChanged += WallSizeChanged;
 
-
         //Points
         points_option_button.ItemSelected += PointsSelected;
 
@@ -112,6 +117,9 @@ public partial class MazeProperties : TabBar
         h_bias_slider.ValueChanged += HBiasChanged;
         braid_slider.ValueChanged += BraidSliderChanged;
         unicursal_button.Toggled += UnicursalChanged;
+
+        //Export
+        save_image_button.Pressed += SaveImagePressed;
     }
     //-------------------------------------------
 
@@ -134,13 +142,15 @@ public partial class MazeProperties : TabBar
         if (successful) {
             ApplyMazeModifications();
 
-            UpdatePoints(point_type);
+            if ((maze.GetWidth() * maze.GetHeight()) > 1) {
+                UpdatePoints(point_type);
 
-            if (point_type != EPoints.None) {
-                Cell start = maze.GetStartCell();
-                Cell end = maze.GetEndCell();
+                if (point_type != EPoints.None) {
+                    Cell start = maze.GetStartCell();
+                    Cell end = maze.GetEndCell();
             
-                path = PathFinding.AStar(ref maze, maze.GetStartCell(), maze.GetEndCell());
+                    path = PathFinding.AStar(ref maze, maze.GetStartCell(), maze.GetEndCell());
+                }
             }
             
             UpdateImage();  //Update Image            
@@ -452,9 +462,14 @@ public partial class MazeProperties : TabBar
 
 
     //Point Methods
-
     private bool HasMaskSupport()
     {
         return (maze_type == EMazeType.BinaryTree || maze_type == EMazeType.Sidewinder || maze_type == EMazeType.Ellers || maze_type == EMazeType.Ellers_Loop);
+    }
+
+    //Export
+    private void SaveImagePressed()
+    {
+        EmitSignal(SignalName.SaveImage);
     }
 }

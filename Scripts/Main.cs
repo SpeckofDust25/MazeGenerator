@@ -12,13 +12,9 @@ public partial class Main : CanvasLayer
     bool can_expand = false;
 
     //Nodes
-    private TabContainer tab_container;
     private Panel panel;
-    private TabBar maze_properties;
-    private TabBar points_properties;
-    private TabBar pathfinding_properties;
-    private TabBar animation_properties;
-    private TabBar export_properties;
+    private PanelContainer panel_container;
+    private MazeProperties maze_properties;
     private TextureRect n_maze_image;
     private MazeInterface maze_interface;
 
@@ -31,16 +27,16 @@ public partial class Main : CanvasLayer
     public override void _Process(double delta)
     {
         //Set Local Mouse 
-        MazeProperties s_maze_properties = (MazeProperties) maze_properties;
+        //MazeProperties s_maze_properties = (MazeProperties) maze_properties;
 
-        if (s_maze_properties != null )
+        if (maze_properties != null )
         {
-            s_maze_properties.SetLocalImageMousePosition((Vector2I)(n_maze_image.GetLocalMousePosition()));
+            maze_properties.SetLocalImageMousePosition((Vector2I)(n_maze_image.GetLocalMousePosition()));
         }
 
         //Expand UI
-        Vector2 start_position = new Vector2(tab_container.Size.X, 0);
-        Vector2 size = new Vector2((panel.Position.X - tab_container.Size.X) + 2, panel.Size.Y);
+        Vector2 start_position = new Vector2(panel_container.Size.X, 0);
+        Vector2 size = new Vector2((panel.Position.X - panel_container.Size.X) + 2, panel.Size.Y);
         Rect2 middle_bar = new Rect2(start_position, size);
 
         if (middle_bar.HasPoint(GetViewport().GetMousePosition()))
@@ -52,7 +48,7 @@ public partial class Main : CanvasLayer
 
         if (can_expand)
         {
-            tab_container.CustomMinimumSize = new Vector2(GetViewport().GetMousePosition().X, 0);
+            panel_container.CustomMinimumSize = new Vector2(GetViewport().GetMousePosition().X, 0);
 
             if (Input.IsActionJustReleased("panning"))
             {
@@ -67,7 +63,7 @@ public partial class Main : CanvasLayer
     private void SetupNodes()
     {
         n_maze_image = GetNode<TextureRect>("Interface/MazePanel/MazeImage");
-        tab_container = GetNode<TabContainer>("Interface/TabContainer");
+        panel_container = GetNode<PanelContainer>("Interface/MazeProperties");
         panel = GetNode<Panel>("Interface/MazePanel");
         maze_interface = (MazeInterface)panel;
 
@@ -76,8 +72,7 @@ public partial class Main : CanvasLayer
             maze_interface.IsExpanding(false);
         }
 
-        maze_properties = GetNode<MazeProperties>("Interface/TabContainer/Maze");
-        export_properties = GetNode<ExportProperties>("Interface/TabContainer/Export");
+        maze_properties = GetNode<MazeProperties>("Interface/MazeProperties");
     }
 
     private void SetupConnections()
@@ -93,9 +88,9 @@ public partial class Main : CanvasLayer
         maze_properties.Connect("DrawToggled", c_draw_toggled);
 
         //Export Properties
-        if (!export_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!"); }
+        if (!maze_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!"); }
         Callable c_save_image = new Callable(this, "SaveImage");
-        export_properties.Connect("SaveImage", c_save_image);
+        maze_properties.Connect("SaveImage", c_save_image);
 
         //Maze Interface
         if (!maze_interface.HasMethod("IsExpanding")) { GD.PrintErr("Can't Find IsExpanding Method! ");  }

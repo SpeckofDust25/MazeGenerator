@@ -31,6 +31,7 @@ public partial class MazeInterface : Panel
 		SetupNodes();
 		SetupConnections();
 		n_maze_image.PivotOffset = n_maze_image.Size / 2;
+		_center_pressed();
 
 		panning_vec = new Vector2();
 		FocusMode = FocusModeEnum.All;

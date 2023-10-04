@@ -1,10 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://cafws0hxf502i"]
+[gd_scene load_steps=6 format=3 uid="uid://cafws0hxf502i"]
 
 [ext_resource type="Script" path="res://Scripts/Main.cs" id="1_0tamq"]
 [ext_resource type="Script" path="res://Scripts/MazeInterface.cs" id="2_8kysj"]
 [ext_resource type="Script" path="res://Scripts/MazeProperties.cs" id="2_k5hc1"]
 [ext_resource type="Texture2D" uid="uid://kh2banqi5b60" path="res://icon.svg" id="2_xuhur"]
-[ext_resource type="Script" path="res://Scripts/ExportProperties.cs" id="4_gbcqm"]
 [ext_resource type="Texture2D" uid="uid://dr0wtaxsk81m1" path="res://Sprites/User_Interface/spr_lock_open.png" id="6_u6tqt"]
 
 [node name="Main" type="CanvasLayer"]
@@ -21,61 +20,50 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="TabContainer" type="TabContainer" parent="Interface"]
-clip_contents = true
-custom_minimum_size = Vector2(350, 0)
+[node name="MazeProperties" type="PanelContainer" parent="Interface"]
+custom_minimum_size = Vector2(344.375, 0)
 layout_mode = 2
-drag_to_rearrange_enabled = true
-
-[node name="Maze" type="TabBar" parent="Interface/TabContainer"]
-layout_mode = 2
-tabs_rearrange_group = 0
 script = ExtResource("2_k5hc1")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Interface/TabContainer/Maze"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="ScrollContainer" type="ScrollContainer" parent="Interface/MazeProperties"]
+layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Control" type="Control" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer"]
+[node name="Control" type="Control" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer"]
 custom_minimum_size = Vector2(5, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer"]
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HSeparator" type="HSeparator" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="Control" type="Control" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="MazeSectionLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="MazeSectionLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Maze Properties"
 
-[node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/TypeHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/TypeHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Algorithm"
 
-[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/TypeHBoxContainer"]
+[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/TypeHBoxContainer"]
 clip_contents = true
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
-item_count = 16
+item_count = 14
 selected = 0
 fit_to_longest_item = false
 popup/item_0/text = "Binary Tree (no mask)"
@@ -106,19 +94,15 @@ popup/item_12/text = "Prim's (simple)"
 popup/item_12/id = 12
 popup/item_13/text = "Prim's (true)"
 popup/item_13/id = 13
-popup/item_14/text = "Growing Forest"
-popup/item_14/id = 14
-popup/item_15/text = "Recursive Division"
-popup/item_15/id = 15
 
-[node name="PointsHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="PointsHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PointsHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PointsHBoxContainer"]
 layout_mode = 2
 text = "Points"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PointsHBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PointsHBoxContainer"]
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -137,27 +121,27 @@ popup/item_4/id = 4
 popup/item_5/text = "Hard"
 popup/item_5/id = 5
 
-[node name="PathfindingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="PathfindingHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Pathfinding"
 
-[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
+[node name="CheckButton" type="CheckButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathfindingHBoxContainer"]
 layout_mode = 2
 
-[node name="UnusedPathfindingHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="UnusedPathfindingHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnusedPathfindingHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/UnusedPathfindingHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Pathfinding"
 
-[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnusedPathfindingHBoxContainer"]
+[node name="MazeTypeOptionButton" type="OptionButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/UnusedPathfindingHBoxContainer"]
 clip_contents = true
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
@@ -194,16 +178,16 @@ popup/item_12/id = 12
 popup/item_13/text = "Random Mouse"
 popup/item_13/id = 13
 
-[node name="ShapeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="ShapeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/ShapeHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/ShapeHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Shape"
 
-[node name="OptionButton" type="OptionButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/ShapeHBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/ShapeHBoxContainer"]
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -224,17 +208,17 @@ popup/item_5/id = 5
 popup/item_6/text = "Omega"
 popup/item_6/id = 6
 
-[node name="WidthHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="WidthHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/WidthHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/WidthHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Width"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CellsXSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/WidthHBoxContainer"]
+[node name="CellsXSpinBox" type="SpinBox" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/WidthHBoxContainer"]
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -243,17 +227,17 @@ max_value = 2000.0
 value = 10.0
 alignment = 1
 
-[node name="HeightHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="HeightHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HeightHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/HeightHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Height"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CellsYSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/HeightHBoxContainer"]
+[node name="CellsYSpinBox" type="SpinBox" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/HeightHBoxContainer"]
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -262,16 +246,16 @@ max_value = 2000.0
 value = 10.0
 alignment = 1
 
-[node name="CellSizeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="CellSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="CellSizeLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/CellSizeHBoxContainer"]
+[node name="CellSizeLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/CellSizeHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Cell Size"
 vertical_alignment = 1
 
-[node name="CellSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/CellSizeHBoxContainer"]
+[node name="CellSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/CellSizeHBoxContainer"]
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -280,16 +264,16 @@ value = 10.0
 alignment = 1
 update_on_text_changed = true
 
-[node name="WallSizeHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="WallSizeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="WallSizeLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/WallSizeHBoxContainer"]
+[node name="WallSizeLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/WallSizeHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Wall Size"
 vertical_alignment = 1
 
-[node name="WallSizeSpinBox" type="SpinBox" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/WallSizeHBoxContainer"]
+[node name="WallSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/WallSizeHBoxContainer"]
 custom_minimum_size = Vector2(225, 0)
 layout_mode = 2
 size_flags_horizontal = 10
@@ -298,107 +282,90 @@ value = 10.0
 alignment = 1
 update_on_text_changed = true
 
-[node name="GenerateMazeButton" type="Button" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="GenerateMazeButton" type="Button" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Generate Maze"
 
-[node name="HSeparator2" type="HSeparator" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="HSeparator2" type="HSeparator" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="MazeModificationsSectionLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="MazeModificationsSectionLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Maze Modifications"
 
-[node name="DrawHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="DrawHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="DrawLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
+[node name="DrawLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Draw Mask"
 
-[node name="CheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
+[node name="CheckButton" type="CheckButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/DrawHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 10
 
-[node name="BiasHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="BiasHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "H Bias"
 
-[node name="HorizontalBiasHSlider" type="HSlider" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+[node name="HorizontalBiasHSlider" type="HSlider" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
 step = 0.01
 value = 0.5
 
-[node name="HorizontalBiasValueLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
+[node name="HorizontalBiasValueLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/BiasHBoxContainer"]
 custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "0.50
 "
 horizontal_alignment = 1
 
-[node name="BraidHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="BraidHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
 layout_mode = 2
 text = "Braid"
 
-[node name="BraidHSlider" type="HSlider" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
+[node name="BraidHSlider" type="HSlider" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
 step = 0.01
 
-[node name="BraidValueLabel" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
+[node name="BraidValueLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/BraidHBoxContainer"]
 custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "0.00
 "
 horizontal_alignment = 1
 
-[node name="UnicursalHBoxContainer" type="HBoxContainer" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="UnicursalHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
-[node name="Label" type="Label" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnicursalHBoxContainer"]
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/UnicursalHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 2
 text = "Unicursal
 "
 
-[node name="UnicursalCheckButton" type="CheckButton" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer/UnicursalHBoxContainer"]
+[node name="UnicursalCheckButton" type="CheckButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/UnicursalHBoxContainer"]
 layout_mode = 2
 
-[node name="HSeparator3" type="HSeparator" parent="Interface/TabContainer/Maze/ScrollContainer/HBoxContainer/VBoxContainer"]
+[node name="HSeparator3" type="HSeparator" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="Animations" type="TabBar" parent="Interface/TabContainer"]
-visible = false
-layout_mode = 2
-tabs_rearrange_group = 3
-
-[node name="Export" type="TabBar" parent="Interface/TabContainer"]
-visible = false
-layout_mode = 2
-script = ExtResource("4_gbcqm")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Interface/TabContainer/Export"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="SaveImageButton" type="Button" parent="Interface/TabContainer/Export/VBoxContainer"]
+[node name="SaveImageButton" type="Button" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Save Image (png)"
 

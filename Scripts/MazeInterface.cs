@@ -3,6 +3,7 @@ using System;
 
 public partial class MazeInterface : Panel
 {
+
 	//Nodes
 	private TextureRect n_maze_image;
 	private Button n_maximize;
@@ -118,7 +119,6 @@ public partial class MazeInterface : Panel
 
 		Callable c_magnify_slider = new Callable(this, "_magnify_slider_changed");
 		n_magnify_slider.Connect("value_changed", c_magnify_slider);
-
 
 		n_lock_button.Toggled += _toggle_lock_button;
 	}

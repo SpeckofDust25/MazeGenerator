@@ -45,6 +45,11 @@ public partial class MazeProperties : PanelContainer
     private Label braid_value_label, h_bias_value_label;
     private CheckButton unicursal_button;
 
+    private ColorPickerButton wall_color_button;
+    private ColorPickerButton cell_color_button;
+    private ColorPickerButton path_color_button;
+    private ColorPickerButton distance_color_button;
+
     private Button save_image_button;
 
     //Default Methods----------------------------
@@ -54,6 +59,12 @@ public partial class MazeProperties : PanelContainer
 		SetupConnections();
 
         maze_type = EMazeType.BinaryTree;
+
+        MazeImage.wall_color = wall_color_button.Color;
+        MazeImage.cell_color = cell_color_button.Color;
+        MazeImage.path_color = path_color_button.Color;
+        MazeImage.distance_color = distance_color_button.Color;
+
         UpdateMaze();
     }
 
@@ -94,6 +105,12 @@ public partial class MazeProperties : PanelContainer
         braid_value_label = GetNode<Label>(start_path + "BraidHBoxContainer/BraidValueLabel");
         unicursal_button = GetNode<CheckButton>(start_path + "UnicursalHBoxContainer/UnicursalCheckButton");
 
+        //Colors
+        wall_color_button = GetNode<ColorPickerButton>(start_path + "WallColorHBoxContainer/ColorPickerButton");
+        cell_color_button = GetNode<ColorPickerButton>(start_path + "CellColorHBoxContainer/ColorPickerButton");
+        path_color_button = GetNode<ColorPickerButton>(start_path + "PathColorHBoxContainer/ColorPickerButton");
+        distance_color_button = GetNode<ColorPickerButton>(start_path + "DistanceColorHBoxContainer/ColorPickerButton");
+
         //Export
         save_image_button = GetNode<Button>(start_path + "SaveImageButton");
     }
@@ -117,6 +134,12 @@ public partial class MazeProperties : PanelContainer
         h_bias_slider.ValueChanged += HBiasChanged;
         braid_slider.ValueChanged += BraidSliderChanged;
         unicursal_button.Toggled += UnicursalChanged;
+
+        //Colors
+        wall_color_button.ColorChanged += WallColorChanged;
+        cell_color_button.ColorChanged += CellColorChanged;
+        path_color_button.ColorChanged += PathColorChanged;
+        distance_color_button.ColorChanged += DistanceColorChanged;
 
         //Export
         save_image_button.Pressed += SaveImagePressed;
@@ -426,7 +449,6 @@ public partial class MazeProperties : PanelContainer
         }
     }
 
-
     //Maze Modifications
     private void HBiasChanged(double value)
     {
@@ -460,16 +482,35 @@ public partial class MazeProperties : PanelContainer
         braid_slider.Editable = !is_on;
     }
 
-
     //Point Methods
     private bool HasMaskSupport()
     {
         return (maze_type == EMazeType.BinaryTree || maze_type == EMazeType.Sidewinder || maze_type == EMazeType.Ellers || maze_type == EMazeType.Ellers_Loop);
     }
 
+    //Colors
+    public void WallColorChanged(Color color) {
+        MazeImage.wall_color = color;
+        UpdateImage();
+    }
+
+    private void CellColorChanged(Color color) {
+        MazeImage.cell_color = color;
+        UpdateImage();
+    }
+
+    private void PathColorChanged(Color color) {
+        MazeImage.path_color = color;
+        UpdateImage();
+    }
+
+    private void DistanceColorChanged(Color color) {
+        MazeImage.distance_color = color;
+        UpdateImage();
+    }
+
     //Export
-    private void SaveImagePressed()
-    {
+    private void SaveImagePressed() {
         EmitSignal(SignalName.SaveImage);
     }
 }

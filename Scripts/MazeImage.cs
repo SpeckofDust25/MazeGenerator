@@ -7,6 +7,12 @@ using System.Runtime.InteropServices;
 public static class MazeImage
 {
     public static Image image;
+    public static int path_size;
+
+    public static Color wall_color;
+    public static Color cell_color;
+    public static Color path_color;
+    public static Color distance_color;
 
     //Main Shape Methods-------------------------
     public static void DrawRectangle(ref Maze maze, Color dead_cell_color, bool draw_dead_cells, List<Vector2I> path)
@@ -16,18 +22,11 @@ public static class MazeImage
         //Draw Dead Cells and Solid Cells
         if (!draw_dead_cells) {
             DrawDeadCells(ref maze, ref image, dead_cell_color);
-            DrawSolidCells(ref maze, ref image, Colors.Black, false);
-            DrawPath(ref maze, ref image, path, Colors.Red);
+            DrawSolidCells(ref maze, ref image, false);
+            DrawPath(ref maze, ref image, path);
         } else {
-            DrawSolidCells(ref maze, ref image, Colors.Black, true);
-            DrawPath(ref maze, ref image, path, Colors.Red);
-        }
-
-        if (path == null && maze.GetStartCell() != null && maze.GetEndCell() != null)
-        {
-            //Fill in Start and End Points
-            FillInCellInDirection(ref maze, maze.GetStartCell(), Colors.White, maze.GetStartDirection());
-            FillInCellInDirection(ref maze, maze.GetEndCell(), Colors.White, maze.GetEndDirection());
+            DrawSolidCells(ref maze, ref image, true);
+            DrawPath(ref maze, ref image, path);
         }
     }
     //-------------------------------------------
@@ -36,12 +35,11 @@ public static class MazeImage
     private static void SetupImage(int total_width, int total_height)
     {
         image = Image.Create(total_width, total_height, false, Image.Format.Rgba8);
-        image.Fill(Colors.White);   //Fill Image
+        image.Fill(cell_color);   //Fill Image
     }
 
-    private static void DrawSolidCells(ref Maze maze, ref Image image, Color wall_color, bool draw_dead_cell)
+    private static void DrawSolidCells(ref Maze maze, ref Image image, bool draw_dead_cell)
     {
-
         for (int x = 0; x < maze.GetWidth(); x++)
         {
             for (int y = 0; y < maze.GetHeight(); y++)
@@ -109,7 +107,7 @@ public static class MazeImage
         }
     }
     
-    private static void DrawPath(ref Maze maze, ref Image image, List<Vector2I> path, Color path_color) 
+    private static void DrawPath(ref Maze maze, ref Image image, List<Vector2I> path) 
     {
         if (path == null) { return; }
 
@@ -148,46 +146,46 @@ public static class MazeImage
             }
 
             //Get Direction of Next Cell
-            FillInCellInDirection(ref maze, path_cell, path_color, cell_direction);
+            FillInCellInDirection(ref maze, path_cell, cell_direction);
         }
 
         //Fill in Start and End Points
-        FillInCellInDirection(ref maze, maze.GetStartCell(), path_color, maze.GetStartDirection());
-        FillInCellInDirection(ref maze, maze.GetEndCell(), path_color, maze.GetEndDirection());
+        FillInCellInDirection(ref maze, maze.GetStartCell(), maze.GetStartDirection());
+        FillInCellInDirection(ref maze, maze.GetEndCell(), maze.GetEndDirection());
     }
 
     //Used to Fill in Areas left Open where there is no wall
-    private static void FillInCellInDirection(ref Maze maze, Cell cell, Color path_color, ERectangleDirections direction)
+    private static void FillInCellInDirection(ref Maze maze, Cell cell, ERectangleDirections direction)
     {
         Rect2I inside_cell = maze.GetInsideCellSizePx(cell.index.X, cell.index.Y);
-        int path_size = maze.GetWallSize() + maze.GetCellSize();
+        int path_width = maze.GetWallSize() + maze.GetCellSize();
 
         switch (direction)
         {
             case ERectangleDirections.North:
-                Vector2I north_position = new Vector2I(inside_cell.Position.X, inside_cell.Position.Y - path_size);
-                Rect2I north_rect = new Rect2I(north_position, new Vector2I(inside_cell.Size.X, inside_cell.Size.Y + path_size));
+                Vector2I north_position = new Vector2I(inside_cell.Position.X, inside_cell.Position.Y - path_width);
+                Rect2I north_rect = new Rect2I(north_position, new Vector2I(inside_cell.Size.X, inside_cell.Size.Y + path_width));
                 image.FillRect(north_rect, path_color);
                 break;
-            
+
             case ERectangleDirections.South:
                 Vector2I south_position = new Vector2I(inside_cell.Position.X, inside_cell.Position.Y);
-                Rect2I south_rect = new Rect2I(south_position, new Vector2I(inside_cell.Size.X, inside_cell.Size.Y + path_size));
+                Rect2I south_rect = new Rect2I(south_position, new Vector2I(inside_cell.Size.X, inside_cell.Size.Y + path_width));
                 image.FillRect(south_rect, path_color);
                 break;
-                
+
             case ERectangleDirections.East:
                 Vector2I east_position = new Vector2I(inside_cell.Position.X, inside_cell.Position.Y);
-                Rect2I east_rect = new Rect2I(east_position, new Vector2I(inside_cell.Size.X + path_size, inside_cell.Size.Y));
+                Rect2I east_rect = new Rect2I(east_position, new Vector2I(inside_cell.Size.X + path_width, inside_cell.Size.Y));
                 image.FillRect(east_rect, path_color);
                 break;
-            
+
             case ERectangleDirections.West:
-                Vector2I west_position = new Vector2I(inside_cell.Position.X - path_size, inside_cell.Position.Y);
-                Rect2I west_rect = new Rect2I(west_position, new Vector2I(inside_cell.Size.X + path_size, inside_cell.Size.Y));
+                Vector2I west_position = new Vector2I(inside_cell.Position.X - path_width, inside_cell.Position.Y);
+                Rect2I west_rect = new Rect2I(west_position, new Vector2I(inside_cell.Size.X + path_width, inside_cell.Size.Y));
                 image.FillRect(west_rect, path_color);
                 break;
-            
+
         }
     }
 

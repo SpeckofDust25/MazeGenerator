@@ -48,7 +48,7 @@ layout_mode = 2
 
 [node name="MazeSectionLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "Maze Properties"
+text = "Properties"
 
 [node name="TypeHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -282,6 +282,24 @@ value = 10.0
 alignment = 1
 update_on_text_changed = true
 
+[node name="PathSizeHBoxContainer2" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PathSizeLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathSizeHBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 2
+text = "Path Size"
+vertical_alignment = 1
+
+[node name="PathSizeSpinBox" type="SpinBox" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathSizeHBoxContainer2"]
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 2
+size_flags_horizontal = 10
+min_value = 1.0
+value = 10.0
+alignment = 1
+update_on_text_changed = true
+
 [node name="GenerateMazeButton" type="Button" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Generate Maze"
@@ -292,7 +310,7 @@ layout_mode = 2
 
 [node name="MazeModificationsSectionLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "Maze Modifications"
+text = "Modifications"
 
 [node name="DrawHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -364,6 +382,60 @@ layout_mode = 2
 [node name="HSeparator3" type="HSeparator" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
+
+[node name="MazeColorsLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Colors"
+
+[node name="WallColorHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/WallColorHBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Wall Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/WallColorHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CellColorHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/CellColorHBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Cell Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/CellColorHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 1, 1, 1)
+
+[node name="PathColorHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathColorHBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Path Color"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathColorHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0, 0, 1)
+
+[node name="DistanceColorHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/DistanceColorHBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Distance Color "
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/DistanceColorHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="SaveImageButton" type="Button" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2

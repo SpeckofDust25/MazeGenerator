@@ -1,8 +1,6 @@
 using Godot;
 using MazeGeneratorGlobal;
-using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 
 //Grid is contained of Pathfinding Cells instead of regular cells
@@ -158,7 +156,8 @@ public class PGrid
     {
         PCell lowest_cost_cell = null;
 
-        if (opened_cells.Count > 0) {
+        if (opened_cells.Count > 0)
+        {
             lowest_cost_cell = opened_cells[0];
 
             for (int i = 0; i < opened_cells.Count; i++)
@@ -168,13 +167,14 @@ public class PGrid
                 if (is_equal && opened_cells[i].GetHCost() < lowest_cost_cell.GetHCost())
                 {
                     lowest_cost_cell = opened_cells[i];
-                } else if (opened_cells[i].GetFCost() < lowest_cost_cell.GetFCost())
+                }
+                else if (opened_cells[i].GetFCost() < lowest_cost_cell.GetFCost())
                 {
                     lowest_cost_cell = opened_cells[i];
                 }
             }
         }
-       
+
         return lowest_cost_cell;
     }
 
@@ -190,7 +190,8 @@ public class PGrid
             {
                 bool is_equal = (opened_cells[i].GetFCost() == lowest_cost_cell.GetFCost());
 
-                if (opened_cells[i].GetGCost() < lowest_cost_cell.GetGCost()) {
+                if (opened_cells[i].GetGCost() < lowest_cost_cell.GetGCost())
+                {
                     lowest_cost_cell = opened_cells[i];
                 }
             }
@@ -209,7 +210,8 @@ public class PGrid
         {
             for (int y = 0; y < pCells.GetLength(1); y++)
             {
-                if (pCells[x, y].GetGCost() != 0) {
+                if (pCells[x, y].GetGCost() != 0)
+                {
                     cell_distances.Add(new DistanceCell(pCells[x, y].GetIndex(), pCells[x, y].GetGCost()));
                 }
             }
@@ -232,11 +234,13 @@ public class PGrid
         return cell_distances;
     }
 
-    public Vector2I GetEndIndex(float value, List<Vector2I> points) {
+    public Vector2I GetEndIndex(float value, List<Vector2I> points)
+    {
         List<DistanceCell> distances = GetCellDistances();
         Vector2I index = Vector2I.Zero;
 
-        if (points != null) {
+        if (points != null)
+        {
             for (int i = distances.Count - 1; i >= 0; i--)
             {
                 if (!points.Contains(distances[i].index))
@@ -254,20 +258,24 @@ public class PGrid
         return index;
     }
 
-    public Vector2I GetFurthestIndex(List<Vector2I> points = null) {
+    public Vector2I GetFurthestIndex(List<Vector2I> points = null)
+    {
         List<DistanceCell> distances = GetCellDistances();
         int highest = 0;
         Vector2I index = Vector2I.Zero;
 
         for (int i = 0; i < distances.Count; i++)
         {
-            if (points == null) {
+            if (points == null)
+            {
                 if (distances[i].distance > highest)
                 {
                     highest = distances[i].distance;
                     index = distances[i].index;
                 }
-            } else {
+            }
+            else
+            {
                 if (distances[i].distance > highest)
                 {
                     if (points.Contains(distances[i].index))
@@ -302,19 +310,21 @@ public static class PathFinding
 
         int g_cost = 0;
         int h_cost = x_distance + y_distance;
-        
+
         pGrid.pCells[start.index.X, start.index.Y].SetCost(g_cost, h_cost);
         pGrid.OpenCell(pGrid.pCells[start.index.X, start.index.Y], start.index);
 
         //Set Costs until finish is found
-        while (!found_solution) {
+        while (!found_solution)
+        {
 
             PCell lowest_cost_cell = pGrid.GetLowestCostCell();
             List<ERectangleDirections> directions = maze.GetValidNeighborsNoWalls(lowest_cost_cell.GetIndex());
 
             //Go Through Each Possible Direction and Open New Cells
-            for (int d = 0; d < directions.Count; d++) {
-                
+            for (int d = 0; d < directions.Count; d++)
+            {
+
                 //Get Open Cell Details
                 Cell dir_cell = maze.GetCellInDirection(lowest_cost_cell.GetIndex(), directions[d]);
                 pGrid.CloseCell(lowest_cost_cell);  //Close Our Checked Cell
@@ -346,7 +356,7 @@ public static class PathFinding
         Vector2I current_index = pGrid.pCells[end.index.X, end.index.Y].GetCreatorIndex();
         path.Add(current_index);
 
-        while(current_index != start.index)
+        while (current_index != start.index)
         {
             current_index = pGrid.pCells[current_index.X, current_index.Y].GetCreatorIndex();
 
@@ -354,7 +364,7 @@ public static class PathFinding
         }
 
         List<Vector2I> test_path = new List<Vector2I>();
-        for(int i = 0; i < pGrid.closed_cells.Count; i++)
+        for (int i = 0; i < pGrid.closed_cells.Count; i++)
         {
             test_path.Add(pGrid.closed_cells[i].GetIndex());
         }
@@ -370,7 +380,7 @@ public static class PathFinding
     private static List<ERectangleDirections> MoveDirFromPoint(ref Grid grid, Cell cell)
     {
         List<ERectangleDirections> moves = new List<ERectangleDirections>();
-        
+
         //Check Open 
         if (cell.north) { moves.Add(ERectangleDirections.North); }
         if (cell.south) { moves.Add(ERectangleDirections.South); }
@@ -384,7 +394,8 @@ public static class PathFinding
     {
         PGrid pGrid = null;
 
-        if (start != null) {
+        if (start != null)
+        {
             int valid_cell_count = maze.GetValidCellCount();
 
             //Setup Starting Variables
@@ -412,7 +423,8 @@ public static class PathFinding
                     PCell p_cell = pGrid.pCells[dir_cell.index.X, dir_cell.index.Y];
 
                     //Only add if we don't already have it
-                    if (pGrid.pCells[dir_cell.index.X, dir_cell.index.Y].GetFCost() > p_cell.GetFCost() || pGrid.pCells[dir_cell.index.X, dir_cell.index.Y].GetFCost() == 0) {
+                    if (pGrid.pCells[dir_cell.index.X, dir_cell.index.Y].GetFCost() > p_cell.GetFCost() || pGrid.pCells[dir_cell.index.X, dir_cell.index.Y].GetFCost() == 0)
+                    {
                         p_cell.SetCost(g_dir_cost, 0);
                         pGrid.OpenCell(p_cell, lowest_cost_cell.GetIndex());
                     }
@@ -422,5 +434,5 @@ public static class PathFinding
 
         return pGrid;
     }
-    
+
 }

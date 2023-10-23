@@ -283,6 +283,7 @@ alignment = 1
 update_on_text_changed = true
 
 [node name="PathSizeHBoxContainer2" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="PathSizeLabel" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/PathSizeHBoxContainer2"]
@@ -426,6 +427,7 @@ size_flags_horizontal = 3
 color = Color(1, 0, 0, 1)
 
 [node name="DistanceColorHBoxContainer" type="HBoxContainer" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer/DistanceColorHBoxContainer"]
@@ -440,6 +442,10 @@ size_flags_horizontal = 3
 [node name="SaveImageButton" type="Button" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "Save Image (png)"
+
+[node name="Control2" type="Control" parent="Interface/MazeProperties/ScrollContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
 
 [node name="MazePanel" type="Panel" parent="Interface"]
 clip_contents = true

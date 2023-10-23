@@ -79,14 +79,6 @@ public static class MazeGenerator
                 case EMazeType.Prims_True:
                     Prims_True(ref maze, horizontal_bias);
                     break;
-
-                case EMazeType.GrowingForest:
-                    GrowingForest(ref maze, horizontal_bias);
-                    break;
-
-                case EMazeType.Recursive_Division:
-                    Recursive_Division(ref maze, horizontal_bias);
-                    break;
             }
         }
 
@@ -108,50 +100,49 @@ public static class MazeGenerator
         {
             for (int y = 0; y < maze.GetHeight(); y++)
             {
-                if (!maze.cells[x, y].dead_cell) {  //No Dead Cells
+                if (!maze.cells[x, y].dead_cell) {  //Not a Dead Cell
 
-                    List<int> index_added = new List<int>();    //Section index's that Contain the same cell
                     List<Cell> neighbors = maze.GetValidNeighborCells(new Vector2I(x, y));
+                    List<int> section_merge_indexes = new List<int>();
 
-                    //Add Cell To Existing List
-                    for(int l = 0; l < sections.Count; l++)
+                    //Add index to section_merge_indexes to be processed
+                    for (int i = 0; i < sections.Count; i++)
                     {
-                        for (int i = 0; i < neighbors.Count; i++)
+                        for (int l = 0; l < neighbors.Count; l++)
                         {
-                            if (sections[l].Contains(neighbors[i]))
+                            if (sections[i].Contains(neighbors[l])) //Section Contains Neighbor Cell
                             {
-                                sections[l].Add(maze.cells[x, y]);
-                                index_added.Add(l);
-                                break;
+                                if (!section_merge_indexes.Contains(i)) {   //Only Add New Indexes
+                                    section_merge_indexes.Add(i);
+                                }
                             }
                         }
                     }
 
-                    //Create a New List
-                    if (index_added.Count == 0)
-                    {
+                    //Add to Section, Merge or Create New Section
+                    if (section_merge_indexes.Count == 1) { //Add To Section
+                        sections[section_merge_indexes[0]].Add(maze.cells[x,y]);
+
+                    } else if (section_merge_indexes.Count > 1) {   //Merge
+
+                        List<Cell> merge_sections = new List<Cell>();
+
+                        //Move Cells to Merge Section
+                        for (int i = section_merge_indexes.Count - 1; i >= 0; i--)
+                        {
+                            merge_sections.AddRange(sections[section_merge_indexes[i]].ToList<Cell>());
+                            sections.RemoveAt(section_merge_indexes[i]);
+                        }
+
+                        sections.Add(new List<Cell>()); //Create New Section
+
+                        //Move all Merge Sections to New Section
+                        sections[sections.Count - 1].AddRange(merge_sections.ToList<Cell>());
+                        sections[sections.Count - 1].Add(maze.cells[x,y]);
+
+                    } else {    //Create New Section
                         sections.Add(new List<Cell>());
                         sections[sections.Count - 1].Add(maze.cells[x, y]);
-
-                    } else if (index_added.Count > 0) { //Merge
-                    
-                        //Merge
-                        for (int i = 1; i < index_added.Count; i++) //Get Section Index
-                        {
-                            for (int l = 0; l < sections[index_added[i]].Count; l++) //Add To index 0: No Duplicates
-                            {
-                                if (!sections[0].Contains(sections[index_added[i]][l]))
-                                {
-                                    sections[0].Add(sections[index_added[i]][l]);
-                                }
-                            }
-                        }
-
-                        //Remove
-                        for (int i = index_added.Count - 1; i > 0; i--)
-                        {
-                            sections.RemoveAt(index_added[i]);
-                        }
                     }
                 }
             }

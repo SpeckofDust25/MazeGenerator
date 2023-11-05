@@ -101,8 +101,10 @@ public static class MazeImage
         }
 
         //Draw Start and Finish Full Cell
-        FillEntireCell(ref maze, maze.GetStartCell());
-        FillEntireCell(ref maze, maze.GetEndCell());
+        if (maze.GetStartCell() != null && maze.GetEndCell() != null) {
+            FillEntireCell(ref maze, maze.GetStartCell());
+            FillEntireCell(ref maze, maze.GetEndCell());
+        }
     }
     
     private static void DrawPath(ref Maze maze, ref Image image, List<Vector2I> path) 
@@ -144,12 +146,13 @@ public static class MazeImage
                 FillInCellInDirection(ref maze, path_cell, cell_direction, is_start);
                 is_start = false;
             }
-
         }
 
         //Fill in Start and End Points
-        FillInCellInDirection(ref maze, maze.GetStartCell(), maze.GetStartDirection(), true);
-        FillInCellInDirection(ref maze, maze.GetEndCell(), maze.GetEndDirection(), true);
+        if (maze.GetStartCell() != null && maze.GetEndCell() != null) {
+            FillInCellInDirection(ref maze, maze.GetStartCell(), maze.GetStartDirection(), true);
+            FillInCellInDirection(ref maze, maze.GetEndCell(), maze.GetEndDirection(), true);
+        }
     }
 
     //Used to Fill in Areas left Open where there is no wall

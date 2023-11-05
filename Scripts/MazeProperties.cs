@@ -183,7 +183,7 @@ public partial class MazeProperties : PanelContainer
     private void UpdateImage()
     {
         //Update Image
-        if (is_pathfinding) {
+        if (is_pathfinding && maze.GetStartCell() != null && maze.GetEndCell() != null) {
             MazeImage.DrawRectangle(ref maze, Colors.Transparent, HasMaskSupport(), path);
         } else {
             MazeImage.DrawRectangle(ref maze, Colors.Transparent, HasMaskSupport(), null);

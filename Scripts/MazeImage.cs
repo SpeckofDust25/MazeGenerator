@@ -88,7 +88,6 @@ public static class MazeImage
     
     private static void DrawDeadCells(ref Maze maze, ref Image image, Color fill_color)
     {
-        //TODO: Stop DeadCell From Being Drawn on Start and End points / Near the edge of the maze
         for (int x = 0; x < maze.GetWidth(); x++)
         {
             for (int y = 0; y < maze.GetHeight(); y++)
@@ -100,6 +99,10 @@ public static class MazeImage
                 }
             }
         }
+
+        //Draw Start and Finish Full Cell
+        FillEntireCell(ref maze, maze.GetStartCell());
+        FillEntireCell(ref maze, maze.GetEndCell());
     }
     
     private static void DrawPath(ref Maze maze, ref Image image, List<Vector2I> path) 
@@ -214,5 +217,15 @@ public static class MazeImage
         }
     }
 
+    private static void FillEntireCell(ref Maze maze, Cell cell) {
+        Rect2I rect = maze.GetCellSizePx(cell.index.X, cell.index.Y);
+        image.FillRect(rect, cell_color);
+    }
+
+    private static void FillCenterCell(ref Maze maze, Cell cell)
+    {
+        Rect2I rect = maze.GetInsideCellSizePx(cell.index.X, cell.index.Y);
+        image.FillRect(rect, cell_color);
+    }
     //-------------------------------------------
 }

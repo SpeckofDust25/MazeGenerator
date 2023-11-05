@@ -277,7 +277,7 @@ public class Maze: Grid
     public Rect2I GetCellSizePx(int x, int y)
     {
         Vector2I size = new Vector2I((GetWallSize() * 2) + GetCellSize(), (GetWallSize() * 2) + GetCellSize());
-        return new Rect2I(x * (GetCellSize() + wall_size), y * (GetCellSize() + wall_size), size);
+        return new Rect2I(x * (GetCellSize() + GetWallSize()), y * (GetCellSize() + GetWallSize()), size);
     }
 
     public Rect2I GetInsideCellSizePx(int x, int y)

@@ -2,7 +2,6 @@
 using MazeGeneratorGlobal;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Formatters;
 
 public static class MazeGenerator
 {

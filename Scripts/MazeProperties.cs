@@ -1,9 +1,6 @@
 using Godot;
-using System;
 using System.Collections.Generic;
-using static System.Net.Mime.MediaTypeNames;
 using MazeGeneratorGlobal;
-using System.Threading;
 
 public partial class MazeProperties : PanelContainer
 {

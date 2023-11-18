@@ -7,7 +7,6 @@ public partial class MazeProperties : PanelContainer
     //Signals
     [Signal] public delegate void GenerateMazeEventHandler();
     [Signal] public delegate void DrawToggledEventHandler();
-    [Signal] public delegate void SaveImageEventHandler();
 
     //Properties
 
@@ -48,6 +47,7 @@ public partial class MazeProperties : PanelContainer
     private ColorPickerButton distance_color_button;
 
     private Button save_image_button;
+    private Button save_json_button;
 
     //Default Methods----------------------------
     public override void _Ready() {
@@ -110,6 +110,7 @@ public partial class MazeProperties : PanelContainer
 
         //Export
         save_image_button = GetNode<Button>(start_path + "SaveImageButton");
+        save_json_button = GetNode<Button>(start_path + "SaveJsonButton");
     }
 	
 	private void SetupConnections() {
@@ -140,6 +141,7 @@ public partial class MazeProperties : PanelContainer
 
         //Export
         save_image_button.Pressed += SaveImagePressed;
+        save_json_button.Pressed += SaveJsonPressed;
     }
     //-------------------------------------------
 
@@ -508,6 +510,11 @@ public partial class MazeProperties : PanelContainer
 
     //Export
     private void SaveImagePressed() {
-        EmitSignal(SignalName.SaveImage);
+        Main.SaveImage();
+    }
+
+    private void SaveJsonPressed()
+    {
+        Main.SaveJson(maze);
     }
 }

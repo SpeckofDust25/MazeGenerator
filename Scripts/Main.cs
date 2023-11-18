@@ -85,11 +85,6 @@ public partial class Main : CanvasLayer
         maze_properties.Connect("GenerateMaze", c_generate_maze);
         maze_properties.Connect("DrawToggled", c_draw_toggled);
 
-        //Export Properties
-        if (!maze_properties.HasSignal("SaveImage")) { GD.PrintErr("Can't Find SaveImage Signal!"); }
-        Callable c_save_image = new Callable(this, "SaveImage");
-        maze_properties.Connect("SaveImage", c_save_image);
-
         //Maze Interface
         if (!maze_interface.HasMethod("IsExpanding")) { GD.PrintErr("Can't Find IsExpanding Method! ");  }
         Callable c_expanding = new Callable(maze_interface, "IsExpanding");
@@ -122,7 +117,7 @@ public partial class Main : CanvasLayer
     }
 
     //Export Properties
-    private void SaveImage()
+    public static void SaveImage()
     {
         string save_path;
 
@@ -147,6 +142,11 @@ public partial class Main : CanvasLayer
         }
 
         MazeImage.image.SavePng(save_path);
+    }
+    
+    public static void SaveJson(Maze maze)
+    {
+        MazeJson mazeJson = new MazeJson(maze);
     }
     //-------------------------------------------
 }

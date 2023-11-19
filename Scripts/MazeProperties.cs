@@ -515,6 +515,6 @@ public partial class MazeProperties : PanelContainer
 
     private void SaveJsonPressed()
     {
-        Main.SaveJson(maze);
+        Main.SaveJson(maze, path);
     }
 }

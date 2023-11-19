@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public partial class Main : CanvasLayer
 {
@@ -144,9 +145,9 @@ public partial class Main : CanvasLayer
         MazeImage.image.SavePng(save_path);
     }
     
-    public static void SaveJson(Maze maze)
+    public static void SaveJson(Maze maze, List<Vector2I> path)
     {
-        MazeJson mazeJson = new MazeJson(maze);
+        MazeJson mazeJson = new MazeJson(maze, path);
     }
     //-------------------------------------------
 }

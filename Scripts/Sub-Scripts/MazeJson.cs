@@ -1,6 +1,7 @@
 ﻿using Godot;
 using MazeGeneratorGlobal;
 using System;
+using System.Collections.Generic;
 
 public class MazeJson
 {
@@ -12,7 +13,7 @@ public class MazeJson
     int[,] maze;
     int[,] solution;
 
-    public MazeJson(Maze _maze)
+    public MazeJson(Maze _maze, List<Vector2I> path)
     {
         maze_width = _maze.GetWidth();
         maze_height = _maze.GetHeight();
@@ -41,7 +42,7 @@ public class MazeJson
                     north_cell = _maze.cells[x, y - 1];
                 }
 
-                AddDataToCell(cell, north_cell, west_cell, 1);
+                AddDataToMaze(cell, north_cell, west_cell, 1);
             }
         }
 
@@ -49,16 +50,21 @@ public class MazeJson
         for (int x = 0; x < maze_width; x++)
         {
             Cell cell = _maze.cells[x, maze_height - 1];
-            AddDataToCellEdge(cell, 0);
+            AddDataToMazeEdge(cell, 0);
         }
 
         for (int y = 0; y < maze_height; y++)
         {
             Cell cell = _maze.cells[maze_width - 1, y];
-            AddDataToCellEdge(cell, 0);
+            AddDataToMazeEdge(cell, 0);
         }
 
-        //Start and Solution
+        //Solution
+        for (int i = 0; i < path.Count; i++) {
+            AddDataToSolution(_maze, path[i], 1);
+        }
+
+        //Start and Finish
         if (_maze.start_end_points != null)
         {
             Cell start_cell = _maze.start_end_points.start;
@@ -69,8 +75,8 @@ public class MazeJson
 
             if (start_cell != null && end_cell != null)
             {
-                AddStartAndEndData(start_cell, start_direction, 1);
-                AddStartAndEndData(end_cell, end_direction, 1);
+                AddStartAndEndMaze(start_cell, start_direction, 1);
+                AddStartAndEndMaze(end_cell, end_direction, 1);
             }
         }
 
@@ -78,7 +84,7 @@ public class MazeJson
         PrintSolution();
     }
 
-    public void AddDataToCell(Cell cell, Cell north_cell, Cell west_cell, int number)
+    public void AddDataToMaze(Cell cell, Cell north_cell, Cell west_cell, int number)
     {
         int h = (int)Math.Floor(cell.index.X * 2f);
         int v = (int)Math.Floor(cell.index.Y * 2f);
@@ -109,7 +115,7 @@ public class MazeJson
         }
     }
 
-    public void AddDataToCellEdge(Cell cell, int number)
+    public void AddDataToMazeEdge(Cell cell, int number)
     {
         int h = (int)(cell.index.X * 2f) + 1;
         int v = (int)(cell.index.Y * 2f) + 1;
@@ -161,7 +167,7 @@ public class MazeJson
         }
     }
 
-    public void AddStartAndEndData(Cell cell, ERectangleDirections direction, int number)
+    public void AddStartAndEndMaze(Cell cell, ERectangleDirections direction, int number)
     {
         int h = (int)(cell.index.X * 2f);
         int v = (int)(cell.index.Y * 2f);
@@ -217,6 +223,95 @@ public class MazeJson
 
                 case ERectangleDirections.West:
                     maze[h, v + 1] = number;
+                    break;
+            }
+        }
+    }
+
+    public void AddDataToSolution(Maze _maze, Vector2I index, int symbol)
+    {
+        Cell start_cell;
+        Cell end_cell;
+
+        ERectangleDirections start_direction = ERectangleDirections.None;
+        ERectangleDirections end_direction = ERectangleDirections.None;
+
+        int h = index.X * 2;
+        int v = index.Y * 2;
+
+        bool is_start = false;
+        bool is_end = false;
+
+        solution[h + 1, v + 1] = symbol;
+
+        if (_maze.start_end_points != null)
+        {
+            start_cell = _maze.start_end_points.start;
+            end_cell = _maze.start_end_points.end;
+
+            start_direction = _maze.start_end_points.start_direction;
+            end_direction = _maze.start_end_points.end_direction;
+
+            is_start = (index == start_cell.index);
+            is_end = (index == end_cell.index);
+        }
+
+        //Regular Cell
+        if (!is_start && !is_end) {
+            if (_maze.cells[index.X, index.Y].north)
+            {
+                solution[h + 1, v] = symbol;
+            }
+
+            if (_maze.cells[index.X, index.Y].west)
+            {
+                solution[h, v + 1] = symbol;
+            }
+
+            return;
+        }
+
+        //Start Or End Cell
+        if (is_start)
+        {
+            switch(start_direction)
+            {
+                case ERectangleDirections.North:
+                    solution[h + 1, v] = symbol;
+                    break;
+
+                case ERectangleDirections.South:
+                    solution[h + 1, v + 2] = symbol;
+                    break;
+
+                case ERectangleDirections.East:
+                    solution[h + 2, v + 1] = symbol;
+                    break;
+
+                case ERectangleDirections.West:
+                    solution[h, v + 1] = symbol;
+                    break;
+            }
+        }
+
+        if (is_end)
+        {
+            switch (end_direction)
+            {
+                case ERectangleDirections.North:
+                    solution[h + 1, v] = symbol;
+                    break;
+
+                case ERectangleDirections.South:
+                    solution[h + 1, v + 2] = symbol;
+                    break;
+
+                case ERectangleDirections.East:
+                    solution[h + 2, v + 1] = symbol;
+                    break;
+
+                case ERectangleDirections.West:
+                    solution[h, v + 1] = symbol;
                     break;
             }
         }

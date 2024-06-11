@@ -16,4 +16,4 @@ WARNING:
 This application may crash if not used carefully. No limitations have been set on how large you can set the maze, other than the .png image itself. If the Width, Height, Cell Size, or Wall Size are too large, it will crash. Enabling points causes the Maze Generator to do a lot more work. Having a large number of cells will slow down the program. There is no multithreading, so if the mazes you create are large and use pathfinding, it will take a long time to process. This will freeze the main thread, meaning it will freeze the application until that process is finished and the image is generated. Multithreading may be added in the future to resolve this issue.
 
 ## Links
-* [Maze Generator] (https://cameronac.itch.io/maze-generator)
+* [Maze Generator](https://cameronac.itch.io/maze-generator)

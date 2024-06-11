@@ -4,35 +4,35 @@
 
 * 14 Different Maze Algorithms
   
-  ![Algorithms.gif](Gifs\Algorithms.gif)
+  ![Alt Text](Gifs\Algorithms.gif)
 
 * Masking
   
-  ![Masking.gif](Gifs\Masking.gif)
+  ![Alt Text](Gifs\Masking.gif)
 
 * A* Pathfinding and Path Generation
   
-  ![Pathfinding.gif](Gifs\Pathfinding.gif)
+  ![Alt Text](Gifs\Pathfinding.gif)
 
 * Modify Maze width and height
   
-  ![Width and Height.gif](Gifs\Width%20and%20Height.gif)
+  ![Alt Text](Gifs\Width%20and%20Height.gif)
 
 * Modify Cell and Wall size
   
-  ![Cell and Wall Size.gif](Gifs\Cell%20and%20Wall%20Size.gif)
+  ![Alt Text](Gifs\Cell%20and%20Wall%20Size.gif)
 
 * Modifications
   
-  ![Modifications.gif](Gifs\Modifications.gif)
+  ![Alt Text](Gifs\Modifications.gif)
 
 * Modify maze colors
   
-  ![Colors.gif](Gifs\Colors.gif)
+  ![Alt Text](Gifs\Colors.gif)
 
 * Intuitive Interface
   
-  ![Interface.gif](Gifs\Interface.gif)
+  ![Alt Text](Gifs\Interface.gif)
 
 * Export in .png format
 

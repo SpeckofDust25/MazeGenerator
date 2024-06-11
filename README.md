@@ -1,5 +1,14 @@
 # MazeGenerator
 
+## Features
+* 14 Different Maze Algorithms
+* Masking
+* A* Pathfinding
+* Modify Maze width, height, cell and wall sizes
+* Generate new paths
+* Modify maze colors
+* Export in .png format
+
 ## Description
 Maze Generator has many features, including 14 different algorithms, colors, cell size, wall size, number of horizontal cells (width), number of vertical cells (height), points (which determine start and end points), bias (vertical:horizontal), braiding (dead-end removal), paths (solution), image exporter, masking, and an intuitive user interface.
 

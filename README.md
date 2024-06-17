@@ -7,35 +7,35 @@ Maze Generator has many features, including 14 different algorithms, colors, cel
 
 * 14 Different Maze Algorithms
   
-  ![Alt Text](Mp4/Algorithms.mp4)
+  ![Alt Text](Gif/Algorithms.gif)
 
 * Masking
   
-  ![Alt Text](Mp4/Masking.mp4)
+  ![Alt Text](Gif/Masking.gif)
 
 * A* Pathfinding and Path Generation
   
-  ![Alt Text](Mp4/Pathfinding.mp4)
+  ![Alt Text](Gif/Pathfinding.gif)
 
 * Modify Maze width and height
   
-  ![Alt Text](Mp4/Width%20and%20Height.mp4)
+  ![Alt Text](Gif/Width%20and%20Height.gif)
 
 * Modify Cell and Wall size
   
-  ![Alt Text](Mp4/Cell%20and%20Wall%20Size.mp4)
+  ![Alt Text](Gif/Cell%20and%20Wall%20Size.gif)
 
 * Modifications
   
-  ![Alt Text](Mp4/Modifications.mp4)
+  ![Alt Text](Gif/Modifications.gif)
 
 * Modify maze colors
   
-  ![Alt Text](Mp4/Colors.mp4)
+  ![Alt Text](Gif/Colors.gif)
 
 * Intuitive Interface
   
-  ![Alt Text](Mp4/Interface.mp4)
+  ![Alt Text](Gif/Interface.gif)
 
 * Export in .png format
 
